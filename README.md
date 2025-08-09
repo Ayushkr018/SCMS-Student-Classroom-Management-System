@@ -63,3 +63,26 @@
 
 ## 🚀 Live Demo
 
+**🎭 Demo Credentials:**
+
+| Role | Email | Password |
+|------|-------|----------|
+| 👨‍💼 **Admin** | admin@scms.edu | admin123 |
+| 👨‍🏫 **Teacher** | teacher@scms.edu | teacher123 |
+| 🎓 **Student** | student@scms.edu | student123 |
+
+## 🎯 System Overview
+
+SCMS is a comprehensive classroom management solution designed to bridge the gap between traditional and digital education. Built with modern web technologies, it provides seamless integration of attendance tracking, live sessions, assignment management, and performance analytics.
+
+### **🎪 Key Highlights:**
+- ✅ **Zero Setup** - Runs directly in browser, no server required
+- 🔄 **Real-time Updates** - Live synchronization across all modules
+- 📱 **Mobile Responsive** - Works perfectly on all devices
+- 🎨 **Modern UI/UX** - Clean, intuitive, and professional design
+- ⚡ **High Performance** - Optimized for speed and efficiency
+- 🌐 **Cross-browser** - Compatible with all modern browsers
+
+
+
+
