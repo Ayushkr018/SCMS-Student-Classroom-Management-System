@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS - Student Classroom Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1a202c;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow-light: rgba(0,0,0,0.08);
+            --shadow-medium: rgba(0,0,0,0.1);
+            --shadow-heavy: rgba(0,0,0,0.25);
+            --accent-blue: #2563eb;
+            --accent-blue-dark: #1d4ed8;
+            --accent-blue-light: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Colors */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #334155;
+            --border-light: #475569;
+            --shadow-light: rgba(0,0,0,0.3);
+            --shadow-medium: rgba(0,0,0,0.4);
+            --shadow-heavy: rgba(0,0,0,0.6);
+            --accent-blue: #3b82f6;
+            --accent-blue-dark: #2563eb;
+            --accent-blue-light: #60a5fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Allow text selection only for inputs and contenteditable */
+        input, textarea, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent-blue-light), var(--accent-blue-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Theme Toggle in Navigation */
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+            transform: scale(1.05);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .login-button {
+            background: transparent;
+            color: var(--accent-blue);
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--accent-blue);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .login-button:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .signup-button {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .signup-button:hover {
+            background: var(--accent-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px var(--shadow-medium);
+            padding: 1.5rem 2rem;
+        }
+
+        .mobile-nav.show {
+            display: block;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mobile-nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: color 0.3s ease;
+        }
+
+        .mobile-nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .mobile-nav-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mobile-theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .mobile-nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mobile-nav-buttons .login-button,
+        .mobile-nav-buttons .signup-button {
+            text-align: center;
+            padding: 0.875rem 1.5rem;
+            width: 100%;
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--bg-secondary);
+            padding: 5rem 0 4rem;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-highlight {
+            color: var(--accent-blue);
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-medium);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard-preview {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px var(--shadow-medium);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .preview-info h3 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .preview-content {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .preview-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .preview-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .preview-item-icon {
+            width: 35px;
+            height: 35px;
+            background: #e0e7ff;
+            color: var(--accent-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="dark"] .preview-item-icon {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .preview-item-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .preview-item-value {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px var(--shadow-medium);
+            border-color: var(--accent-blue);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .feature-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .feature-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .feature-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .feature-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .feature-icon.indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Role Selection */
+        .roles {
+            padding: 5rem 0;
+            background: var(--bg-secondary);
+            transition: background-color 0.3s ease;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .role-card {
+            background: var(--bg-primary);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px var(--shadow-medium);
+            border-color: var(--role-color);
+        }
+
+        .role-card.admin {
+            --role-color: #ef4444;
+        }
+
+        .role-card.teacher {
+            --role-color: #10b981;
+        }
+
+        .role-card.student {
+            --role-color: #2563eb;
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+            background: var(--role-color);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .role-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .role-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .role-features li {
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .role-features li::before {
+            content: '✓';
+            color: var(--role-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .role-btn {
+            background: var(--role-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-tertiary);
+            color: var(--text-tertiary);
+            padding: 3rem 0 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-blue);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Modal Base Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            box-shadow: 0 25px 50px var(--shadow-heavy);
+            border: 1px solid var(--border-color);
+            max-height: 90vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-secondary);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .modal-btn {
+            width: 100%;
+            background: var(--accent-blue);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            background: var(--accent-blue-dark);
+        }
+
+        .modal-btn:disabled {
+            background: var(--text-tertiary);
+            cursor: not-allowed;
+        }
+
+        /* Dummy Credentials Section */
+        .dummy-credentials {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dummy-credentials-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dummy-credentials-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .dummy-credential-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .dummy-credential-role {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dummy-credential-role.admin {
+            color: #dc2626;
+        }
+
+        .dummy-credential-role.teacher {
+            color: #16a34a;
+        }
+
+        .dummy-credential-role.student {
+            color: #2563eb;
+        }
+
+        .dummy-credential-details {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .dummy-credential-details strong {
+            color: var(--text-primary);
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .demo-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .demo-title {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .demo-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .demo-btn {
+            padding: 0.75rem 1rem;
+            border: 2px solid;
+            border-radius: 10px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .demo-btn.admin {
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .demo-btn.admin:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .demo-btn.teacher {
+            border-color: #bbf7d0;
+            color: #16a34a;
+        }
+
+        .demo-btn.teacher:hover {
+            background: #16a34a;
+            color: white;
+        }
+
+        .demo-btn.student {
+            border-color: #bfdbfe;
+            color: #2563eb;
+        }
+
+        .demo-btn.student:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Modal Switch Links */
+        .modal-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .modal-switch-text {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-switch-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-switch-link:hover {
+            color: var(--accent-blue-dark);
+        }
+
+        /* Signup Warning */
+        .signup-warning {
+            background: #fef3cd;
+            color: #8b5a00;
+            border: 1px solid #f0c040;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        [data-theme="dark"] .signup-warning {
+            background: #422006;
+            color: #fbbf24;
+            border-color: #78350f;
+        }
+
+        .signup-warning-icon {
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .signup-warning-content {
+            flex: 1;
+        }
+
+        .signup-warning-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .signup-warning-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { background: #10b981; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #2563eb; }
+        .notification.warning { background: #f59e0b; color: #1a202c; }
+
+        /* Enhanced Mobile Responsive Design */
+        @media (max-width: 1024px) {
+            .nav-container {
+                padding: 0 1.5rem;
+            }
+            
+            .hero-container {
+                gap: 3rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .nav-right {
+                gap: 0.5rem;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .header-buttons {
+                gap: 0.5rem;
+            }
+
+            .header-buttons .login-button,
+            .header-buttons .signup-button {
+                padding: 0.625rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                text-align: center;
+                padding: 0 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-description {
+                font-size: 1.1rem;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .hero-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .modal-content {
+                padding: 2rem;
+                margin: 1rem;
+                max-width: calc(100vw - 2rem);
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-container,
+            .hero,
+            .roles {
+                padding: 3rem 0;
+            }
+
+            .dummy-credentials {
+                padding: 1rem;
+            }
+
+            .dummy-credential-details {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .logo-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .theme-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .header-buttons .login-button,
+            .header-buttons .signup-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.75rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
+            .demo-buttons {
+                gap: 0.5rem;
+            }
+
+            .mobile-nav-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .hero-stats {
+                gap: 1rem;
+            }
+
+            .dummy-credentials {
+                padding: 0.75rem;
+            }
+
+            .signup-warning {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .nav-container {
+                padding: 0 0.75rem;
+            }
+
+            .hero-container {
+                padding: 0 0.75rem;
+            }
+
+            .features-container {
+                padding: 0 0.75rem;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .modal-content {
+                padding: 1.25rem;
+                margin: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <span>SCMS</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#roles">Access Portal</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            
+            <div class="nav-right">
+                <!-- Theme Toggle in Navigation -->
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                
+                <div class="header-buttons">
+                    <button class="mobile-menu" onclick="toggleMobileNav()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="login-button" onclick="openLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                    <button class="signup-button" onclick="openSignupModal()">
+                        <i class="fas fa-user-plus"></i>
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <div class="mobile-nav-controls">
+                    <div class="mobile-theme-toggle">
+                        <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                        <span>Dark Mode</span>
+                        <button class="theme-toggle" onclick="toggleTheme()">
+                            <i class="fas fa-toggle-off" id="toggleSwitch"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mobile-nav-links">
+                    <a href="#features" onclick="closeMobileNav()">Features</a>
+                    <a href="#roles" onclick="closeMobileNav()">Access Portal</a>
+                    <a href="#about" onclick="closeMobileNav()">About</a>
+                    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+                </div>
+                <div class="mobile-nav-buttons">
+                    <button class="login-button" onclick="openLoginModal(); closeMobileNav();">Login</button>
+                    <button class="signup-button" onclick="openSignupModal(); closeMobileNav();">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>
+                    Smart Classroom Management for the 
+                    <span class="hero-highlight">Digital Age</span>
+                </h1>
+                <p class="hero-description">
+                    Revolutionary education platform with AI-powered attendance tracking, 
+                    real-time analytics, and seamless classroom management tools.
+                </p>
+                
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="openSignupModal()">
+                        <i class="fas fa-rocket"></i>
+                        Get Started Free
+                    </button>
+                    <a href="#features" class="btn-secondary">
+                        <i class="fas fa-play-circle"></i>
+                        Watch Demo
+                    </a>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2,500+</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">98.5%</span>
+                        <span class="stat-label">Accuracy Rate</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <div class="preview-header">
+                        <div class="preview-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="preview-info">
+                            <h3>Live Dashboard</h3>
+                            <p>Real-time classroom insights</p>
+                        </div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <span class="preview-item-text">Today's Attendance</span>
+                            </div>
+                            <span class="preview-item-value">94.2%</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <span class="preview-item-text">Active Classes</span>
+                            </div>
+                            <span class="preview-item-value">12</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <span class="preview-item-text">Assignments Due</span>
+                            </div>
+                            <span class="preview-item-value">5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful Features for Modern Education</h2>
+                <p class="section-description">
+                    Everything you need to manage classrooms efficiently and enhance learning outcomes
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon blue">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Attendance Tracking</h3>
+                    <p class="feature-description">
+                        Advanced QR code and facial recognition system with real-time attendance monitoring and automated notifications.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-description">
+                        Comprehensive dashboards with student performance tracking, attendance patterns, and predictive insights.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="feature-title">Interactive Live Sessions</h3>
+                    <p class="feature-description">
+                        Virtual classrooms with whiteboard tools, screen sharing, polls, and real-time student engagement features.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon orange">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="feature-title">Assignment Management</h3>
+                    <p class="feature-description">
+                        Complete assignment lifecycle with submission tracking, automated grading, and detailed feedback systems.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon red">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Responsive</h3>
+                    <p class="feature-description">
+                        Fully optimized mobile experience with offline capabilities and native app-like performance.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon indigo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-description">
+                        Bank-level security with data encryption, role-based access control, and compliance with educational standards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role Selection -->
+    <section class="roles" id="roles">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Choose Your Access Portal</h2>
+                <p class="section-description">
+                    Select your role to access personalized dashboard and features
+                </p>
+            </div>
+
+            <div class="roles-grid">
+                <div class="role-card admin" onclick="selectRole('admin')">
+                    <div class="role-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="role-title">Administrator</h3>
+                    <p class="role-description">
+                        Complete system management with advanced analytics and user control capabilities.
+                    </p>
+                    <ul class="role-features">
+                        <li>User Management & Control</li>
+                        <li>System-wide Analytics</li>
+                        <li>Security & Compliance</li>
+                        <li>Advanced Reporting</li>
+                    </ul>
+                    <button class="role-btn">Access Admin Portal</button>
+                </div>
+
+                <div class="role-card teacher" onclick="selectRole('teacher')">
+                    <div class="role-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="role-title">Teacher</h3>
+                    <p class="role-description">
+                        Comprehensive classroom management tools for modern educators and faculty members.
+                    </p>
+                    <ul class="role-features">
+                        <li>Live Session Management</li>
+                        <li>Attendance Tracking</li>
+                        <li>Assignment Creation</li>
+                        <li>Student Analytics</li>
+                    </ul>
+                    <button class="role-btn">Access Teacher Portal</button>
+                </div>
+
+                <div class="role-card student" onclick="selectRole('student')">
+                    <div class="role-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 class="role-title">Student</h3>
+                    <p class="role-description">
+                        Personalized learning dashboard with progress tracking and interactive tools.
+                    </p>
+                    <ul class="role-features">
+                        <li>Digital Check-in</li>
+                        <li>Assignment Submission</li>
+                        <li>Grade Tracking</li>
+                        <li>Live Class Participation</li>
+                    </ul>
+                    <button class="role-btn">Access Student Portal</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SCMS Platform</h3>
+                    <p>Smart Classroom Management System for modern educational institutions</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <p><a href="#features">Features</a></p>
+                    <p><a href="#roles">Access Portal</a></p>
+                    <p><a href="#about">About Us</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <p><a href="#help">Help Center</a></p>
+                    <p><a href="#docs">Documentation</a></p>
+                    <p><a href="#contact">Contact Support</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SCMS - Student Classroom Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome Back!</h2>
+                <p class="modal-subtitle">Sign in to your account</p>
+            </div>
+
+            <!-- Dummy Credentials Display -->
+            <div class="dummy-credentials">
+                <div class="dummy-credentials-title">
+                    <i class="fas fa-key"></i>
+                    Demo Login Credentials
+                </div>
+                <div class="dummy-credentials-grid">
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role admin">
+                            <i class="fas fa-user-shield"></i>
+                            Administrator
+                            <button class="copy-btn" onclick="fillCredentials('admin@scms.edu', 'admin123', 'admin')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> admin@scms.edu<br>
+                            <strong>Password:</strong> admin123
+                        </div>
+                    </div>
+                    
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role teacher">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Teacher
+                            <button class="copy-btn" onclick="fillCredentials('teacher@scms.edu', 'teacher123', 'teacher')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> teacher@scms.edu<br>
+                            <strong>Password:</strong> teacher123
+                        </div>
+                    </div>
+                    
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role student">
+                            <i class="fas fa-user-graduate"></i>
+                            Student
+                            <button class="copy-btn" onclick="fillCredentials('student@scms.edu', 'student123', 'student')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> student@scms.edu<br>
+                            <strong>Password:</strong> student123
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-input" id="loginRole" required>
+                        <option value="">Select your role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="modal-btn" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="modal-switch">
+                <div class="modal-switch-text">Don't have an account?</div>
+                <span class="modal-switch-link" onclick="switchToSignup()">Create Account</span>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-title">Quick Demo Access</div>
+                <div class="demo-buttons">
+                    <button class="demo-btn admin" onclick="quickDemo('admin')">
+                        <i class="fas fa-user-shield"></i>
+                        Admin Demo
+                    </button>
+                    <button class="demo-btn teacher" onclick="quickDemo('teacher')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Teacher Demo
+                    </button>
+                    <button class="demo-btn student" onclick="quickDemo('student')">
+                        <i class="fas fa-user-graduate"></i>
+                        Student Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSignupModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Sign Up Currently Disabled</h2>
+                <p class="modal-subtitle">Database integration in progress</p>
+            </div>
+
+            <!-- Signup Warning -->
+            <div class="signup-warning">
+                <div class="signup-warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="signup-warning-content">
+                    <div class="signup-warning-title">Feature Under Development</div>
+                    <div class="signup-warning-text">
+                        Sign up functionality is currently disabled as we're working on backend integration and database setup. 
+                        Please use the demo login credentials provided in the login section to explore the platform.
+                    </div>
+                </div>
+            </div>
+
+            <div style="opacity: 0.5; pointer-events: none;">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your full name" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter your email" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="Enter your phone number" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-input" disabled>
+                            <option value="">Select your role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="Create a password" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" placeholder="Confirm your password" disabled>
+                    </div>
+
+                    <button type="button" class="modal-btn" disabled>
+                        Create Account (Disabled)
+                    </button>
+                </form>
+            </div>
+
+            <div class="modal-switch">
+                <div class="modal-switch-text">Want to explore the platform?</div>
+                <span class="modal-switch-link" onclick="switchToLogin()">Use Demo Login</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('scms-theme') || 'light';
+            const themeIcon = document.getElementById('themeIcon');
+            const mobileThemeIcon = document.getElementById('mobileThemeIcon');
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                mobileThemeIcon.className = 'fas fa-sun';
+                toggleSwitch.className = 'fas fa-toggle-on';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+                mobileThemeIcon.className = 'fas fa-moon';
+                toggleSwitch.className = 'fas fa-toggle-off';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const themeIcon = document.getElementById('themeIcon');
+            const mobileThemeIcon = document.getElementById('mobileThemeIcon');
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('scms-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+                mobileThemeIcon.className = 'fas fa-moon';
+                toggleSwitch.className = 'fas fa-toggle-off';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('scms-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                mobileThemeIcon.className = 'fas fa-sun';
+                toggleSwitch.className = 'fas fa-toggle-on';
+            }
+        }
+
+        // Demo users with specific credentials
+        const DEMO_CREDENTIALS = {
+            admin: {
+                email: 'admin@scms.edu',
+                password: 'admin123',
+                user: {
+                    id: 'admin_001',
+                    name: 'Dr. Sarah Johnson',
+                    email: 'admin@scms.edu',
+                    role: 'admin'
+                }
+            },
+            teacher: {
+                email: 'teacher@scms.edu',
+                password: 'teacher123',
+                user: {
+                    id: 'teacher_001',
+                    name: 'Prof. Michael Chen',
+                    email: 'teacher@scms.edu',
+                    role: 'teacher',
+                    department: 'Computer Science'
+                }
+            },
+            student: {
+                email: 'student@scms.edu',
+                password: 'student123',
+                user: {
+                    id: 'student_001',
+                    name: 'Raj Kumar',
+                    email: 'student@scms.edu',
+                    role: 'student',
+                    rollNumber: 'CS2023001'
+                }
+            }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            animateNumbers();
+        });
+
+        // Fill credentials function
+        function fillCredentials(email, password, role) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+            document.getElementById('loginRole').value = role;
+            showNotification('Credentials filled! Click Sign In to continue.', 'info');
+        }
+
+        // Mobile navigation functions
+        function toggleMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('show');
+        }
+
+        function closeMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.remove('show');
+        }
+
+        // Select role function
+        function selectRole(role) {
+            document.getElementById('loginRole').value = role;
+            openLoginModal();
+        }
+
+        // Modal functions
+        function openLoginModal() {
+            closeSignupModal();
+            document.getElementById('loginModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openSignupModal() {
+            closeLoginModal();
+            document.getElementById('signupModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            showNotification('Signup is currently disabled. Use demo credentials to login.', 'warning');
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signupModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Switch between modals
+        function switchToSignup() {
+            closeLoginModal();
+            setTimeout(() => openSignupModal(), 300);
+        }
+
+        function switchToLogin() {
+            closeSignupModal();
+            setTimeout(() => openLoginModal(), 300);
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+
+            // Check against demo credentials
+            const demoCredential = DEMO_CREDENTIALS[role];
+            
+            if (demoCredential && 
+                email === demoCredential.email && 
+                password === demoCredential.password) {
+                
+                showNotification('Login successful! Redirecting...', 'success');
+                
+                // Store user session
+                localStorage.setItem('scms_current_user', JSON.stringify(demoCredential.user));
+                
+                setTimeout(() => {
+                    redirectToDashboard(role);
+                }, 2000);
+            } else {
+                showNotification('Invalid credentials. Please use the demo credentials provided above.', 'error');
+            }
+        }
+
+        // Quick demo access
+        function quickDemo(role) {
+            const demoCredential = DEMO_CREDENTIALS[role];
+            
+            showNotification(`Accessing ${role} demo...`, 'info');
+            
+            localStorage.setItem('scms_current_user', JSON.stringify(demoCredential.user));
+            
+            setTimeout(() => {
+                redirectToDashboard(role);
+            }, 1500);
+        }
+
+        // Redirect to dashboard
+        function redirectToDashboard(role) {
+            const dashboards = {
+                admin: 'admin/dashboard.html',
+                teacher: 'teacher/dashboard.html',
+                student: 'student/dashboard.html'
+            };
+            window.location.href = dashboards[role] || '#';
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const existing = document.querySelectorAll('.notification');
+            existing.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-times-circle',
+                info: 'fas fa-info-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
+
+            notification.innerHTML = `
+                <i class="${icons[type]}"></i>
+                ${message}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Animate numbers
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(num => {
+                const text = num.textContent;
+                let target = 0;
+                let suffix = '';
+                
+                if (text.includes('+')) {
+                    target = parseInt(text.replace(/\D/g, ''));
+                    suffix = text.includes(',') ? ',000+' : '+';
+                } else if (text.includes('%')) {
+                    target = parseFloat(text.replace('%', ''));
+                    suffix = '%';
+                } else if (text.includes('/')) {
+                    num.textContent = text;
+                    return;
+                }
+                
+                let current = 0;
+                const increment = target / 50;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    if (suffix.includes(',')) {
+                        num.textContent = Math.floor(current).toLocaleString() + '+';
+                    } else {
+                        num.textContent = (suffix === '%' ? current.toFixed(1) : Math.floor(current)) + suffix;
+                    }
+                }, 40);
+            });
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+
+        document.getElementById('signupModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSignupModal();
+            }
+        });
+
+        // Close mobile nav when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileMenuBtn = document.querySelector('.mobile-menu');
+            
+            if (!mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileNav.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
