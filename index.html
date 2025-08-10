@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS - Student Classroom Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <span>SCMS</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#roles">Access Portal</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            
+            <div class="nav-right">
+                <!-- Theme Toggle in Navigation -->
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                
+                <div class="header-buttons">
+                    <button class="mobile-menu" onclick="toggleMobileNav()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="login-button" onclick="openLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                    <button class="signup-button" onclick="openSignupModal()">
+                        <i class="fas fa-user-plus"></i>
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <div class="mobile-nav-controls">
+                    <div class="mobile-theme-toggle">
+                        <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                        <span>Dark Mode</span>
+                        <button class="theme-toggle" onclick="toggleTheme()">
+                            <i class="fas fa-toggle-off" id="toggleSwitch"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mobile-nav-links">
+                    <a href="#features" onclick="closeMobileNav()">Features</a>
+                    <a href="#roles" onclick="closeMobileNav()">Access Portal</a>
+                    <a href="#about" onclick="closeMobileNav()">About</a>
+                    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+                </div>
+                <div class="mobile-nav-buttons">
+                    <button class="login-button" onclick="openLoginModal(); closeMobileNav();">Login</button>
+                    <button class="signup-button" onclick="openSignupModal(); closeMobileNav();">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>
+                    Smart Classroom Management for the 
+                    <span class="hero-highlight">Digital Age</span>
+                </h1>
+                <p class="hero-description">
+                    Revolutionary education platform with AI-powered attendance tracking, 
+                    real-time analytics, and seamless classroom management tools.
+                </p>
+                
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="openSignupModal()">
+                        <i class="fas fa-rocket"></i>
+                        Get Started Free
+                    </button>
+                    <a href="#features" class="btn-secondary">
+                        <i class="fas fa-play-circle"></i>
+                        Watch Demo
+                    </a>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2,500+</span>
+                        <span class="stat-label">Active Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">98.5%</span>
+                        <span class="stat-label">Accuracy Rate</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <div class="preview-header">
+                        <div class="preview-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="preview-info">
+                            <h3>Live Dashboard</h3>
+                            <p>Real-time classroom insights</p>
+                        </div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <span class="preview-item-text">Today's Attendance</span>
+                            </div>
+                            <span class="preview-item-value">94.2%</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <span class="preview-item-text">Active Classes</span>
+                            </div>
+                            <span class="preview-item-value">12</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-item-left">
+                                <div class="preview-item-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <span class="preview-item-text">Assignments Due</span>
+                            </div>
+                            <span class="preview-item-value">5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful Features for Modern Education</h2>
+                <p class="section-description">
+                    Everything you need to manage classrooms efficiently and enhance learning outcomes
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon blue">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Attendance Tracking</h3>
+                    <p class="feature-description">
+                        Advanced QR code and facial recognition system with real-time attendance monitoring and automated notifications.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-description">
+                        Comprehensive dashboards with student performance tracking, attendance patterns, and predictive insights.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="feature-title">Interactive Live Sessions</h3>
+                    <p class="feature-description">
+                        Virtual classrooms with whiteboard tools, screen sharing, polls, and real-time student engagement features.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon orange">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="feature-title">Assignment Management</h3>
+                    <p class="feature-description">
+                        Complete assignment lifecycle with submission tracking, automated grading, and detailed feedback systems.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon red">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Responsive</h3>
+                    <p class="feature-description">
+                        Fully optimized mobile experience with offline capabilities and native app-like performance.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon indigo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-description">
+                        Bank-level security with data encryption, role-based access control, and compliance with educational standards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role Selection -->
+    <section class="roles" id="roles">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Choose Your Access Portal</h2>
+                <p class="section-description">
+                    Select your role to access personalized dashboard and features
+                </p>
+            </div>
+
+            <div class="roles-grid">
+                <div class="role-card admin" onclick="selectRole('admin')">
+                    <div class="role-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="role-title">Administrator</h3>
+                    <p class="role-description">
+                        Complete system management with advanced analytics and user control capabilities.
+                    </p>
+                    <ul class="role-features">
+                        <li>User Management & Control</li>
+                        <li>System-wide Analytics</li>
+                        <li>Security & Compliance</li>
+                        <li>Advanced Reporting</li>
+                    </ul>
+                    <button class="role-btn">Access Admin Portal</button>
+                </div>
+
+                <div class="role-card teacher" onclick="selectRole('teacher')">
+                    <div class="role-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="role-title">Teacher</h3>
+                    <p class="role-description">
+                        Comprehensive classroom management tools for modern educators and faculty members.
+                    </p>
+                    <ul class="role-features">
+                        <li>Live Session Management</li>
+                        <li>Attendance Tracking</li>
+                        <li>Assignment Creation</li>
+                        <li>Student Analytics</li>
+                    </ul>
+                    <button class="role-btn">Access Teacher Portal</button>
+                </div>
+
+                <div class="role-card student" onclick="selectRole('student')">
+                    <div class="role-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 class="role-title">Student</h3>
+                    <p class="role-description">
+                        Personalized learning dashboard with progress tracking and interactive tools.
+                    </p>
+                    <ul class="role-features">
+                        <li>Digital Check-in</li>
+                        <li>Assignment Submission</li>
+                        <li>Grade Tracking</li>
+                        <li>Live Class Participation</li>
+                    </ul>
+                    <button class="role-btn">Access Student Portal</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SCMS Platform</h3>
+                    <p>Smart Classroom Management System for modern educational institutions</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <p><a href="#features">Features</a></p>
+                    <p><a href="#roles">Access Portal</a></p>
+                    <p><a href="#about">About Us</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <p><a href="#help">Help Center</a></p>
+                    <p><a href="#docs">Documentation</a></p>
+                    <p><a href="#contact">Contact Support</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SCMS - Student Classroom Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome Back!</h2>
+                <p class="modal-subtitle">Sign in to your account</p>
+            </div>
+
+            <!-- Dummy Credentials Display -->
+            <div class="dummy-credentials">
+                <div class="dummy-credentials-title">
+                    <i class="fas fa-key"></i>
+                    Demo Login Credentials
+                </div>
+                <div class="dummy-credentials-grid">
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role admin">
+                            <i class="fas fa-user-shield"></i>
+                            Administrator
+                            <button class="copy-btn" onclick="fillCredentials('admin@scms.edu', 'admin123', 'admin')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> admin@scms.edu<br>
+                            <strong>Password:</strong> admin123
+                        </div>
+                    </div>
+                    
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role teacher">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Teacher
+                            <button class="copy-btn" onclick="fillCredentials('teacher@scms.edu', 'teacher123', 'teacher')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> teacher@scms.edu<br>
+                            <strong>Password:</strong> teacher123
+                        </div>
+                    </div>
+                    
+                    <div class="dummy-credential-item">
+                        <div class="dummy-credential-role student">
+                            <i class="fas fa-user-graduate"></i>
+                            Student
+                            <button class="copy-btn" onclick="fillCredentials('student@scms.edu', 'student123', 'student')">Fill</button>
+                        </div>
+                        <div class="dummy-credential-details">
+                            <strong>Email:</strong> student@scms.edu<br>
+                            <strong>Password:</strong> student123
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-input" id="loginRole" required>
+                        <option value="">Select your role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="modal-btn" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="modal-switch">
+                <div class="modal-switch-text">Don't have an account?</div>
+                <span class="modal-switch-link" onclick="switchToSignup()">Create Account</span>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-title">Quick Demo Access</div>
+                <div class="demo-buttons">
+                    <button class="demo-btn admin" onclick="quickDemo('admin')">
+                        <i class="fas fa-user-shield"></i>
+                        Admin Demo
+                    </button>
+                    <button class="demo-btn teacher" onclick="quickDemo('teacher')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Teacher Demo
+                    </button>
+                    <button class="demo-btn student" onclick="quickDemo('student')">
+                        <i class="fas fa-user-graduate"></i>
+                        Student Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSignupModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Sign Up Currently Disabled</h2>
+                <p class="modal-subtitle">Database integration in progress</p>
+            </div>
+
+            <!-- Signup Warning -->
+            <div class="signup-warning">
+                <div class="signup-warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="signup-warning-content">
+                    <div class="signup-warning-title">Feature Under Development</div>
+                    <div class="signup-warning-text">
+                        Sign up functionality is currently disabled as we're working on backend integration and database setup. 
+                        Please use the demo login credentials provided in the login section to explore the platform.
+                    </div>
+                </div>
+            </div>
+
+            <div style="opacity: 0.5; pointer-events: none;">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your full name" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter your email" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="Enter your phone number" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-input" disabled>
+                            <option value="">Select your role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="Create a password" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" placeholder="Confirm your password" disabled>
+                    </div>
+
+                    <button type="button" class="modal-btn" disabled>
+                        Create Account (Disabled)
+                    </button>
+                </form>
+            </div>
+
+            <div class="modal-switch">
+                <div class="modal-switch-text">Want to explore the platform?</div>
+                <span class="modal-switch-link" onclick="switchToLogin()">Use Demo Login</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
