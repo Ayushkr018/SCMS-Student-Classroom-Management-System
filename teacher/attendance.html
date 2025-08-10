@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - SCMS Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="attendance.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Teacher</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-chalkboard"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>✅ Attendance Management</h1>
+                    <p>Track and manage student attendance across all classes</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="bulkMarkAttendance()">
+                        <i class="fas fa-users-cog"></i>
+                        Bulk Mark
+                    </button>
+                    <button class="btn btn-primary" onclick="exportAttendance()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Controls -->
+            <div class="attendance-controls">
+                <h3>📋 Attendance Controls</h3>
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label>Select Class</label>
+                        <select id="classSelect" onchange="changeClass()">
+                            <option value="cs101" selected>CS101 - Data Structures</option>
+                            <option value="cs102">CS102 - Algorithms</option>
+                            <option value="cs103">CS103 - Database Systems</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Date</label>
+                        <input type="date" id="attendanceDate" onchange="filterByDate()" 
+                               value="2024-01-15">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Session Time</label>
+                        <select id="sessionTime" onchange="filterBySession()">
+                            <option value="current" selected>Current Session</option>
+                            <option value="morning">Morning (9:00 AM)</option>
+                            <option value="afternoon">Afternoon (2:00 PM)</option>
+                            <option value="evening">Evening (5:00 PM)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Filter by Status</label>
+                        <select id="statusFilter" onchange="filterByStatus()">
+                            <option value="all" selected>All Students</option>
+                            <option value="present">Present Only</option>
+                            <option value="absent">Absent Only</option>
+                            <option value="late">Late Only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="startAttendanceSession()">
+                        <i class="fas fa-play-circle"></i>
+                        Start Session
+                    </button>
+                    <button class="btn btn-success" onclick="markAllPresent()">
+                        <i class="fas fa-check-double"></i>
+                        Mark All Present
+                    </button>
+                    <button class="btn btn-warning" onclick="sendReminder()">
+                        <i class="fas fa-bell"></i>
+                        Send Reminder
+                    </button>
+                    <button class="btn btn-danger" onclick="endSession()">
+                        <i class="fas fa-stop-circle"></i>
+                        End Session
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Stats -->
+            <div class="stats-row">
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number" id="totalStudents">45</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                
+                <div class="stat-card present">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-number" id="presentStudents">0</div>
+                    <div class="stat-label">Present</div>
+                </div>
+                
+                <div class="stat-card late">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-number" id="lateStudents">0</div>
+                    <div class="stat-label">Late</div>
+                </div>
+                
+                <div class="stat-card absent">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="stat-number" id="absentStudents">45</div>
+                    <div class="stat-label">Absent</div>
+                </div>
+            </div>
+
+            <!-- Attendance Methods -->
+            <div class="attendance-methods">
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <h3>QR Code Scanner</h3>
+                    </div>
+                    <div class="method-body">
+                        <p>Students scan QR code to mark attendance instantly</p>
+                        <button class="method-btn" onclick="openQRScanner()">
+                            Open QR Scanner
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <h3>Face Recognition</h3>
+                    </div>
+                    <div class="method-body">
+                        <p>AI-powered facial recognition for automatic attendance</p>
+                        <button class="method-btn" onclick="startFaceRecognition()">
+                            Start Face Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3>Geolocation</h3>
+                    </div>
+                    <div class="method-body">
+                        <p>Location-based attendance with GPS verification</p>
+                        <button class="method-btn" onclick="enableGeoAttendance()">
+                            Enable Geo-Attendance
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="method-card">
+                    <div class="method-header">
+                        <div class="method-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <h3>Manual Entry</h3>
+                    </div>
+                    <div class="method-body">
+                        <p>Traditional roll call and manual attendance marking</p>
+                        <button class="method-btn active" onclick="enableManualEntry()">
+                            Manual Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="attendance-table">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Student Attendance - CS101 Data Structures</h3>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span id="sessionStatus">
+                            <i class="fas fa-circle"></i> Session Active
+                        </span>
+                        <button class="btn btn-primary" onclick="refreshTable()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th>Student</th>
+                                <th>Roll Number</th>
+                                <th>Status</th>
+                                <th>Check-in Time</th>
+                                <th>Method</th>
+                                <th>Confidence</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Table data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div class="scanner-overlay" id="scannerOverlay">
+        <div class="scanner-modal">
+            <button class="scanner-close" onclick="closeScanners()">&times;</button>
+            <h3 style="margin-bottom: 15px;">📱 QR Code Scanner</h3>
+            <div class="scanner-area">
+                <div class="scan-line"></div>
+                <div class="scanner-area-content">
+                    <i class="fas fa-qrcode scanner-area-icon"></i>
+                    Scanning for QR codes...
+                </div>
+            </div>
+            <p style="margin-top: 15px;">
+                Students should show their QR codes to the scanner
+            </p>
+            <button class="btn btn-success" onclick="simulateQRScan()" style="margin-top: 15px;">
+                <i class="fas fa-magic"></i>
+                Simulate QR Scan
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Scanner Button -->
+    <div class="floating-scanner" onclick="openQRScanner()" title="Quick QR Scanner">
+        <i class="fas fa-qrcode"></i>
+    </div>
+
+    <script src="attendance.js"></script>
+</body>
+</html>

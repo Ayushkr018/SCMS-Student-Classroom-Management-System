@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Management - SCMS Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="resources.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Resources</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-chalkboard"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>🔧 Resource Management</h1>
+                    <p>Book and manage classroom equipment and facilities</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openQuickBooking()">
+                        <i class="fas fa-plus"></i>
+                        Quick Book
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshResources()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resource Filters -->
+            <div class="resource-filters">
+                <h3 style="margin-bottom: 20px;">🔍 Find Resources</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Resource Type</label>
+                        <select id="typeFilter" onchange="filterResources()">
+                            <option value="">All Types</option>
+                            <option value="projector">Projectors</option>
+                            <option value="computer">Computers</option>
+                            <option value="smartboard">Smart Boards</option>
+                            <option value="audio">Audio Systems</option>
+                            <option value="camera">Cameras</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Availability</label>
+                        <select id="statusFilter" onchange="filterResources()">
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="booked">Currently Booked</option>
+                            <option value="maintenance">Under Maintenance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Location/Building</label>
+                        <select id="locationFilter" onchange="filterResources()">
+                            <option value="">All Locations</option>
+                            <option value="cs_block">Computer Science Block</option>
+                            <option value="math_block">Mathematics Block</option>
+                            <option value="physics_block">Physics Block</option>
+                            <option value="library">Library</option>
+                            <option value="auditorium">Auditorium</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Date</label>
+                        <input type="date" id="dateFilter" onchange="filterResources()" 
+                               value="2024-01-15">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-number" id="totalResources">24</div>
+                    <div class="stat-label">Total Resources</div>
+                </div>
+                
+                <div class="stat-card available">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="availableResources">18</div>
+                    <div class="stat-label">Available</div>
+                </div>
+                
+                <div class="stat-card booked">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-number" id="bookedResources">4</div>
+                    <div class="stat-label">Booked</div>
+                </div>
+                
+                <div class="stat-card maintenance">
+                    <div class="stat-icon">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <div class="stat-number" id="maintenanceResources">2</div>
+                    <div class="stat-label">Maintenance</div>
+                </div>
+            </div>
+
+            <!-- Resources Grid -->
+            <div class="resources-grid" id="resourcesGrid">
+                <!-- Resources will be loaded here -->
+            </div>
+
+            <!-- My Bookings Section -->
+            <div class="my-bookings">
+                <div class="bookings-header">
+                    <h3><i class="fas fa-calendar-alt"></i> My Current Bookings</h3>
+                    <button class="btn btn-info" onclick="viewAllBookings()">
+                        <i class="fas fa-list"></i>
+                        View All
+                    </button>
+                </div>
+                <div id="myBookingsList">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="booking-modal" id="bookingModal">
+        <div class="booking-form">
+            <div class="modal-header">
+                <h3 id="modalTitle">Book Resource</h3>
+                <button class="close-btn" onclick="closeBookingModal()">&times;</button>
+            </div>
+            
+            <form id="bookingForm" onsubmit="submitBooking(event)">
+                <div class="form-group">
+                    <label>Resource *</label>
+                    <select id="resourceSelect" required onchange="updateTimeSlots()">
+                        <option value="">Select Resource</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="bookingDate" required onchange="updateTimeSlots()"
+                           value="2024-01-15">
+                </div>
+                
+                <div class="form-group">
+                    <label>Duration *</label>
+                    <select id="bookingDuration" required>
+                        <option value="">Select Duration</option>
+                        <option value="30">30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                        <option value="240">4 hours</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Time Slot *</label>
+                    <div class="time-slots" id="timeSlots">
+                        <!-- Time slots will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Class/Purpose *</label>
+                    <select id="bookingPurpose" required>
+                        <option value="">Select Class/Purpose</option>
+                        <option value="cs101">CS101 - Data Structures</option>
+                        <option value="cs102">CS102 - Algorithms</option>
+                        <option value="cs103">CS103 - Database Systems</option>
+                        <option value="meeting">Faculty Meeting</option>
+                        <option value="research">Research Work</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Special Requirements</label>
+                    <textarea id="specialRequirements" rows="3" 
+                              placeholder="Any special setup or requirements..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Contact Number *</label>
+                    <input type="tel" id="contactNumber" placeholder="+1-555-0123" required>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-calendar-plus"></i>
+                        Confirm Booking
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeBookingModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Book Button -->
+    <div class="floating-book" onclick="openQuickBooking()" title="Quick Book Resource">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <script src="resources.js"></script>
+</body>
+</html>
