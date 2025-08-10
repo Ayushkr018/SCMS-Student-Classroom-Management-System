@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - SCMS Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assignment.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Student</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Student Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-roll" id="userRoll">CS2023001</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="checkin.html">
+                            <i class="fas fa-qrcode"></i>
+                            Check-in
+                        </a>
+                    </li>
+                    <li>
+                        <a href="interactive.html">
+                            <i class="fas fa-users"></i>
+                            Live Class
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="grades.html">
+                            <i class="fas fa-chart-line"></i>
+                            Grades
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>📝 My Assignments</h1>
+                    <p>Track and submit your academic assignments</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openQuickSubmit()">
+                        <i class="fas fa-upload"></i>
+                        Quick Submit
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshAssignments()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Subject</label>
+                    <select id="subjectFilter" onchange="filterAssignments()">
+                        <option value="">All Subjects</option>
+                        <option value="cs101">CS101 - Data Structures</option>
+                        <option value="cs102">CS102 - Algorithms</option>
+                        <option value="cs103">CS103 - Database Systems</option>
+                        <option value="math201">MATH201 - Statistics</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="statusFilter" onchange="filterAssignments()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="graded">Graded</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Due Date</label>
+                    <input type="date" id="dateFilter" onchange="filterAssignments()">
+                </div>
+                
+                <div class="filter-tags">
+                    <div class="filter-tag active" onclick="toggleFilter('all')">All</div>
+                    <div class="filter-tag" onclick="toggleFilter('urgent')">Urgent</div>
+                    <div class="filter-tag" onclick="toggleFilter('recent')">Recent</div>
+                    <div class="filter-tag" onclick="toggleFilter('completed')">Completed</div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card pending">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="pendingCount">5</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-change negative">2 due soon</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card submitted">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="submittedCount">8</div>
+                        <div class="stat-label">Submitted</div>
+                        <div class="stat-change positive">+2 this week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card graded">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="gradedCount">12</div>
+                        <div class="stat-label">Graded</div>
+                        <div class="stat-change positive">Avg: 8.5/10</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card overdue">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="overdueCount">1</div>
+                        <div class="stat-label">Overdue</div>
+                        <div class="stat-change negative">Action needed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignments Grid -->
+            <div class="assignments-grid" id="assignmentsGrid">
+                <!-- Urgent Overdue Assignment -->
+                <div class="assignment-card overdue">
+                    <div class="assignment-header">
+                        <div class="assignment-info">
+                            <div class="assignment-course">CS101 - Data Structures</div>
+                            <div class="assignment-title">Binary Trees Implementation</div>
+                            <div class="assignment-teacher">Prof. Michael Chen</div>
+                            <div class="assignment-type">Programming</div>
+                        </div>
+                        <div class="assignment-status">
+                            <div class="status-badge status-overdue">Overdue</div>
+                            <div class="due-date urgent">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Due: Yesterday
+                            </div>
+                        </div>
+                    </div>
+                    <div class="assignment-body">
+                        <div class="assignment-description">
+                            Implement a binary search tree with insert, delete, and search operations. Include proper error handling and documentation.
+                        </div>
+                        <div class="assignment-details">
+                            <div class="detail-item">
+                                <i class="fas fa-file-code detail-icon"></i>
+                                <span>Code + Documentation</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-weight-hanging detail-icon"></i>
+                                <span>15% of grade</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock detail-icon"></i>
+                                <span>Est. 4-6 hours</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-users detail-icon"></i>
+                                <span>Individual work</span>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label">
+                                <span>Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill pending" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="assignment-actions">
+                            <button class="btn btn-danger" onclick="startAssignment('cs101_binary_trees')">
+                                <i class="fas fa-play"></i>
+                                Start Now
+                            </button>
+                            <button class="btn btn-warning" onclick="requestExtension('cs101_binary_trees')">
+                                <i class="fas fa-clock"></i>
+                                Request Extension
+                            </button>
+                            <button class="btn btn-info" onclick="viewDetails('cs101_binary_trees')">
+                                <i class="fas fa-eye"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Assignment -->
+                <div class="assignment-card pending">
+                    <div class="assignment-header">
+                        <div class="assignment-info">
+                            <div class="assignment-course">CS102 - Algorithms</div>
+                            <div class="assignment-title">Time Complexity Analysis Report</div>
+                            <div class="assignment-teacher">Dr. Sarah Johnson</div>
+                            <div class="assignment-type">Report</div>
+                        </div>
+                        <div class="assignment-status">
+                            <div class="status-badge status-pending">Pending</div>
+                            <div class="due-date soon">
+                                <i class="fas fa-clock"></i>
+                                Due: Tomorrow
+                            </div>
+                        </div>
+                    </div>
+                    <div class="assignment-body">
+                        <div class="assignment-description">
+                            Analyze the time complexity of various sorting algorithms and provide detailed explanations with examples.
+                        </div>
+                        <div class="assignment-details">
+                            <div class="detail-item">
+                                <i class="fas fa-file-alt detail-icon"></i>
+                                <span>Written Report</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-weight-hanging detail-icon"></i>
+                                <span>12% of grade</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock detail-icon"></i>
+                                <span>Est. 3-4 hours</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-users detail-icon"></i>
+                                <span>Individual work</span>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label">
+                                <span>Progress</span>
+                                <span>65%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill pending" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div class="assignment-actions">
+                            <button class="btn btn-primary" onclick="continueAssignment('cs102_complexity')">
+                                <i class="fas fa-edit"></i>
+                                Continue
+                            </button>
+                            <button class="btn btn-success" onclick="submitAssignment('cs102_complexity')">
+                                <i class="fas fa-upload"></i>
+                                Submit
+                            </button>
+                            <button class="btn btn-info" onclick="viewDetails('cs102_complexity')">
+                                <i class="fas fa-eye"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submitted Assignment -->
+                <div class="assignment-card submitted">
+                    <div class="assignment-header">
+                        <div class="assignment-info">
+                            <div class="assignment-course">CS103 - Database Systems</div>
+                            <div class="assignment-title">ER Diagram Design</div>
+                            <div class="assignment-teacher">Prof. David Wilson</div>
+                            <div class="assignment-type">Design</div>
+                        </div>
+                        <div class="assignment-status">
+                            <div class="status-badge status-submitted">Submitted</div>
+                            <div class="due-date safe">
+                                <i class="fas fa-check"></i>
+                                Submitted on time
+                            </div>
+                        </div>
+                    </div>
+                    <div class="assignment-body">
+                        <div class="assignment-description">
+                            Create an Entity-Relationship diagram for a library management system with proper normalization.
+                        </div>
+                        <div class="assignment-details">
+                            <div class="detail-item">
+                                <i class="fas fa-project-diagram detail-icon"></i>
+                                <span>ER Diagram</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-weight-hanging detail-icon"></i>
+                                <span>10% of grade</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-calendar detail-icon"></i>
+                                <span>Submitted: Jan 18</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-file-image detail-icon"></i>
+                                <span>library_er.pdf</span>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label">
+                                <span>Status</span>
+                                <span>Under Review</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill submitted" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="assignment-actions">
+                            <button class="btn btn-info" onclick="viewSubmission('cs103_er_diagram')">
+                                <i class="fas fa-eye"></i>
+                                View Submission
+                            </button>
+                            <button class="btn btn-warning" onclick="editSubmission('cs103_er_diagram')">
+                                <i class="fas fa-edit"></i>
+                                Edit (if allowed)
+                            </button>
+                            <button class="btn btn-primary" onclick="downloadSubmission('cs103_er_diagram')">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graded Assignment -->
+                <div class="assignment-card graded">
+                    <div class="assignment-header">
+                        <div class="assignment-info">
+                            <div class="assignment-course">MATH201 - Statistics</div>
+                            <div class="assignment-title">Probability Distribution Analysis</div>
+                            <div class="assignment-teacher">Dr. Lisa Park</div>
+                            <div class="assignment-type">Problem Set</div>
+                        </div>
+                        <div class="assignment-status">
+                            <div class="status-badge status-graded">Graded</div>
+                            <div class="due-date safe">
+                                <i class="fas fa-star"></i>
+                                Grade: 9.2/10
+                            </div>
+                        </div>
+                    </div>
+                    <div class="assignment-body">
+                        <div class="grade-display">
+                            <div class="grade-score">9.2/10</div>
+                            <div class="grade-label">Excellent Work!</div>
+                        </div>
+                        <div class="assignment-description">
+                            Solve problems related to normal distribution, confidence intervals, and hypothesis testing.
+                        </div>
+                        <div class="assignment-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calculator detail-icon"></i>
+                                <span>Mathematical Analysis</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-weight-hanging detail-icon"></i>
+                                <span>20% of grade</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-calendar detail-icon"></i>
+                                <span>Graded: Jan 16</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-comment detail-icon"></i>
+                                <span>Has feedback</span>
+                            </div>
+                        </div>
+                        <div class="assignment-actions">
+                            <button class="btn btn-success" onclick="viewFeedback('math201_probability')">
+                                <i class="fas fa-comments"></i>
+                                View Feedback
+                            </button>
+                            <button class="btn btn-info" onclick="viewSolution('math201_probability')">
+                                <i class="fas fa-lightbulb"></i>
+                                View Solution
+                            </button>
+                            <button class="btn btn-primary" onclick="downloadGraded('math201_probability')">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Modal -->
+    <div class="submission-modal" id="submissionModal">
+        <div class="submission-form">
+            <div class="modal-header">
+                <h3 id="modalTitle">Submit Assignment</h3>
+                <button class="close-btn" onclick="closeSubmissionModal()">&times;</button>
+            </div>
+            
+            <form id="submissionForm" onsubmit="handleSubmission(event)">
+                <div class="form-group">
+                    <label>Assignment Title *</label>
+                    <input type="text" id="assignmentTitle" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Submission Type *</label>
+                    <select id="submissionType" required>
+                        <option value="">Select Type</option>
+                        <option value="file">File Upload</option>
+                        <option value="text">Text Submission</option>
+                        <option value="link">External Link</option>
+                        <option value="both">File + Text</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="fileUploadSection" style="display: none;">
+                    <label>Upload Files</label>
+                    <div class="file-upload" id="fileUpload" onclick="triggerFileInput()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <p><strong>Click to upload</strong> or drag and drop files here</p>
+                        <small>Supported: PDF, DOC, DOCX, TXT, ZIP (Max: 10MB each)</small>
+                        <input type="file" id="fileInput" multiple style="display: none;" 
+                               accept=".pdf,.doc,.docx,.txt,.zip,.jpg,.png">
+                    </div>
+                    <div class="uploaded-files" id="uploadedFiles"></div>
+                </div>
+                
+                <div class="form-group" id="textSubmissionSection" style="display: none;">
+                    <label>Text Submission</label>
+                    <textarea id="textSubmission" rows="6" 
+                              placeholder="Enter your submission text here..."></textarea>
+                </div>
+                
+                <div class="form-group" id="linkSubmissionSection" style="display: none;">
+                    <label>External Link (GitHub, Google Drive, etc.)</label>
+                    <input type="url" id="externalLink" 
+                           placeholder="https://github.com/username/repository">
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Comments</label>
+                    <textarea id="comments" rows="3" 
+                              placeholder="Any additional notes or comments for the teacher..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="confirmSubmission" required>
+                        I confirm that this is my original work and follows academic integrity guidelines
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn btn-warning" onclick="saveDraft()" style="flex: 1;">
+                        <i class="fas fa-save"></i>
+                        Save Draft
+                    </button>
+                    <button type="submit" class="btn btn-success" style="flex: 2;">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Upload Button -->
+    <div class="floating-upload" onclick="openQuickSubmit()" title="Quick Submit Assignment">
+        <i class="fas fa-upload"></i>
+    </div>
+
+    <script src="assignment.js"></script>
+</body>
+</html>

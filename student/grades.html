@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grades & Performance - SCMS Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="grades.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Student</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Student Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-roll" id="userRoll">CS2023001</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="checkin.html">
+                            <i class="fas fa-qrcode"></i>
+                            Check-in
+                        </a>
+                    </li>
+                    <li>
+                        <a href="interactive.html">
+                            <i class="fas fa-users"></i>
+                            Live Class
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="grades.html">
+                            <i class="fas fa-chart-line"></i>
+                            Grades
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>📊 Grades & Performance</h1>
+                    <p>Track your academic progress and performance analytics</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-info" onclick="exportGrades()">
+                        <i class="fas fa-download"></i>
+                        Export Report
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshGrades()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Semester Tabs -->
+            <div class="semester-tabs">
+                <button class="tab-btn active" onclick="switchSemester('current')">Current Semester</button>
+                <button class="tab-btn" onclick="switchSemester('sem1')">Semester 1</button>
+                <button class="tab-btn" onclick="switchSemester('sem2')">Semester 2</button>
+                <button class="tab-btn" onclick="switchSemester('sem3')">Semester 3</button>
+                <button class="tab-btn" onclick="switchSemester('overall')">Overall</button>
+            </div>
+
+            <!-- Overview Grid -->
+            <div class="overview-grid">
+                <div class="overview-card gpa">
+                    <div class="overview-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="overview-info">
+                        <div class="overview-value" id="currentGPA">8.4</div>
+                        <div class="overview-label">Current CGPA</div>
+                        <div class="overview-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +0.2 this semester
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overview-card credits">
+                    <div class="overview-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="overview-info">
+                        <div class="overview-value" id="earnedCredits">84</div>
+                        <div class="overview-label">Credits Earned</div>
+                        <div class="overview-change positive">
+                            <i class="fas fa-plus"></i>
+                            22 this semester
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overview-card rank">
+                    <div class="overview-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="overview-info">
+                        <div class="overview-value" id="classRank">3rd</div>
+                        <div class="overview-label">Class Rank</div>
+                        <div class="overview-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            Improved by 2
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overview-card attendance">
+                    <div class="overview-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="overview-info">
+                        <div class="overview-value" id="attendanceRate">92%</div>
+                        <div class="overview-label">Attendance</div>
+                        <div class="overview-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +3% this month
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid">
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <!-- Subject Grades -->
+                    <div class="grades-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-book"></i> Subject-wise Performance</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-info" onclick="viewTrends()">
+                                    <i class="fas fa-chart-line"></i>
+                                    Trends
+                                </button>
+                                <button class="btn btn-primary" onclick="comparePerformance()">
+                                    <i class="fas fa-balance-scale"></i>
+                                    Compare
+                                </button>
+                            </div>
+                        </div>
+                        <div class="subject-grades" id="subjectGrades">
+                            <div class="subject-item" onclick="viewSubjectDetails('cs101')">
+                                <div class="subject-info">
+                                    <div class="subject-code">CS101</div>
+                                    <div class="subject-name">Data Structures & Algorithms</div>
+                                    <div class="subject-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <span>4 Credits</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Prof. Michael Chen</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>85% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="subject-grades-info">
+                                    <div class="grade-value excellent">8.7</div>
+                                    <div class="grade-letter">A-</div>
+                                    <div class="grade-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        +0.3
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-item" onclick="viewSubjectDetails('cs102')">
+                                <div class="subject-info">
+                                    <div class="subject-code">CS102</div>
+                                    <div class="subject-name">Object Oriented Programming</div>
+                                    <div class="subject-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <span>4 Credits</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Dr. Sarah Johnson</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>78% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="subject-grades-info">
+                                    <div class="grade-value good">8.2</div>
+                                    <div class="grade-letter">B+</div>
+                                    <div class="grade-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        +0.1
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-item" onclick="viewSubjectDetails('cs103')">
+                                <div class="subject-info">
+                                    <div class="subject-code">CS103</div>
+                                    <div class="subject-name">Database Management Systems</div>
+                                    <div class="subject-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <span>3 Credits</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Prof. David Wilson</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>92% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="subject-grades-info">
+                                    <div class="grade-value excellent">9.1</div>
+                                    <div class="grade-letter">A</div>
+                                    <div class="grade-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        +0.5
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-item" onclick="viewSubjectDetails('math201')">
+                                <div class="subject-info">
+                                    <div class="subject-code">MATH201</div>
+                                    <div class="subject-name">Applied Statistics</div>
+                                    <div class="subject-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <span>3 Credits</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Dr. Lisa Park</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>88% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="subject-grades-info">
+                                    <div class="grade-value good">7.8</div>
+                                    <div class="grade-letter">B</div>
+                                    <div class="grade-trend stable">
+                                        <i class="fas fa-minus"></i>
+                                        0.0
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-item" onclick="viewSubjectDetails('eng101')">
+                                <div class="subject-info">
+                                    <div class="subject-code">ENG101</div>
+                                    <div class="subject-name">Technical Communication</div>
+                                    <div class="subject-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-weight-hanging"></i>
+                                            <span>2 Credits</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Prof. Amanda Lee</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>95% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="subject-grades-info">
+                                    <div class="grade-value excellent">8.9</div>
+                                    <div class="grade-letter">A-</div>
+                                    <div class="grade-trend up">
+                                        <i class="fas fa-arrow-up"></i>
+                                        +0.2
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievement Badges -->
+                    <div class="grades-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-award"></i> Achievements & Badges</h3>
+                            <span style="color: var(--accent-blue); font-weight: 600;">12/15 Earned</span>
+                        </div>
+                        <div class="achievement-badges">
+                            <div class="badges-grid">
+                                <div class="badge-item earned" title="Dean's List - Fall 2023">
+                                    <div class="badge-icon">🏆</div>
+                                    <div class="badge-name">Dean's List</div>
+                                </div>
+                                <div class="badge-item earned" title="Perfect Attendance">
+                                    <div class="badge-icon">📅</div>
+                                    <div class="badge-name">Perfect Attendance</div>
+                                </div>
+                                <div class="badge-item earned" title="Top Performer">
+                                    <div class="badge-icon">⭐</div>
+                                    <div class="badge-name">Top Performer</div>
+                                </div>
+                                <div class="badge-item earned" title="Assignment Master">
+                                    <div class="badge-icon">📝</div>
+                                    <div class="badge-name">Assignment Master</div>
+                                </div>
+                                <div class="badge-item earned" title="Quick Learner">
+                                    <div class="badge-icon">🚀</div>
+                                    <div class="badge-name">Quick Learner</div>
+                                </div>
+                                <div class="badge-item" title="Graduation Excellence - Not Earned Yet">
+                                    <div class="badge-icon">🎓</div>
+                                    <div class="badge-name">Graduation Excellence</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="side-panel">
+                    <!-- Performance Chart -->
+                    <div class="grades-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-area"></i> GPA Trend</h3>
+                            <button class="btn btn-primary" onclick="toggleChartView()">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="gpaChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="grades-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-analytics"></i> Quick Stats</h3>
+                        </div>
+                        <div class="performance-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">Highest Grade</div>
+                                <div class="metric-value">9.1 (DBMS)</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Lowest Grade</div>
+                                <div class="metric-value">7.8 (Statistics)</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Average This Semester</div>
+                                <div class="metric-value">8.5</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Improvement Needed</div>
+                                <div class="metric-value">MATH201</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Assignments Pending</div>
+                                <div class="metric-value">3</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Next Exam</div>
+                                <div class="metric-value">CS101 (Jan 25)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Grades -->
+                    <div class="grades-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Recent Grades</h3>
+                        </div>
+                        <div class="recent-grades" id="recentGrades">
+                            <div class="grade-item">
+                                <div class="grade-item-info">
+                                    <div class="grade-item-title">Binary Trees Assignment</div>
+                                    <div class="grade-item-subject">CS101 • 2 days ago</div>
+                                </div>
+                                <div class="grade-item-score excellent">9.2</div>
+                            </div>
+                            
+                            <div class="grade-item">
+                                <div class="grade-item-info">
+                                    <div class="grade-item-title">Mid-term Exam</div>
+                                    <div class="grade-item-subject">DBMS • 1 week ago</div>
+                                </div>
+                                <div class="grade-item-score excellent">8.8</div>
+                            </div>
+                            
+                            <div class="grade-item">
+                                <div class="grade-item-info">
+                                    <div class="grade-item-title">Statistics Quiz</div>
+                                    <div class="grade-item-subject">MATH201 • 1 week ago</div>
+                                </div>
+                                <div class="grade-item-score good">7.5</div>
+                            </div>
+                            
+                            <div class="grade-item">
+                                <div class="grade-item-info">
+                                    <div class="grade-item-title">OOP Lab Test</div>
+                                    <div class="grade-item-subject">CS102 • 2 weeks ago</div>
+                                </div>
+                                <div class="grade-item-score good">8.0</div>
+                            </div>
+                            
+                            <div class="grade-item">
+                                <div class="grade-item-info">
+                                    <div class="grade-item-title">Technical Report</div>
+                                    <div class="grade-item-subject">ENG101 • 2 weeks ago</div>
+                                </div>
+                                <div class="grade-item-score excellent">9.0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Details Modal -->
+    <div class="detailed-modal" id="subjectModal">
+        <div class="detailed-content">
+            <div class="modal-header">
+                <h3 id="subjectModalTitle">CS101 - Data Structures & Algorithms</h3>
+                <button class="close-btn" onclick="closeSubjectModal()">&times;</button>
+            </div>
+            
+            <div class="assignment-breakdown" id="assignmentBreakdown">
+                <div class="breakdown-card">
+                    <div class="breakdown-header">
+                        <div class="breakdown-title">Assignments (40%)</div>
+                        <div class="breakdown-weight">40%</div>
+                    </div>
+                    <div class="breakdown-grades">
+                        <div class="breakdown-item">
+                            <div class="item-name">Binary Trees Implementation</div>
+                            <div class="item-grade excellent">9.2/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Sorting Algorithms</div>
+                            <div class="item-grade good">8.5/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Graph Algorithms</div>
+                            <div class="item-grade excellent">9.0/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Dynamic Programming</div>
+                            <div class="item-grade good">8.3/10</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="breakdown-card">
+                    <div class="breakdown-header">
+                        <div class="breakdown-title">Exams (50%)</div>
+                        <div class="breakdown-weight">50%</div>
+                    </div>
+                    <div class="breakdown-grades">
+                        <div class="breakdown-item">
+                            <div class="item-name">Mid-term Exam</div>
+                            <div class="item-grade excellent">8.8/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Final Exam</div>
+                            <div class="item-grade" style="color: var(--text-secondary);">Pending</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="breakdown-card">
+                    <div class="breakdown-header">
+                        <div class="breakdown-title">Quizzes (10%)</div>
+                        <div class="breakdown-weight">10%</div>
+                    </div>
+                    <div class="breakdown-grades">
+                        <div class="breakdown-item">
+                            <div class="item-name">Arrays & Strings</div>
+                            <div class="item-grade excellent">9.5/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Linked Lists</div>
+                            <div class="item-grade good">8.0/10</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="item-name">Trees & Graphs</div>
+                            <div class="item-grade excellent">9.2/10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-tracking">
+                <div class="progress-title">
+                    <i class="fas fa-chart-line"></i>
+                    Performance Progress
+                </div>
+                <div class="progress-chart">
+                    <canvas id="subjectProgressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Analytics Button -->
+    <div class="floating-analytics" onclick="openAnalytics()" title="Advanced Analytics">
+        <i class="fas fa-chart-bar"></i>
+    </div>
+
+    <script src="grades.js"></script>
+</body>
+</html>
