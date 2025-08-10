@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Admin</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Admin Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="admin-dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="users.html">
+                            <i class="fas fa-users"></i>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            System Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Welcome, <span id="headerUserName">Admin</span> 👋</h1>
+                    <p>System Overview & Live Monitoring</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="startSystemDemo()">
+                        <i class="fas fa-play"></i>
+                        Start Demo
+                    </button>
+                    <button class="btn btn-danger" onclick="triggerEmergencyAlert()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Test Alert
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card users">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="totalUsers">1,247</div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-change">+12 this week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card classes">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="activeClasses">24</div>
+                        <div class="stat-label">Active Classes</div>
+                        <div class="stat-change">+3 today</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card attendance">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="attendanceRate">87%</div>
+                        <div class="stat-label">Attendance Rate</div>
+                        <div class="stat-change">+5% vs last week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card resources">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="resourceUtilization">73%</div>
+                        <div class="stat-label">Resource Utilization</div>
+                        <div class="stat-change">+8% today</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Live Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>🏫 Live Campus Activity</h3>
+                        <button class="btn btn-primary" onclick="refreshLiveData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="live-activity" id="liveActivity">
+                        <div class="activity-item">
+                            <span class="activity-time">10:30 AM</span>
+                            <span class="activity-text">CS101 class started - 45 students enrolled</span>
+                            <span class="activity-status">LIVE</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">10:25 AM</span>
+                            <span class="activity-text">Projector booked for Room 201</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">10:20 AM</span>
+                            <span class="activity-text">Student check-in via face recognition</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Alerts -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>🚨 System Alerts</h3>
+                        <span style="background: var(--accent-green); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
+                            All Clear
+                        </span>
+                    </div>
+                    <div id="alertsContainer">
+                        <div style="padding: 40px; text-align: center; color: var(--accent-green);">
+                            <i class="fas fa-shield-alt" style="font-size: 3em; margin-bottom: 15px;"></i>
+                            <p style="color: var(--text-primary);"><strong>All systems operational</strong></p>
+                            <p style="font-size: 0.9em; opacity: 0.8; color: var(--text-secondary);">No active alerts or incidents</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Status -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>📊 Resource Status</h3>
+                    </div>
+                    <div class="resources-grid" id="resourcesGrid">
+                        <div class="resource-item available">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📽️</div>
+                            <div class="resource-title">Projector A</div>
+                            <div class="resource-status">Available</div>
+                        </div>
+                        <div class="resource-item booked">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💻</div>
+                            <div class="resource-title">Lab A</div>
+                            <div class="resource-status">In Use</div>
+                        </div>
+                        <div class="resource-item maintenance">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📋</div>
+                            <div class="resource-title">Smart Board</div>
+                            <div class="resource-status">Maintenance</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Analytics -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>📈 Today's Overview</h3>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Classes Completed</span>
+                                <span class="progress-value">18/24</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill classes" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Average Attendance</span>
+                                <span class="progress-value">87%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill attendance" style="width: 87%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">System Uptime</span>
+                                <span class="progress-value">99.9%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill uptime" style="width: 99.9%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
