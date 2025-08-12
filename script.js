@@ -1,4 +1,3 @@
-// Theme Management
 function initializeTheme() {
     const savedTheme = localStorage.getItem('scms-theme') || 'light';
     const themeIcon = document.getElementById('themeIcon');
@@ -39,7 +38,6 @@ function toggleTheme() {
     }
 }
 
-// Demo users with specific credentials
 const DEMO_CREDENTIALS = {
     admin: {
         email: 'admin@scms.edu',
@@ -75,13 +73,14 @@ const DEMO_CREDENTIALS = {
     }
 };
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     animateNumbers();
+    animateAboutStats();
+    initializeInteractiveElements();
+    initializeChatBubble();
 });
 
-// Fill credentials function
 function fillCredentials(email, password, role) {
     document.getElementById('loginEmail').value = email;
     document.getElementById('loginPassword').value = password;
@@ -89,7 +88,6 @@ function fillCredentials(email, password, role) {
     showNotification('Credentials filled! Click Sign In to continue.', 'info');
 }
 
-// Mobile navigation functions
 function toggleMobileNav() {
     const mobileNav = document.getElementById('mobileNav');
     mobileNav.classList.toggle('show');
@@ -100,15 +98,14 @@ function closeMobileNav() {
     mobileNav.classList.remove('show');
 }
 
-// Select role function
 function selectRole(role) {
     document.getElementById('loginRole').value = role;
     openLoginModal();
 }
 
-// Modal functions
 function openLoginModal() {
     closeSignupModal();
+    closeContactModal();
     document.getElementById('loginModal').classList.add('show');
     document.body.style.overflow = 'hidden';
 }
@@ -120,6 +117,7 @@ function closeLoginModal() {
 
 function openSignupModal() {
     closeLoginModal();
+    closeContactModal();
     document.getElementById('signupModal').classList.add('show');
     document.body.style.overflow = 'hidden';
     showNotification('Signup is currently disabled. Use demo credentials to login.', 'warning');
@@ -130,7 +128,22 @@ function closeSignupModal() {
     document.body.style.overflow = 'auto';
 }
 
-// Switch between modals
+function openContactModal(type = 'general') {
+    closeLoginModal();
+    closeSignupModal();
+    document.getElementById('contactModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    if (type === 'support') {
+        document.getElementById('contactSubject').value = 'technical';
+    }
+}
+
+function closeContactModal() {
+    document.getElementById('contactModal').classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
 function switchToSignup() {
     closeLoginModal();
     setTimeout(() => openSignupModal(), 300);
@@ -141,7 +154,6 @@ function switchToLogin() {
     setTimeout(() => openLoginModal(), 300);
 }
 
-// Handle login
 function handleLogin(e) {
     e.preventDefault();
     
@@ -149,7 +161,6 @@ function handleLogin(e) {
     const password = document.getElementById('loginPassword').value;
     const role = document.getElementById('loginRole').value;
 
-    // Check against demo credentials
     const demoCredential = DEMO_CREDENTIALS[role];
     
     if (demoCredential && 
@@ -158,7 +169,6 @@ function handleLogin(e) {
         
         showNotification('Login successful! Redirecting...', 'success');
         
-        // Store user session
         localStorage.setItem('scms_current_user', JSON.stringify(demoCredential.user));
         
         setTimeout(() => {
@@ -169,7 +179,6 @@ function handleLogin(e) {
     }
 }
 
-// Quick demo access
 function quickDemo(role) {
     const demoCredential = DEMO_CREDENTIALS[role];
     
@@ -182,7 +191,6 @@ function quickDemo(role) {
     }, 1500);
 }
 
-// Redirect to dashboard
 function redirectToDashboard(role) {
     const dashboards = {
         admin: 'admin/dashboard.html',
@@ -192,7 +200,6 @@ function redirectToDashboard(role) {
     window.location.href = dashboards[role] || '#';
 }
 
-// Show notification
 function showNotification(message, type) {
     const existing = document.querySelectorAll('.notification');
     existing.forEach(n => n.remove());
@@ -224,7 +231,6 @@ function showNotification(message, type) {
     }, 4000);
 }
 
-// Animate numbers
 function animateNumbers() {
     const numbers = document.querySelectorAll('.stat-number');
     numbers.forEach(num => {
@@ -262,21 +268,243 @@ function animateNumbers() {
     });
 }
 
-// Smooth scrolling
+function animateAboutStats() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumbers = entry.target.querySelectorAll('.about-stat-number');
+                statNumbers.forEach(num => {
+                    const text = num.textContent;
+                    let target = 0;
+                    let suffix = '';
+                    
+                    if (text.includes('+')) {
+                        target = parseInt(text.replace(/\D/g, ''));
+                        suffix = '+';
+                    } else if (text.includes('%')) {
+                        target = parseFloat(text.replace('%', ''));
+                        suffix = '%';
+                    } else if (text.includes('K+')) {
+                        target = parseInt(text.replace(/\D/g, ''));
+                        suffix = 'K+';
+                    }
+                    
+                    let current = 0;
+                    const increment = target / 30;
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        
+                        if (suffix === 'K+') {
+                            num.textContent = Math.floor(current) + 'K+';
+                        } else if (suffix === '%') {
+                            num.textContent = current.toFixed(1) + '%';
+                        } else {
+                            num.textContent = Math.floor(current) + suffix;
+                        }
+                    }, 60);
+                });
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    const aboutStats = document.querySelector('.about-stats');
+    if (aboutStats) {
+        observer.observe(aboutStats);
+    }
+}
+
+function searchHelp() {
+    const searchInput = document.getElementById('helpSearchInput');
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+        showNotification('Please enter a search term', 'warning');
+        return;
+    }
+    
+    showNotification(`Searching for "${searchTerm}"... This feature will be implemented with backend integration.`, 'info');
+    
+    setTimeout(() => {
+        showNotification(`Found 5 articles related to "${searchTerm}"`, 'success');
+    }, 1500);
+}
+
+function handleContactForm(event) {
+    event.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('contactName').value,
+        email: document.getElementById('contactEmail').value,
+        subject: document.getElementById('contactSubject').value,
+        message: document.getElementById('contactMessage').value
+    };
+    
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+        showNotification('Please fill in all required fields.', 'error');
+        return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        showNotification('Please enter a valid email address.', 'error');
+        return;
+    }
+    
+    const submitBtn = event.target.querySelector('.modal-btn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        event.target.reset();
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        closeContactModal();
+        showNotification('Thank you for your message! We\'ll get back to you within 24 hours.', 'success');
+    }, 2000);
+}
+
+function openSocialLink(platform) {
+    const socialLinks = {
+        twitter: 'https://twitter.com/scmseducation',
+        linkedin: 'https://linkedin.com/company/scms-education',
+        facebook: 'https://facebook.com/scmsplatform',
+        youtube: 'https://youtube.com/c/scmstutorials'
+    };
+    
+    if (socialLinks[platform]) {
+        window.open(socialLinks[platform], '_blank');
+    }
+}
+
+function initializeChatBubble() {
+    const chatBadge = document.getElementById('chatBadge');
+    if (chatBadge) {
+        setTimeout(() => {
+            chatBadge.style.display = 'flex';
+        }, 3000);
+    }
+}
+
+function toggleChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    const chatBadge = document.getElementById('chatBadge');
+    
+    if (chatWindow.classList.contains('show')) {
+        closeChat();
+    } else {
+        openChat();
+    }
+    
+    if (chatBadge) {
+        chatBadge.style.display = 'none';
+    }
+}
+
+function openChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    chatWindow.classList.add('show');
+}
+
+function closeChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    chatWindow.classList.remove('show');
+}
+
+function openLiveChat() {
+    openChat();
+    const chatBadge = document.getElementById('chatBadge');
+    if (chatBadge) {
+        chatBadge.style.display = 'none';
+    }
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (message === '') return;
+    
+    const messagesContainer = document.getElementById('chatMessages');
+    
+    const userMessage = document.createElement('div');
+    userMessage.className = 'chat-message user';
+    userMessage.innerHTML = `
+        <div class="message-content">
+            <p>${message}</p>
+            <span class="message-time">Just now</span>
+        </div>
+        <div class="message-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(userMessage);
+    input.value = '';
+    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    setTimeout(() => {
+        const botResponse = document.createElement('div');
+        botResponse.className = 'chat-message bot';
+        
+        const responses = [
+            "Thank you for your message! A support agent will be with you shortly.",
+            "I understand your concern. Let me connect you with our technical team.",
+            "That's a great question! Our support team will provide detailed assistance.",
+            "I'm here to help! Can you provide more details about the issue?"
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        botResponse.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <p>${randomResponse}</p>
+                <span class="message-time">Just now</span>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(botResponse);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 1000);
+}
+
+function handleChatKeypress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function smoothScrollTo(targetId) {
+    const target = document.getElementById(targetId.replace('#', ''));
+    if (target) {
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const targetPosition = target.offsetTop - headerHeight - 20;
+        
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+        const targetId = this.getAttribute('href');
+        smoothScrollTo(targetId);
     });
 });
 
-// Close modals when clicking outside
 document.getElementById('loginModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeLoginModal();
@@ -289,7 +517,15 @@ document.getElementById('signupModal').addEventListener('click', function(e) {
     }
 });
 
-// Close mobile nav when clicking outside
+const contactModal = document.getElementById('contactModal');
+if (contactModal) {
+    contactModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeContactModal();
+        }
+    });
+}
+
 document.addEventListener('click', function(e) {
     const mobileNav = document.getElementById('mobileNav');
     const mobileMenuBtn = document.querySelector('.mobile-menu');
@@ -298,3 +534,73 @@ document.addEventListener('click', function(e) {
         mobileNav.classList.remove('show');
     }
 });
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLoginModal();
+        closeSignupModal();
+        closeContactModal();
+        closeMobileNav();
+        closeChat();
+    }
+    
+    if (e.key === 'Enter' && e.target.classList.contains('contact-submit-btn')) {
+        e.target.click();
+    }
+});
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validatePhone(phone) {
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+}
+
+function showLoading(element, text = 'Loading...') {
+    const originalContent = element.innerHTML;
+    element.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
+    element.disabled = true;
+    return originalContent;
+}
+
+function hideLoading(element, originalContent) {
+    element.innerHTML = originalContent;
+    element.disabled = false;
+}
+
+function safeElementOperation(elementId, operation) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        operation(element);
+    } else {
+        console.warn(`Element with ID '${elementId}' not found`);
+    }
+}
+
+function initializeInteractiveElements() {
+    const cards = document.querySelectorAll('.feature-card, .role-card, .about-card, .help-category, .contact-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    const focusableElements = document.querySelectorAll('button, input, select, textarea, a[href]');
+    focusableElements.forEach(element => {
+        element.addEventListener('focus', function() {
+            this.style.outline = '2px solid var(--accent-blue)';
+            this.style.outlineOffset = '2px';
+        });
+        
+        element.addEventListener('blur', function() {
+            this.style.outline = 'none';
+        });
+    });
+}
