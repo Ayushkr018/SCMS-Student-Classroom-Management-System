@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="nav-container">
             <div class="logo">
@@ -23,11 +22,10 @@
                 <a href="#features">Features</a>
                 <a href="#roles">Access Portal</a>
                 <a href="#about">About</a>
-                <a href="#contact">Contact</a>
+                <a href="#help">Help</a>
             </nav>
             
             <div class="nav-right">
-                <!-- Theme Toggle in Navigation -->
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
@@ -47,7 +45,6 @@
                 </div>
             </div>
             
-            <!-- Mobile Navigation -->
             <div class="mobile-nav" id="mobileNav">
                 <div class="mobile-nav-controls">
                     <div class="mobile-theme-toggle">
@@ -62,7 +59,7 @@
                     <a href="#features" onclick="closeMobileNav()">Features</a>
                     <a href="#roles" onclick="closeMobileNav()">Access Portal</a>
                     <a href="#about" onclick="closeMobileNav()">About</a>
-                    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+                    <a href="#help" onclick="closeMobileNav()">Help</a>
                 </div>
                 <div class="mobile-nav-buttons">
                     <button class="login-button" onclick="openLoginModal(); closeMobileNav();">Login</button>
@@ -72,7 +69,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-container">
             <div class="hero-content">
@@ -157,7 +153,6 @@
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features" id="features">
         <div class="features-container">
             <div class="section-header">
@@ -231,7 +226,6 @@
         </div>
     </section>
 
-    <!-- Role Selection -->
     <section class="roles" id="roles">
         <div class="features-container">
             <div class="section-header">
@@ -296,34 +290,262 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>SCMS Platform</h3>
-                    <p>Smart Classroom Management System for modern educational institutions</p>
+    <section class="about" id="about">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">About SCMS</h2>
+                <p class="section-description">
+                    Revolutionizing education through intelligent classroom management solutions
+                </p>
+            </div>
+
+            <div class="about-content">
+                <div class="about-grid">
+                    <div class="about-card">
+                        <div class="about-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3>Our Mission</h3>
+                        <p>To transform traditional classroom management through innovative technology, making education more accessible, efficient, and engaging for students, teachers, and administrators worldwide.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <div class="about-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3>Our Vision</h3>
+                        <p>Creating a future where technology seamlessly integrates with education, empowering institutions to focus on what matters most - quality learning and student success.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <div class="about-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Our Values</h3>
+                        <p>Innovation, accessibility, security, and user-centric design drive everything we do. We believe in creating solutions that truly serve the educational community.</p>
+                    </div>
                 </div>
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <p><a href="#features">Features</a></p>
-                    <p><a href="#roles">Access Portal</a></p>
-                    <p><a href="#about">About Us</a></p>
-                </div>
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <p><a href="#help">Help Center</a></p>
-                    <p><a href="#docs">Documentation</a></p>
-                    <p><a href="#contact">Contact Support</a></p>
+
+                <div class="about-stats">
+                    <div class="about-stat">
+                        <div class="about-stat-number">50+</div>
+                        <div class="about-stat-label">Educational Institutions</div>
+                    </div>
+                    <div class="about-stat">
+                        <div class="about-stat-number">10K+</div>
+                        <div class="about-stat-label">Students Managed</div>
+                    </div>
+                    <div class="about-stat">
+                        <div class="about-stat-number">500+</div>
+                        <div class="about-stat-label">Teachers Using Platform</div>
+                    </div>
+                    <div class="about-stat">
+                        <div class="about-stat-number">99.9%</div>
+                        <div class="about-stat-label">System Uptime</div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="help" id="help">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Help Center</h2>
+                <p class="section-description">
+                    Find answers to common questions and get the support you need
+                </p>
+            </div>
+
+            <div class="help-content">
+                <div class="help-search">
+                    <div class="help-search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search for help topics, tutorials, or FAQs..." id="helpSearchInput">
+                        <button onclick="searchHelp()">Search</button>
+                    </div>
+                </div>
+
+                <div class="help-categories">
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Getting Started</h3>
+                        <ul>
+                            <li><a href="#help-setup">Initial Setup Guide</a></li>
+                            <li><a href="#help-login">Login & Account Management</a></li>
+                            <li><a href="#help-navigation">Platform Navigation</a></li>
+                            <li><a href="#help-roles">Understanding User Roles</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3>For Teachers</h3>
+                        <ul>
+                            <li><a href="#help-classes">Managing Classes</a></li>
+                            <li><a href="#help-attendance">Attendance Tracking</a></li>
+                            <li><a href="#help-assignments">Creating Assignments</a></li>
+                            <li><a href="#help-grading">Grading System</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3>For Students</h3>
+                        <ul>
+                            <li><a href="#help-checkin">Digital Check-in Process</a></li>
+                            <li><a href="#help-submissions">Assignment Submissions</a></li>
+                            <li><a href="#help-grades">Viewing Grades</a></li>
+                            <li><a href="#help-schedule">Class Schedule</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3>For Administrators</h3>
+                        <ul>
+                            <li><a href="#help-users">User Management</a></li>
+                            <li><a href="#help-analytics">System Analytics</a></li>
+                            <li><a href="#help-security">Security Settings</a></li>
+                            <li><a href="#help-reports">Generating Reports</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3>Technical Support</h3>
+                        <ul>
+                            <li><a href="#help-troubleshoot">Troubleshooting Guide</a></li>
+                            <li><a href="#help-mobile">Mobile App Issues</a></li>
+                            <li><a href="#help-browser">Browser Compatibility</a></li>
+                            <li><a href="#help-performance">Performance Optimization</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="help-category">
+                        <div class="help-category-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <h3>FAQ</h3>
+                        <ul>
+                            <li><a href="#help-pricing">Pricing & Plans</a></li>
+                            <li><a href="#help-data">Data Privacy & Security</a></li>
+                            <li><a href="#help-integration">Third-party Integrations</a></li>
+                            <li><a href="#help-updates">System Updates</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>SCMS Platform</h3>
+                        <p>Smart Classroom Management System for modern educational institutions. Empowering education through technology.</p>
+                        
+                        <div class="footer-social">
+                            <h4>Connect With Us</h4>
+                            <div class="social-icons">
+                                <a href="#" class="social-icon twitter" onclick="openSocialLink('twitter')">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="social-icon linkedin" onclick="openSocialLink('linkedin')">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                                <a href="#" class="social-icon facebook" onclick="openSocialLink('facebook')">
+                                    <i class="fab fa-facebook"></i>
+                                </a>
+                                <a href="#" class="social-icon youtube" onclick="openSocialLink('youtube')">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#roles">Access Portal</a></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#help">Help Center</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Support</h3>
+                        <ul>
+                            <li><a href="#" onclick="openContactModal()">Contact Us</a></li>
+                            <li><a href="#" onclick="openContactModal('support')">Contact Support</a></li>
+                            <li><a href="#help">Help Documentation</a></li>
+                            <li><a href="#" onclick="openLiveChat()">Live Chat Support</a></li>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+            
             <div class="footer-bottom">
-                <p>&copy; 2024 SCMS - Student Classroom Management System. All rights reserved.</p>
+                <p>&copy; 2025 SCMS - Student Classroom Management System. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Login Modal -->
+    <div class="chat-bubble" id="chatBubble" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+        <span class="chat-badge" id="chatBadge">1</span>
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">
+                    <i class="fas fa-user-headset"></i>
+                </div>
+                <div class="chat-info">
+                    <h4>SCMS Support</h4>
+                    <span class="chat-status">Online</span>
+                </div>
+            </div>
+            <button class="chat-close" onclick="closeChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message bot">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>Hello! Welcome to SCMS Support. How can I help you today?</p>
+                    <span class="message-time">Just now</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message..." id="chatInput" onkeypress="handleChatKeypress(event)">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeLoginModal()">&times;</button>
@@ -333,7 +555,6 @@
                 <p class="modal-subtitle">Sign in to your account</p>
             </div>
 
-            <!-- Dummy Credentials Display -->
             <div class="dummy-credentials">
                 <div class="dummy-credentials-title">
                     <i class="fas fa-key"></i>
@@ -429,7 +650,6 @@
         </div>
     </div>
 
-    <!-- Signup Modal -->
     <div class="modal" id="signupModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeSignupModal()">&times;</button>
@@ -439,7 +659,6 @@
                 <p class="modal-subtitle">Database integration in progress</p>
             </div>
 
-            <!-- Signup Warning -->
             <div class="signup-warning">
                 <div class="signup-warning-icon">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -500,6 +719,90 @@
                 <div class="modal-switch-text">Want to explore the platform?</div>
                 <span class="modal-switch-link" onclick="switchToLogin()">Use Demo Login</span>
             </div>
+        </div>
+    </div>
+
+    <div class="modal" id="contactModal">
+        <div class="modal-content contact-modal">
+            <button class="modal-close" onclick="closeContactModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2 class="modal-title">Contact Us</h2>
+                <p class="modal-subtitle">Get in touch with our support team</p>
+            </div>
+
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Email Support</h4>
+                        <p>support@scms.edu</p>
+                        <span>Response within 2-4 hours</span>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Phone Support</h4>
+                        <p>+1 (555) 123-4567</p>
+                        <span>Mon-Fri: 8AM - 8PM EST</span>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Live Chat</h4>
+                        <p>Instant support</p>
+                        <button class="chat-start-btn" onclick="openLiveChat(); closeContactModal();">Start Chat</button>
+                    </div>
+                </div>
+            </div>
+
+            <form class="contact-form" onsubmit="handleContactForm(event)">
+                <h3>Send us a Message</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" id="contactName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="contactEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <select class="form-input" id="contactSubject" required>
+                        <option value="">Select a subject</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="technical">Technical Support</option>
+                        <option value="billing">Billing Question</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="bug">Report a Bug</option>
+                        <option value="demo">Schedule a Demo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-input" id="contactMessage" rows="4" placeholder="Describe your question or issue..." required></textarea>
+                </div>
+
+                <button type="submit" class="modal-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Message
+                </button>
+            </form>
         </div>
     </div>
 
