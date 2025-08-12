@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Admin</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Admin Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="users.html">
+                            <i class="fas fa-users"></i>
+                            Class Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="students.html">
+                            <i class="fas fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="teachers.html">
+                            <i class="fas fa-user-tie"></i>
+                            Faculty
+                        </a>
+                    </li>
+                    <li>
+                        <a href="departments.html">
+                            <i class="fas fa-building"></i>
+                            Departments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="labs.html">
+                            <i class="fas fa-flask"></i>
+                            Lab Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="feedback.html">
+                            <i class="fas fa-comment-dots"></i>
+                            Feedback & Complaints
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            System Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Welcome, <span id="headerUserName">Admin</span> 👋</h1>
+                    <p>System Overview & Live Monitoring</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-warning" onclick="openFeedbackModal()" title="View All Feedback">
+                        <i class="fas fa-comment-dots"></i>
+                        Feedback (<span id="feedbackCount">3</span>)
+                    </button>
+                    <button class="btn btn-primary" onclick="startSystemDemo()">
+                        <i class="fas fa-play"></i>
+                        Start Demo
+                    </button>
+                    <button class="btn btn-danger" onclick="triggerEmergencyAlert()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Test Alert
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card users">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="totalUsers">1,247</div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-change">+12 this week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card classes">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="activeClasses">24</div>
+                        <div class="stat-label">Active Classes</div>
+                        <div class="stat-change">+3 today</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card attendance">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="attendanceRate">87%</div>
+                        <div class="stat-label">Attendance Rate</div>
+                        <div class="stat-change">+5% vs last week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card resources">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="resourceUtilization">73%</div>
+                        <div class="stat-label">Resource Utilization</div>
+                        <div class="stat-change">+8% today</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Live Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>🏫 Live Campus Activity</h3>
+                        <button class="btn btn-primary" onclick="refreshLiveData()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="live-activity" id="liveActivity">
+                        <div class="activity-item">
+                            <span class="activity-time">10:30 AM</span>
+                            <span class="activity-text">CS101 class started - 45 students enrolled</span>
+                            <span class="activity-status">LIVE</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">10:25 AM</span>
+                            <span class="activity-text">Projector booked for Room 201</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">10:20 AM</span>
+                            <span class="activity-text">Student check-in via face recognition</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Feedback/Complaints -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>💬 Recent Feedback & Complaints</h3>
+                        <div class="feedback-actions">
+                            <span class="feedback-badge urgent" id="urgentCount">2 Urgent</span>
+                            <button class="btn btn-sm btn-primary" onclick="openFeedbackModal()">
+                                View All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="feedback-list" id="recentFeedbackList">
+                        <div class="feedback-item urgent">
+                            <div class="feedback-header">
+                                <span class="feedback-title">Projector Not Working - Room 305</span>
+                                <span class="feedback-time">10 mins ago</span>
+                            </div>
+                            <div class="feedback-content">The projector in room 305 is not turning on. Students are unable to see the presentation.</div>
+                            <div class="feedback-meta">
+                                <span class="feedback-student">By: John Doe (CS-2021)</span>
+                                <span class="feedback-category">Technical Issue</span>
+                            </div>
+                        </div>
+                        
+                        <div class="feedback-item normal">
+                            <div class="feedback-header">
+                                <span class="feedback-title">Cafeteria Food Quality</span>
+                                <span class="feedback-time">1 hour ago</span>
+                            </div>
+                            <div class="feedback-content">The food quality in the cafeteria has decreased. Please look into this matter.</div>
+                            <div class="feedback-meta">
+                                <span class="feedback-student">By: Sarah Smith (IT-2020)</span>
+                                <span class="feedback-category">Facility</span>
+                            </div>
+                        </div>
+                        
+                        <div class="feedback-item normal">
+                            <div class="feedback-header">
+                                <span class="feedback-title">Library Timing Extension Request</span>
+                                <span class="feedback-time">2 hours ago</span>
+                            </div>
+                            <div class="feedback-content">Request to extend library hours during exam period for better study environment.</div>
+                            <div class="feedback-meta">
+                                <span class="feedback-student">By: Mike Johnson (ECE-2019)</span>
+                                <span class="feedback-category">Request</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Alerts -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>🚨 System Alerts</h3>
+                        <span style="background: var(--accent-green); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
+                            All Clear
+                        </span>
+                    </div>
+                    <div id="alertsContainer">
+                        <div style="padding: 40px; text-align: center; color: var(--accent-green);">
+                            <i class="fas fa-shield-alt" style="font-size: 3em; margin-bottom: 15px;"></i>
+                            <p style="color: var(--text-primary);"><strong>All systems operational</strong></p>
+                            <p style="font-size: 0.9em; opacity: 0.8; color: var(--text-secondary);">No active alerts or incidents</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Status -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>📊 Resource Status</h3>
+                    </div>
+                    <div class="resources-grid" id="resourcesGrid">
+                        <div class="resource-item available">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📽️</div>
+                            <div class="resource-title">Projector A</div>
+                            <div class="resource-status">Available</div>
+                        </div>
+                        <div class="resource-item booked">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💻</div>
+                            <div class="resource-title">Lab A</div>
+                            <div class="resource-status">In Use</div>
+                        </div>
+                        <div class="resource-item maintenance">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📋</div>
+                            <div class="resource-title">Smart Board</div>
+                            <div class="resource-status">Maintenance</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Analytics -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>📈 Today's Overview</h3>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Classes Completed</span>
+                                <span class="progress-value">18/24</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill classes" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Average Attendance</span>
+                                <span class="progress-value">87%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill attendance" style="width: 87%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">System Uptime</span>
+                                <span class="progress-value">99.9%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill uptime" style="width: 99.9%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Feedback Resolution</span>
+                                <span class="progress-value">85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill feedback" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Management Modal (Admin Only) -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-comment-dots"></i> Feedback & Complaints Management</h3>
+                <button class="close-btn" onclick="closeFeedbackModal()">&times;</button>
+            </div>
+            <div class="feedback-modal-content">
+                <!-- Feedback Stats -->
+                <div class="feedback-stats">
+                    <div class="feedback-stat-item total">
+                        <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                        <div class="stat-number">47</div>
+                        <div class="stat-label">Total Feedback</div>
+                    </div>
+                    <div class="feedback-stat-item urgent">
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Urgent Issues</div>
+                    </div>
+                    <div class="feedback-stat-item resolved">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-number">35</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                    <div class="feedback-stat-item pending">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Feedback Filters -->
+                <div class="feedback-filters">
+                    <div class="filter-group">
+                        <label>Filter by Category:</label>
+                        <select id="categoryFilter" onchange="filterFeedback()">
+                            <option value="">All Categories</option>
+                            <option value="technical">Technical Issues</option>
+                            <option value="facility">Facility</option>
+                            <option value="academic">Academic</option>
+                            <option value="transport">Transportation</option>
+                            <option value="cafeteria">Cafeteria</option>
+                            <option value="library">Library</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filter by Status:</label>
+                        <select id="statusFilter" onchange="filterFeedback()">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filter by Priority:</label>
+                        <select id="priorityFilter" onchange="filterFeedback()">
+                            <option value="">All Priority</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="normal">Normal</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Feedback List -->
+                <div class="feedback-detailed-list" id="detailedFeedbackList">
+                    <!-- Feedback items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Success message</span>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

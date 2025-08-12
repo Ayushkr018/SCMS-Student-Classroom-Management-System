@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Management - College Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="users.css">
+</head>
+<body>
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Classes</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓SCMS</h2>
+                <p>Admin Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="users.html">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Class Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="students.html">
+                            <i class="fas fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="teachers.html">
+                            <i class="fas fa-user-tie"></i>
+                            Faculty
+                        </a>
+                    </li>
+                    <li>
+                        <a href="departments.html">
+                            <i class="fas fa-building"></i>
+                            Departments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="labs.html">
+                            <i class="fas fa-flask"></i>
+                            Lab Management
+                        </a>
+                    </li>
+                     <li>
+                        <a href="feedback.html">
+                            <i class="fas fa-comment-dots"></i>
+                            Feedback & Complaints
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            System Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>🏛️ Class Management</h1>
+                    <p>Manage college classes with students and faculty</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openAddClassModal()">
+                        <i class="fas fa-plus"></i>
+                        Add New Class
+                    </button>
+                    <button class="btn btn-primary" onclick="exportClasses()">
+                        <i class="fas fa-download"></i>
+                        Export Classes
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card classes">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <div class="stat-number" id="classCount">18</div>
+                    <div class="stat-label">Total Classes</div>
+                </div>
+                
+                <div class="stat-card teachers">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stat-number" id="facultyCount">96</div>
+                    <div class="stat-label">Faculty Members</div>
+                </div>
+                
+                <div class="stat-card students">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-number" id="studentCount">1,824</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-number" id="departmentCount">6</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+            </div>
+
+            <div class="filters-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search classes..." 
+                           id="searchInput" onkeyup="searchClasses()">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <select class="filter-select" id="departmentFilter" onchange="filterClasses()">
+                    <option value="">All Departments</option>
+                    <option value="CSE">Computer Science (CSE)</option>
+                    <option value="ECE">Electronics & Communication (ECE)</option>
+                    <option value="EEE">Electrical Engineering (EEE)</option>
+                    <option value="MECH">Mechanical Engineering (MECH)</option>
+                    <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                    <option value="IT">Information Technology (IT)</option>
+                </select>
+                
+                <select class="filter-select" id="yearFilter" onchange="filterClasses()">
+                    <option value="">All Years</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+                
+                <select class="filter-select" id="semesterFilter" onchange="filterClasses()">
+                    <option value="">All Semesters</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                </select>
+            </div>
+
+            <div class="classes-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-chalkboard"></i> Class Directory</h3>
+                    <div class="view-controls">
+                        <button class="btn btn-sm" id="cardViewBtn" onclick="switchView('card')" title="Card View">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="btn btn-sm active" id="tableViewBtn" onclick="switchView('table')" title="Table View">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="refreshClasses()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="classes-container" id="classesContainer" style="display: none;">
+                </div>
+
+                <div class="table-container" id="tableContainer">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class Info</th>
+                                <th>Class Teacher</th>
+                                <th>Students</th>
+                                <th>Faculty</th>
+                                <th>Semester</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="classModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Class</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="classForm" onsubmit="saveClass(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <select id="classDepartment" required>
+                            <option value="">Select Department</option>
+                            <option value="CSE">Computer Science (CSE)</option>
+                            <option value="ECE">Electronics & Communication (ECE)</option>
+                            <option value="EEE">Electrical Engineering (EEE)</option>
+                            <option value="MECH">Mechanical Engineering (MECH)</option>
+                            <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                            <option value="IT">Information Technology (IT)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Section *</label>
+                        <select id="classSection" required>
+                            <option value="">Select Section</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                            <option value="C">Section C</option>
+                            <option value="D">Section D</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Academic Year *</label>
+                        <select id="academicYear" required>
+                            <option value="">Select Year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Current Semester *</label>
+                        <select id="currentSemester" required>
+                            <option value="">Select Semester</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Class Teacher</label>
+                    <select id="classTeacher">
+                        <option value="">Select Class Teacher</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Maximum Students</label>
+                        <input type="number" id="maxStudents" min="30" max="80" value="60">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Classroom</label>
+                        <input type="text" id="classroom" placeholder="e.g., CSE-301">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i>
+                        Save Class
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="classDetailsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="classDetailsTitle">Class Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="classDetailsContent">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="manageStudentsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="studentsModalTitle">Manage Students</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="manage-content">
+                <div class="manage-tabs">
+                    <button class="tab-btn active" onclick="switchTab('current-students')">Current Students</button>
+                    <button class="tab-btn" onclick="switchTab('add-students')">Add Students</button>
+                </div>
+                
+                <div id="current-students" class="tab-content active">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search current students..." 
+                               id="currentStudentSearch" onkeyup="searchCurrentStudents()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="current-students-list" id="currentStudentsList">
+                    </div>
+                </div>
+                
+                <div id="add-students" class="tab-content">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search available students..." 
+                               id="availableStudentSearch" onkeyup="searchAvailableStudents()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="available-students-list" id="availableStudentsList">
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-success" onclick="addSelectedStudents()">
+                            <i class="fas fa-plus"></i>
+                            Add Selected Students
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="manageFacultyModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="facultyModalTitle">Manage Faculty</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="manage-content">
+                <div class="manage-tabs">
+                    <button class="tab-btn active" onclick="switchTab('current-faculty')">Current Faculty</button>
+                    <button class="tab-btn" onclick="switchTab('add-faculty')">Add Faculty</button>
+                </div>
+                
+                <div id="current-faculty" class="tab-content active">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search current faculty..." 
+                               id="currentFacultySearch" onkeyup="searchCurrentFaculty()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="current-faculty-list" id="currentFacultyList">
+                    </div>
+                </div>
+                
+                <div id="add-faculty" class="tab-content">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search available faculty..." 
+                               id="availableFacultySearch" onkeyup="searchAvailableFaculty()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="available-faculty-list" id="availableFacultyList">
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-success" onclick="addSelectedFaculty()">
+                            <i class="fas fa-plus"></i>
+                            Add Selected Faculty
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Success message</span>
+    </div>
+
+    <script src="users.js"></script>
+</body>
+</html>

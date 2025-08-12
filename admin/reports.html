@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - SCMS Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="reports.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Reports</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Admin Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="users.html">
+                            <i class="fas fa-users"></i>
+                            Class Management
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="students.html">
+                            <i class="fas fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="teachers.html">
+                            <i class="fas fa-user-tie"></i>
+                            Faculty
+                        </a>
+                    </li>
+                    <li>
+                        <a href="departments.html">
+                            <i class="fas fa-building"></i>
+                            Departments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="labs.html">
+                            <i class="fas fa-flask"></i>
+                            Lab Management
+                        </a>
+                    </li>
+                     <li>
+                        <a href="feedback.html">
+                            <i class="fas fa-comment-dots"></i>
+                            Feedback & Complaints
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            System Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>📊 Reports & Analytics</h1>
+                    <p>Comprehensive insights and data visualization</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-info" onclick="refreshReports()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Data
+                    </button>
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <i class="fas fa-chart-line"></i>
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <select id="dateRange" onchange="applyFilters()">
+                        <option value="today">Today</option>
+                        <option value="week" selected>This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Department:</label>
+                    <select id="department" onchange="applyFilters()">
+                        <option value="all">All Departments</option>
+                        <option value="computer_science">Computer Science</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="physics">Physics</option>
+                        <option value="chemistry">Chemistry</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Report Type:</label>
+                    <select id="reportType" onchange="applyFilters()">
+                        <option value="all">All Reports</option>
+                        <option value="attendance">Attendance</option>
+                        <option value="performance">Performance</option>
+                        <option value="resources">Resources</option>
+                        <option value="engagement">Engagement</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+            </div>
+
+            <!-- Analytics Grid -->
+            <div class="reports-grid">
+                <!-- Attendance Analytics -->
+                <div class="report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-check"></i> Attendance Analytics</h3>
+                        <span class="status-tag" style="color: var(--accent-blue); background: var(--bg-tertiary);">This Week</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-placeholder attendance-chart">
+                            <div class="chart-data">
+                                <div class="chart-number" id="attendancePercent">89%</div>
+                                <div class="chart-label">Average Attendance</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Computer Science</span>
+                                <span class="progress-value">92%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Mathematics</span>
+                                <span class="progress-value">87%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 87%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Physics</span>
+                                <span class="progress-value">85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill medium" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource Utilization -->
+                <div class="report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-tools"></i> Resource Utilization</h3>
+                        <span class="status-tag" style="color: var(--accent-green); background: var(--bg-tertiary);">Live Data</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-placeholder resource-chart">
+                            <div class="chart-data">
+                                <div class="chart-number" id="resourcePercent">76%</div>
+                                <div class="chart-label">Utilization Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Projectors</span>
+                                <span class="progress-value">85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Computer Labs</span>
+                                <span class="progress-value">78%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill medium" style="width: 78%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Smart Boards</span>
+                                <span class="progress-value">65%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill medium" style="width: 65%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Engagement -->
+                <div class="report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-heart"></i> Student Engagement</h3>
+                        <span class="status-tag" style="color: var(--accent-yellow); background: var(--bg-tertiary);">Updated</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-placeholder engagement-chart">
+                            <div class="chart-data">
+                                <div class="chart-number" id="engagementPercent">94%</div>
+                                <div class="chart-label">Engagement Score</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Poll Participation</span>
+                                <span class="progress-value">96%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 96%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Question Asking</span>
+                                <span class="progress-value">88%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 88%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Response Time</span>
+                                <span class="progress-value">92%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 92%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Performance -->
+                <div class="report-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> Academic Performance</h3>
+                        <span class="status-tag" style="color: var(--accent-red); background: var(--bg-tertiary);">Trending</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-placeholder performance-chart">
+                            <div class="chart-data">
+                                <div class="chart-number" id="performancePercent">83%</div>
+                                <div class="chart-label">Average Score</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Assignments</span>
+                                <span class="progress-value">87%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill high" style="width: 87%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Quizzes</span>
+                                <span class="progress-value">82%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill medium" style="width: 82%;"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Projects</span>
+                                <span class="progress-value">79%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill medium" style="width: 79%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Data Table -->
+            <div class="data-table">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Detailed Analytics Data</h3>
+                    <button class="btn btn-success" onclick="exportTableData()">
+                        <i class="fas fa-download"></i>
+                        Export Table
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="analyticsTable">
+                        <thead>
+                            <tr>
+                                <th>Class/Department</th>
+                                <th>Students</th>
+                                <th>Attendance</th>
+                                <th>Engagement</th>
+                                <th>Performance</th>
+                                <th>Resource Usage</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody">
+                            <tr>
+                                <td><strong>CS101 - Data Structures</strong></td>
+                                <td>45</td>
+                                <td>92%</td>
+                                <td>96%</td>
+                                <td>87%</td>
+                                <td>85%</td>
+                                <td><span class="status-badge status-excellent">Excellent</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>CS102 - Algorithms</strong></td>
+                                <td>38</td>
+                                <td>89%</td>
+                                <td>94%</td>
+                                <td>83%</td>
+                                <td>78%</td>
+                                <td><span class="status-badge status-good">Good</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>MATH201 - Linear Algebra</strong></td>
+                                <td>42</td>
+                                <td>85%</td>
+                                <td>88%</td>
+                                <td>80%</td>
+                                <td>72%</td>
+                                <td><span class="status-badge status-good">Good</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PHY301 - Quantum Physics</strong></td>
+                                <td>35</td>
+                                <td>82%</td>
+                                <td>85%</td>
+                                <td>78%</td>
+                                <td>68%</td>
+                                <td><span class="status-badge status-average">Average</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>CHEM201 - Organic Chemistry</strong></td>
+                                <td>40</td>
+                                <td>78%</td>
+                                <td>82%</td>
+                                <td>75%</td>
+                                <td>65%</td>
+                                <td><span class="status-badge status-average">Average</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="export-section">
+                <h3><i class="fas fa-download"></i> Export Reports</h3>
+                <p>Generate and download comprehensive reports in various formats</p>
+                <div class="export-buttons">
+                    <button class="btn btn-success" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i>
+                        Export as PDF
+                    </button>
+                    <button class="btn btn-info" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i>
+                        Export as Excel
+                    </button>
+                    <button class="btn btn-primary" onclick="exportReport('csv')">
+                        <i class="fas fa-file-csv"></i>
+                        Export as CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="emailReport()">
+                        <i class="fas fa-envelope"></i>
+                        Email Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="reports.js"></script>
+</body>
+</html>

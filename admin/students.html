@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - College Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="students.css">
+</head>
+<body>
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Students</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓SCMS</h2>
+                <p>Admin Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="users.html">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Class Management
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="students.html">
+                            <i class="fas fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="teachers.html">
+                            <i class="fas fa-user-tie"></i>
+                            Faculty
+                        </a>
+                    </li>
+                    <li>
+                        <a href="departments.html">
+                            <i class="fas fa-building"></i>
+                            Departments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="labs.html">
+                            <i class="fas fa-flask"></i>
+                            Lab Management
+                        </a>
+                    </li>
+                     <li>
+                        <a href="feedback.html">
+                            <i class="fas fa-comment-dots"></i>
+                            Feedback & Complaints
+                        </a>
+                    </li>
+                    <li>
+                        <a href="reports.html">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            System Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>👨‍🎓 Student Management</h1>
+                    <p>Manage student records and information</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openAddStudentModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Student
+                    </button>
+                    <button class="btn btn-primary" onclick="importStudents()">
+                        <i class="fas fa-upload"></i>
+                        Import Students
+                    </button>
+                    <button class="btn btn-warning" onclick="exportStudents()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="stat-number" id="totalStudents">2,450</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                
+                <div class="stat-card active">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="activeStudents">2,380</div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+                
+                <div class="stat-card graduated">
+                    <div class="stat-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="stat-number" id="graduatedStudents">485</div>
+                    <div class="stat-label">Graduated</div>
+                </div>
+                
+                <div class="stat-card avg-cgpa">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number" id="avgCgpa">8.2</div>
+                    <div class="stat-label">Average CGPA</div>
+                </div>
+            </div>
+
+            <div class="filters-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search students..." 
+                           id="searchInput" onkeyup="searchStudents()">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <select class="filter-select" id="departmentFilter" onchange="filterStudents()">
+                    <option value="">All Departments</option>
+                    <option value="CSE">Computer Science (CSE)</option>
+                    <option value="ECE">Electronics & Communication (ECE)</option>
+                    <option value="EEE">Electrical Engineering (EEE)</option>
+                    <option value="MECH">Mechanical Engineering (MECH)</option>
+                    <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                    <option value="IT">Information Technology (IT)</option>
+                </select>
+                
+                <select class="filter-select" id="yearFilter" onchange="filterStudents()">
+                    <option value="">All Years</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter" onchange="filterStudents()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="graduated">Graduated</option>
+                    <option value="dropped">Dropped</option>
+                </select>
+            </div>
+
+            <div class="bulk-actions" id="bulkActions">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <span class="selected-count" id="selectedCount">0 students selected</span>
+                <button class="btn btn-warning btn-sm" onclick="bulkAction('activate')">
+                    <i class="fas fa-check"></i>
+                    Activate
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="bulkAction('deactivate')">
+                    <i class="fas fa-ban"></i>
+                    Deactivate
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="exportSelected()">
+                    <i class="fas fa-download"></i>
+                    Export Selected
+                </button>
+            </div>
+
+            <div class="students-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-user-graduate"></i> Student Directory</h3>
+                    <div class="view-controls">
+                        <button class="btn btn-sm" id="cardViewBtn" onclick="switchView('card')" title="Card View">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="btn btn-sm active" id="tableViewBtn" onclick="switchView('table')" title="Table View">
+                            <i class="fas fa-table"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="refreshStudents()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="students-container" id="studentsContainer" style="display: none;">
+                </div>
+
+                <div class="table-container" id="tableContainer">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="masterCheckbox" onchange="toggleMasterCheckbox()"></th>
+                                <th>Student Info</th>
+                                <th>Department</th>
+                                <th>Academic Info</th>
+                                <th>CGPA</th>
+                                <th>Status</th>
+                                <th>Contact</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Student</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="studentForm" onsubmit="saveStudent(event)">
+                <div class="form-section">
+                    <h4><i class="fas fa-user"></i> Personal Information</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="studentName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="studentEmail" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="studentPhone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="studentDob">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="studentAddress" rows="2" placeholder="Complete address"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="fas fa-graduation-cap"></i> Academic Information</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Roll Number *</label>
+                            <input type="text" id="rollNumber" required placeholder="e.g., 20CSE001">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Department *</label>
+                            <select id="department" required onchange="updateRollNumberPrefix()">
+                                <option value="">Select Department</option>
+                                <option value="CSE">Computer Science (CSE)</option>
+                                <option value="ECE">Electronics & Communication (ECE)</option>
+                                <option value="EEE">Electrical Engineering (EEE)</option>
+                                <option value="MECH">Mechanical Engineering (MECH)</option>
+                                <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                                <option value="IT">Information Technology (IT)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Academic Year *</label>
+                            <select id="academicYear" required>
+                                <option value="">Select Year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Semester *</label>
+                            <select id="currentSemester" required>
+                                <option value="">Select Semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CGPA</label>
+                            <input type="number" id="cgpa" min="0" max="10" step="0.01" placeholder="0.00">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="graduated">Graduated</option>
+                                <option value="dropped">Dropped</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="fas fa-users"></i> Guardian Information</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Guardian Name</label>
+                            <input type="text" id="guardianName" placeholder="Parent/Guardian name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Guardian Phone</label>
+                            <input type="tel" id="guardianPhone" placeholder="Guardian contact number">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Student
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="studentDetailsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="studentDetailsTitle">Student Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="studentDetailsContent">
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Success message</span>
+    </div>
+
+    <script src="students.js"></script>
+</body>
+</html>
