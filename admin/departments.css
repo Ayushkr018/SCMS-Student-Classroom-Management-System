@@ -1,3 +1,4 @@
+/* CSS Variables - Dashboard Theme Colors */
 :root {
     /* Light Mode Colors */
     --bg-primary: #ffffff;
@@ -21,8 +22,8 @@
     --accent-indigo: #6366f1;
 }
 
+/* Dark Mode Colors */
 [data-theme="dark"] {
-    /* Dark Mode Colors */
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
     --bg-tertiary: #334155;
@@ -44,6 +45,7 @@
     --accent-indigo: #818cf8;
 }
 
+/* Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -56,6 +58,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Allow text selection for inputs */
 input, textarea, [contenteditable="true"] {
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -64,13 +67,14 @@ input, textarea, [contenteditable="true"] {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-secondary);
     line-height: 1.6;
     transition: all 0.3s ease;
     overflow-x: hidden;
 }
 
+/* Dashboard Layout */
 .dashboard {
     display: flex;
     min-height: 100vh;
@@ -84,7 +88,6 @@ body {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
-    overflow-x: hidden;
     transition: all 0.3s ease;
     z-index: 1000;
     border-right: 1px solid var(--border-color);
@@ -113,8 +116,8 @@ body {
 
 .sidebar-header h2 {
     font-size: 1.8rem;
-    margin-bottom: 5px;
     font-weight: 700;
+    margin-bottom: 5px;
 }
 
 .sidebar-header p {
@@ -216,6 +219,7 @@ body {
     transform: translateX(21px);
 }
 
+/* Sidebar Navigation */
 .sidebar-nav {
     padding: 20px 0;
 }
@@ -570,7 +574,6 @@ body {
     line-height: 1;
     margin-bottom: 5px;
     color: var(--accent-color);
-    transition: all 0.3s ease;
 }
 
 .stat-label {
@@ -774,7 +777,6 @@ tr {
 
 tr:hover {
     background: var(--bg-secondary);
-    transform: scale(1.01);
 }
 
 .department-profile {
@@ -816,7 +818,7 @@ tr:hover {
 }
 
 /* Badges */
-.type-badge, .count-badge, .status-badge {
+.count-badge, .status-badge {
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -1303,55 +1305,6 @@ tr:hover {
     display: inline-block;
 }
 
-/* Department Details View */
-.department-details-view {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.detail-section {
-    margin-bottom: 30px;
-    padding: 25px;
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    border: 1px solid var(--border-color);
-}
-
-.detail-section h4 {
-    color: var(--text-primary);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
-    font-weight: 600;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.detail-item label {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-}
-
-.detail-item span {
-    color: var(--text-primary);
-    font-size: 0.95rem;
-}
-
 /* Notification */
 .notification {
     position: fixed;
@@ -1387,6 +1340,13 @@ tr:hover {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
 }
 
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -1405,28 +1365,7 @@ tr:hover {
     font-weight: 600;
 }
 
-/* Loading Animation */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.loading {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .departments-container {
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    }
-}
-
+/* Responsive Design - Dashboard Style */
 @media (max-width: 1024px) {
     .main-content {
         padding: 25px;
@@ -1457,9 +1396,14 @@ tr:hover {
     .form-row {
         grid-template-columns: 1fr;
     }
+    
+    .departments-container {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
 }
 
 @media (max-width: 768px) {
+    /* Mobile Layout - Dashboard Style */
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -1569,6 +1513,17 @@ tr:hover {
     .lab-details {
         grid-template-columns: 1fr;
     }
+    
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .view-controls {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1598,16 +1553,6 @@ tr:hover {
     
     .header h1 {
         font-size: 1.3rem;
-    }
-    
-    .header-actions {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .btn {
-        justify-content: center;
-        padding: 10px 16px;
     }
     
     .modal-content {
@@ -1649,97 +1594,5 @@ tr:hover {
     
     .mobile-header {
         padding: 12px 15px;
-    }
-    
-    .table-header {
-        padding: 15px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .view-controls {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 360px) {
-    .main-content {
-        padding: 10px;
-        padding-top: 70px;
-    }
-    
-    .modal-content {
-        padding: 15px;
-        margin: 5px;
-    }
-    
-    .mobile-header {
-        padding: 10px 12px;
-    }
-    
-    .mobile-logo {
-        font-size: 1rem;
-    }
-    
-    .department-card-header,
-    .department-card-body,
-    .form-section {
-        padding: 12px;
-    }
-    
-    .stats-grid {
-        gap: 10px;
-    }
-    
-    .notification {
-        padding: 12px 16px;
-        font-size: 0.85rem;
-    }
-    
-    .btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
-    
-    .header h1 {
-        font-size: 1.2rem;
-    }
-    
-    .table-header h3 {
-        font-size: 1rem;
-    }
-    
-    .department-title {
-        font-size: 1.1rem;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .sidebar,
-    .mobile-header,
-    .header-actions,
-    .filters-section,
-    .bulk-actions,
-    .action-buttons,
-    .notification {
-        display: none !important;
-    }
-    
-    .main-content {
-        margin-left: 0;
-        padding: 20px;
-    }
-    
-    .departments-section {
-        box-shadow: none;
-        border: 1px solid #ccc;
-    }
-    
-    body {
-        background: white;
-        color: black;
     }
 }
