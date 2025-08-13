@@ -388,7 +388,7 @@ body {
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* Stats Section - Dashboard jaisa exact same */
+/* Stats Section - Dashboard Style */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -602,11 +602,22 @@ body {
     background: var(--bg-primary);
 }
 
-/* Dashboard Grid Style for Departments */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 25px;
+.bulk-actions {
+    background: var(--bg-primary);
+    padding: 15px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.selected-count {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-right: auto;
 }
 
 .departments-section {
@@ -616,7 +627,7 @@ body {
     overflow: hidden;
 }
 
-.section-header {
+.table-header {
     background: var(--bg-secondary);
     padding: 20px 25px;
     border-bottom: 1px solid var(--border-color);
@@ -627,7 +638,7 @@ body {
     gap: 15px;
 }
 
-.section-header h3 {
+.table-header h3 {
     color: var(--text-primary);
     font-size: 1.2rem;
     display: flex;
@@ -637,15 +648,15 @@ body {
 
 .view-controls {
     display: flex;
-    gap: 5px;
+    align-items: center;
+    gap: 10px;
 }
 
-.view-btn {
+.view-controls .btn {
     padding: 8px 12px;
-    font-size: 0.85rem;
 }
 
-.view-btn.active {
+.view-controls .btn.active {
     background: var(--accent-blue);
     color: white;
 }
@@ -804,7 +815,115 @@ body {
     color: white;
 }
 
-/* Other necessary styles */
+/* Table View */
+.table-container {
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+}
+
+th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+tr:hover {
+    background: var(--bg-secondary);
+}
+
+.department-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dept-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.dept-icon.engineering { background: var(--accent-blue); }
+.dept-icon.science { background: var(--accent-green); }
+.dept-icon.arts { background: var(--accent-yellow); }
+.dept-icon.commerce { background: var(--accent-red); }
+.dept-icon.medical { background: var(--accent-pink); }
+.dept-icon.management { background: var(--accent-purple); }
+.dept-icon.agriculture { background: var(--accent-teal); }
+.dept-icon.law { background: var(--accent-orange); }
+.dept-icon.pharmacy { background: var(--accent-indigo); }
+
+.department-info-text h4 {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.department-info-text p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.type-badge, .count-badge, .status-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.type-badge {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.count-badge {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent-blue);
+}
+
+.status-active {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.status-inactive {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
+
+.status-under-review {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--accent-yellow);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -843,6 +962,11 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+.modal-header h3 {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+}
+
 .close-btn {
     background: none;
     border: none;
@@ -857,6 +981,85 @@ body {
 .close-btn:hover {
     color: var(--text-primary);
     background: var(--bg-secondary);
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.form-section h4 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--text-tertiary);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
 }
 
 .notification {
@@ -892,25 +1095,21 @@ body {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
 }
 
-/* RESPONSIVE DESIGN - Dashboard exact copy */
+/* RESPONSIVE DESIGN - Dashboard Style Perfect Copy */
 @media (max-width: 1024px) {
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
     }
     
-    .dashboard-grid {
+    .departments-container {
         grid-template-columns: 1fr;
         gap: 20px;
+        padding: 15px;
     }
     
     .main-content {
         padding: 20px;
-    }
-    
-    .departments-container {
-        grid-template-columns: 1fr;
-        padding: 15px;
     }
     
     .filters-section {
@@ -926,6 +1125,21 @@ body {
     .lab-stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -976,11 +1190,6 @@ body {
         font-size: 2em;
     }
     
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
     .header {
         padding: 20px;
         margin-bottom: 20px;
@@ -999,7 +1208,7 @@ body {
         gap: 8px;
     }
     
-    .section-header {
+    .table-header {
         flex-direction: column;
         gap: 15px;
         align-items: flex-start;
@@ -1014,6 +1223,16 @@ body {
         gap: 8px;
     }
     
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .action-btn {
+        justify-content: center;
+        text-align: center;
+    }
+    
     .lab-stats-section {
         padding: 20px;
     }
@@ -1021,6 +1240,8 @@ body {
     .modal-content {
         padding: 20px;
         margin: 10px;
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
     }
     
     .notification {
@@ -1034,8 +1255,18 @@ body {
         transform: translateY(0);
     }
     
+    th, td {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
     .theme-toggle-sidebar {
         margin: 15px 20px;
+    }
+    
+    .view-controls {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -1076,11 +1307,14 @@ body {
     .btn {
         justify-content: center;
         padding: 8px 16px;
+        min-height: 44px;
     }
     
     .modal-content {
         padding: 15px;
         margin: 5px;
+        width: calc(100vw - 10px);
+        max-width: calc(100vw - 10px);
     }
     
     .department-card-header {
@@ -1091,13 +1325,21 @@ body {
         padding: 15px;
     }
     
-    .department-stats {
-        grid-template-columns: 1fr;
+    .department-title {
+        font-size: 1.1rem;
     }
     
-    .action-btn {
-        text-align: center;
-        justify-content: center;
+    .department-stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 8px;
+    }
+    
+    .stat-item .number {
+        font-size: 1.3rem;
     }
     
     .lab-stat-item {
@@ -1119,6 +1361,28 @@ body {
         padding: 15px;
     }
     
+    .search-input {
+        padding: 10px 40px 10px 12px;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 120px;
+        min-height: 44px;
+    }
+    
+    .bulk-actions {
+        padding: 12px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
     .mobile-header {
         padding: 12px 15px;
     }
@@ -1126,6 +1390,26 @@ body {
     .notification {
         padding: 12px 16px;
         font-size: 0.85rem;
+        top: 15px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    th, td {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .dept-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .action-btn {
+        padding: 8px 12px;
+        font-size: 0.7rem;
+        min-height: 36px;
     }
 }
 
@@ -1138,6 +1422,12 @@ body {
     .modal-content {
         padding: 12px;
         margin: 3px;
+        width: calc(100vw - 6px);
+        max-width: calc(100vw - 6px);
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
     }
     
     .header {
@@ -1161,6 +1451,10 @@ body {
         font-size: 1.5rem;
     }
     
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
     .department-card-header {
         padding: 12px;
     }
@@ -1169,23 +1463,129 @@ body {
         padding: 12px;
     }
     
-    .mobile-header {
-        padding: 10px 12px;
-    }
-    
-    .mobile-logo span {
-        display: none;
+    .department-title {
+        font-size: 1rem;
     }
     
     .lab-stat-item {
         flex-direction: column;
         text-align: center;
         gap: 8px;
+        padding: 10px 12px;
+    }
+    
+    .lab-stat-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    .lab-stat-number {
+        font-size: 1.3rem;
+    }
+    
+    .lab-stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .mobile-header {
+        padding: 10px 12px;
+    }
+    
+    .mobile-logo {
+        font-size: 0.9rem;
+    }
+    
+    .mobile-logo span {
+        display: none;
+    }
+    
+    .sidebar-header {
+        padding: 25px 20px;
+    }
+    
+    .sidebar-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .user-info {
+        padding: 15px 20px;
+    }
+    
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .theme-toggle-sidebar {
+        margin: 15px 20px;
+        padding: 10px;
+    }
+    
+    .filters-section {
+        padding: 10px;
+    }
+    
+    .search-input {
+        padding: 8px 35px 8px 10px;
+        font-size: 0.85rem;
+        min-height: 40px;
+    }
+    
+    .filter-select {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-width: 80px;
+        min-height: 40px;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        min-height: 40px;
+    }
+    
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        min-height: 36px;
     }
     
     .notification {
         padding: 10px 12px;
         font-size: 0.8rem;
+        top: 10px;
+        right: 5px;
+        left: 5px;
+    }
+    
+    .empty-state {
+        padding: 30px 10px;
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .empty-state h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+    
+    .empty-state p {
+        font-size: 0.8rem;
+    }
+    
+    .form-section {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .departments-container {
+        padding: 10px;
+        gap: 10px;
     }
 }
 
@@ -1195,6 +1595,7 @@ body {
         transform: none;
     }
     
+    /* Increase touch targets */
     .btn, .action-btn {
         min-height: 44px;
         padding: 12px 20px;
@@ -1203,5 +1604,18 @@ body {
     .mobile-menu-btn, .mobile-theme-toggle, .close-btn {
         min-width: 44px;
         min-height: 44px;
+    }
+    
+    .search-input, .filter-select {
+        min-height: 44px;
+    }
+    
+    /* Better touch spacing */
+    .department-actions {
+        gap: 12px;
+    }
+    
+    .action-buttons {
+        gap: 10px;
     }
 }
