@@ -6,9 +6,8 @@ let labs = [];
 let currentView = 'table';
 let selectedDepartments = [];
 let filteredDepartments = [];
-let isLoading = false;
 
-// Theme Management - Enhanced for Mobile
+// Theme Management - Dashboard Style
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -17,7 +16,6 @@ function toggleTheme() {
     localStorage.setItem('scms-theme', newTheme);
     
     updateThemeIcons(newTheme);
-    showNotification(`Switched to ${newTheme} mode`, 'info');
 }
 
 function updateThemeIcons(theme) {
@@ -45,101 +43,41 @@ function initializeTheme() {
     updateThemeIcons(savedTheme);
 }
 
-// Mobile Sidebar Management - Enhanced
+// Mobile Sidebar - Dashboard Style
 function toggleMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    const menuBtn = document.querySelector('.mobile-menu-btn');
     
     if (sidebar && overlay) {
-        const isActive = sidebar.classList.contains('active');
-        
-        if (isActive) {
-            closeMobileSidebar();
-        } else {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Animate menu button
-            if (menuBtn) {
-                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
-            }
-        }
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 }
 
 function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    const menuBtn = document.querySelector('.mobile-menu-btn');
     
     if (sidebar) sidebar.classList.remove('active');
     if (overlay) overlay.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
-    // Reset menu button
-    if (menuBtn) {
-        menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-    }
 }
 
-// Loading States
-function showLoading() {
-    isLoading = true;
-    const loadingElements = document.querySelectorAll('[data-loading]');
-    loadingElements.forEach(el => {
-        el.classList.add('loading');
-        el.innerHTML = '<div class="spinner"></div> Loading...';
-    });
-}
-
-function hideLoading() {
-    isLoading = false;
-    const loadingElements = document.querySelectorAll('[data-loading]');
-    loadingElements.forEach(el => {
-        el.classList.remove('loading');
-    });
-}
-
-// Modal Management - Mobile Optimized
+// Modal Management - Simple Dashboard Style
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        
-        // Focus management for accessibility
-        const firstInput = modal.querySelector('input, textarea, select, button');
-        if (firstInput) {
-            setTimeout(() => firstInput.focus(), 100);
-        }
-        
-        // Add animation class
-        setTimeout(() => {
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.transform = 'scale(1)';
-                modalContent.style.opacity = '1';
-            }
-        }, 10);
     }
 }
 
 function closeModal() {
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
-        const modalContent = modal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.style.transform = 'scale(0.95)';
-            modalContent.style.opacity = '0';
-        }
-        
-        setTimeout(() => {
-            modal.classList.remove('show');
-        }, 200);
+        modal.classList.remove('show');
     });
-    
     document.body.style.overflow = 'auto';
     
     // Reset current objects
@@ -147,7 +85,7 @@ function closeModal() {
     currentLab = null;
 }
 
-// Enhanced Sample Data
+// Sample Data - Enhanced for Department Management
 const sampleDepartments = [
     {
         id: 1,
@@ -318,44 +256,21 @@ const sampleDepartments = [
     }
 ];
 
-// Initialize Application - Enhanced
+// Initialize Application
 function initializeApp() {
-    showLoading();
-    
-    try {
-        initializeTheme();
-        initializeDepartments();
-        setupEventListeners();
-        loadUserInfo();
-        setupPullToRefresh();
-        
-        // Simulate loading time
-        setTimeout(() => {
-            hideLoading();
-            showNotification('Dashboard loaded successfully!', 'success');
-        }, 1000);
-        
-    } catch (error) {
-        console.error('Initialization error:', error);
-        showNotification('Failed to load dashboard', 'error');
-        hideLoading();
-    }
+    initializeTheme();
+    initializeDepartments();
+    setupEventListeners();
+    loadUserInfo();
 }
 
 function loadUserInfo() {
     const userName = document.getElementById('userName');
-    const userRole = document.getElementById('userRole');
-    
     if (userName) {
-        userName.textContent = localStorage.getItem('userName') || 'Admin User';
-    }
-    
-    if (userRole) {
-        userRole.textContent = localStorage.getItem('userRole') || 'System Administrator';
+        userName.textContent = 'Admin User';
     }
 }
 
-// Department Initialization - Enhanced
 function initializeDepartments() {
     departments = [...sampleDepartments];
     
@@ -374,53 +289,22 @@ function initializeDepartments() {
     filteredDepartments = [...departments];
     loadDepartments();
     updateStatistics();
-    updateFilters();
 }
 
-// Statistics Update - Enhanced
+// Statistics Update
 function updateStatistics() {
     const totalDepts = departments.length;
     const activeDepts = departments.filter(d => d.status === 'active').length;
     const totalFaculty = departments.reduce((sum, d) => sum + (d.facultyCount || 0), 0);
     const totalStudents = departments.reduce((sum, d) => sum + (d.currentStudents || 0), 0);
-    const totalLabs = labs.length;
-    const avgUtilization = labs.length > 0 ? 
-        Math.round(labs.reduce((sum, lab) => sum + lab.utilization, 0) / labs.length) : 0;
     
-    // Animate number updates
-    animateNumber('totalDepartments', totalDepts);
-    animateNumber('activeDepartments', activeDepts);
-    animateNumber('totalFaculty', totalFaculty);
-    animateNumber('totalStudents', totalStudents);
-    animateNumber('totalLabs', totalLabs);
-    animateNumber('avgUtilization', avgUtilization);
+    document.getElementById('totalDepartments').textContent = totalDepts;
+    document.getElementById('activeDepartments').textContent = activeDepts;
+    document.getElementById('totalFaculty').textContent = totalFaculty;
+    document.getElementById('totalStudents').textContent = totalStudents.toLocaleString();
 }
 
-function animateNumber(elementId, targetValue) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    const startValue = parseInt(element.textContent) || 0;
-    const duration = 1000;
-    const startTime = performance.now();
-    
-    function updateNumber(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const currentValue = Math.round(startValue + (targetValue - startValue) * progress);
-        element.textContent = elementId === 'totalStudents' ? 
-            currentValue.toLocaleString() : currentValue;
-        
-        if (progress < 1) {
-            requestAnimationFrame(updateNumber);
-        }
-    }
-    
-    requestAnimationFrame(updateNumber);
-}
-
-// Department Display Management - Mobile Optimized
+// Department Display Management
 function loadDepartments() {
     if (currentView === 'table') {
         loadDepartmentsTable();
@@ -428,7 +312,6 @@ function loadDepartments() {
         loadDepartmentsCards();
     }
     updateSelectedCount();
-    updatePagination();
 }
 
 function loadDepartmentsTable() {
@@ -445,9 +328,6 @@ function loadDepartmentsTable() {
                         <i class="fas fa-search" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 20px;"></i>
                         <h3>No departments found</h3>
                         <p>Try adjusting your search or filter criteria</p>
-                        <button class="btn btn-primary" onclick="clearFilters()" style="margin-top: 15px;">
-                            <i class="fas fa-refresh"></i> Clear Filters
-                        </button>
                     </div>
                 </td>
             </tr>
@@ -493,13 +373,7 @@ function createDepartmentRow(dept) {
             <span class="count-badge">${dept.facultyCount}</span>
         </td>
         <td>
-            <div class="student-info">
-                <span class="count-badge">${dept.currentStudents}/${dept.studentCapacity}</span>
-                <div class="occupancy-bar">
-                    <div class="occupancy-fill" style="width: ${occupancyRate}%"></div>
-                </div>
-                <small>${occupancyRate}% occupied</small>
-            </div>
+            <span class="count-badge">${dept.currentStudents}/${dept.studentCapacity}</span>
         </td>
         <td>
             <span class="count-badge">${labCount} Labs</span>
@@ -522,15 +396,6 @@ function createDepartmentRow(dept) {
         </td>
     `;
     
-    // Add hover effects
-    row.addEventListener('mouseenter', function() {
-        this.style.backgroundColor = 'var(--bg-tertiary)';
-    });
-    
-    row.addEventListener('mouseleave', function() {
-        this.style.backgroundColor = '';
-    });
-    
     return row;
 }
 
@@ -546,26 +411,14 @@ function loadDepartmentsCards() {
                 <i class="fas fa-search" style="font-size: 3rem;"></i>
                 <h3>No departments found</h3>
                 <p>Try adjusting your search or filter criteria</p>
-                <button class="btn btn-primary" onclick="clearFilters()" style="margin-top: 15px;">
-                    <i class="fas fa-refresh"></i> Clear Filters
-                </button>
             </div>
         `;
         return;
     }
     
-    // Add stagger animation
-    filteredDepartments.forEach((dept, index) => {
-        setTimeout(() => {
-            const card = createDepartmentCard(dept);
-            container.appendChild(card);
-            
-            // Animate card entrance
-            requestAnimationFrame(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            });
-        }, index * 100);
+    filteredDepartments.forEach(dept => {
+        const card = createDepartmentCard(dept);
+        container.appendChild(card);
     });
 }
 
@@ -576,10 +429,6 @@ function createDepartmentCard(dept) {
     
     const card = document.createElement('div');
     card.className = `department-card ${dept.type.toLowerCase()}`;
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'all 0.3s ease';
-    
     card.innerHTML = `
         <div class="department-card-header">
             <div class="department-title">${dept.name}</div>
@@ -611,12 +460,7 @@ function createDepartmentCard(dept) {
                 </div>
                 <div class="info-row">
                     <span class="info-label">Occupancy</span>
-                    <div class="occupancy-info">
-                        <span class="info-value">${occupancyRate}%</span>
-                        <div class="mini-progress-bar">
-                            <div class="mini-progress-fill" style="width: ${occupancyRate}%"></div>
-                        </div>
-                    </div>
+                    <span class="info-value">${occupancyRate}%</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Status</span>
@@ -637,19 +481,10 @@ function createDepartmentCard(dept) {
         </div>
     `;
     
-    // Add touch events for mobile
-    card.addEventListener('touchstart', function() {
-        this.style.transform = 'scale(0.98)';
-    });
-    
-    card.addEventListener('touchend', function() {
-        this.style.transform = 'scale(1)';
-    });
-    
     return card;
 }
 
-// View Management - Enhanced
+// View Management
 function switchView(view) {
     currentView = view;
     
@@ -657,9 +492,6 @@ function switchView(view) {
     const tableBtn = document.getElementById('tableViewBtn');
     const cardContainer = document.getElementById('departmentsContainer');
     const tableContainer = document.getElementById('tableContainer');
-    
-    // Save view preference
-    localStorage.setItem('preferredView', view);
     
     if (view === 'card') {
         cardBtn?.classList.add('active');
@@ -674,67 +506,49 @@ function switchView(view) {
         if (cardContainer) cardContainer.style.display = 'none';
         loadDepartmentsTable();
     }
-    
-    showNotification(`Switched to ${view} view`, 'info');
 }
 
-// CRUD Operations - Enhanced
+// CRUD Operations
 function openAddDepartmentModal() {
     document.getElementById('modalTitle').textContent = 'Add New Department';
     currentDepartment = null;
     
-    // Reset form with validation
+    // Reset form
     const form = document.getElementById('departmentForm');
-    if (form) {
-        form.reset();
-        clearFormErrors();
-    }
+    if (form) form.reset();
     
     openModal('departmentModal');
 }
 
 function editDepartment(id) {
     const dept = departments.find(d => d.id === id);
-    if (!dept) {
-        showNotification('Department not found', 'error');
-        return;
-    }
+    if (!dept) return;
     
     currentDepartment = dept;
     document.getElementById('modalTitle').textContent = 'Edit Department';
     
-    // Populate form with validation
-    try {
-        document.getElementById('departmentName').value = dept.name || '';
-        document.getElementById('departmentCode').value = dept.code || '';
-        document.getElementById('departmentType').value = dept.type || '';
-        document.getElementById('establishedYear').value = dept.establishedYear || '';
-        document.getElementById('departmentDescription').value = dept.description || '';
-        document.getElementById('hodName').value = dept.hod || '';
-        document.getElementById('hodEmail').value = dept.hodEmail || '';
-        document.getElementById('departmentPhone').value = dept.phone || '';
-        document.getElementById('departmentEmail').value = dept.email || '';
-        document.getElementById('officeLocation').value = dept.location || '';
-        document.getElementById('facultyCount').value = dept.facultyCount || '';
-        document.getElementById('studentCapacity').value = dept.studentCapacity || '';
-        document.getElementById('currentStudents').value = dept.currentStudents || '';
-        document.getElementById('departmentStatus').value = dept.status || 'active';
-        
-        clearFormErrors();
-        openModal('departmentModal');
-        
-    } catch (error) {
-        console.error('Error populating form:', error);
-        showNotification('Error loading department data', 'error');
-    }
+    // Populate form
+    document.getElementById('departmentName').value = dept.name || '';
+    document.getElementById('departmentCode').value = dept.code || '';
+    document.getElementById('departmentType').value = dept.type || '';
+    document.getElementById('establishedYear').value = dept.establishedYear || '';
+    document.getElementById('departmentDescription').value = dept.description || '';
+    document.getElementById('hodName').value = dept.hod || '';
+    document.getElementById('hodEmail').value = dept.hodEmail || '';
+    document.getElementById('departmentPhone').value = dept.phone || '';
+    document.getElementById('departmentEmail').value = dept.email || '';
+    document.getElementById('officeLocation').value = dept.location || '';
+    document.getElementById('facultyCount').value = dept.facultyCount || '';
+    document.getElementById('studentCapacity').value = dept.studentCapacity || '';
+    document.getElementById('currentStudents').value = dept.currentStudents || '';
+    document.getElementById('departmentStatus').value = dept.status || 'active';
+    
+    openModal('departmentModal');
 }
 
 function viewDepartment(id) {
     const dept = departments.find(d => d.id === id);
-    if (!dept) {
-        showNotification('Department not found', 'error');
-        return;
-    }
+    if (!dept) return;
     
     document.getElementById('departmentDetailsTitle').textContent = `${dept.name} - Details`;
     
@@ -759,12 +573,7 @@ function createDepartmentDetailsView(dept) {
                     </div>
                     <div class="lab-detail-item">
                         <label>Utilization</label>
-                        <div class="utilization-display">
-                            <span class="utilization-badge">${lab.utilization}%</span>
-                            <div class="utilization-bar">
-                                <div class="utilization-fill" style="width: ${lab.utilization}%"></div>
-                            </div>
-                        </div>
+                        <span class="utilization-badge">${lab.utilization}%</span>
                     </div>
                     <div class="lab-detail-item">
                         <label>In-charge</label>
@@ -774,26 +583,6 @@ function createDepartmentDetailsView(dept) {
                         <label>Location</label>
                         <span>${lab.location || 'Not specified'}</span>
                     </div>
-                    <div class="lab-detail-item">
-                        <label>Status</label>
-                        <span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span>
-                    </div>
-                    ${lab.equipment && lab.equipment.length > 0 ? `
-                        <div class="lab-detail-item">
-                            <label>Equipment</label>
-                            <div class="equipment-list">
-                                ${lab.equipment.map(eq => `<span class="equipment-tag">${eq}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${lab.software && lab.software.length > 0 ? `
-                        <div class="lab-detail-item">
-                            <label>Software</label>
-                            <div class="software-list">
-                                ${lab.software.map(sw => `<span class="software-tag">${sw}</span>`).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
                 </div>
             </div>
         `).join('') : 
@@ -821,48 +610,24 @@ function createDepartmentDetailsView(dept) {
                 <h4><i class="fas fa-user-tie"></i> Leadership & Contact</h4>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                     <div><label>Head of Department</label><span>${dept.hod}</span></div>
-                    <div><label>HOD Email</label><span><a href="mailto:${dept.hodEmail}">${dept.hodEmail}</a></span></div>
-                    <div><label>Department Phone</label><span><a href="tel:${dept.phone}">${dept.phone}</a></span></div>
-                    <div><label>Department Email</label><span><a href="mailto:${dept.email}">${dept.email}</a></span></div>
+                    <div><label>HOD Email</label><span>${dept.hodEmail}</span></div>
+                    <div><label>Department Phone</label><span>${dept.phone}</span></div>
+                    <div><label>Department Email</label><span>${dept.email}</span></div>
                 </div>
             </div>
             
             <div class="form-section">
                 <h4><i class="fas fa-chart-bar"></i> Statistics</h4>
-                <div class="stats-grid-modal">
-                    <div class="stat-card-modal">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-number">${dept.facultyCount}</div>
-                            <div class="stat-label">Faculty Members</div>
-                        </div>
-                    </div>
-                    <div class="stat-card-modal">
-                        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-number">${dept.studentCapacity}</div>
-                            <div class="stat-label">Student Capacity</div>
-                        </div>
-                    </div>
-                    <div class="stat-card-modal">
-                        <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-number">${dept.currentStudents}</div>
-                            <div class="stat-label">Current Students</div>
-                        </div>
-                    </div>
-                    <div class="stat-card-modal">
-                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="stat-info">
-                            <div class="stat-number">${occupancyRate}%</div>
-                            <div class="stat-label">Occupancy Rate</div>
-                        </div>
-                    </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div><label>Faculty Count</label><span>${dept.facultyCount}</span></div>
+                    <div><label>Student Capacity</label><span>${dept.studentCapacity}</span></div>
+                    <div><label>Current Students</label><span>${dept.currentStudents}</span></div>
+                    <div><label>Occupancy Rate</label><span>${occupancyRate}%</span></div>
                 </div>
             </div>
             
             <div class="form-section">
-                <h4><i class="fas fa-flask"></i> Laboratory Facilities (${dept.labs ? dept.labs.length : 0})</h4>
+                <h4><i class="fas fa-flask"></i> Laboratory Facilities</h4>
                 <div class="labs-grid">${labsHTML}</div>
             </div>
         </div>
@@ -871,185 +636,75 @@ function createDepartmentDetailsView(dept) {
 
 function deleteDepartment(id) {
     const dept = departments.find(d => d.id === id);
-    if (!dept) {
-        showNotification('Department not found', 'error');
-        return;
-    }
+    if (!dept) return;
     
-    // Enhanced confirmation with details
-    const labCount = dept.labs ? dept.labs.length : 0;
-    const confirmMessage = `Are you sure you want to delete "${dept.name}"?\n\n` +
-                          `This will also delete:\n` +
-                          `• ${labCount} associated laboratories\n` +
-                          `• All department records\n\n` +
-                          `This action cannot be undone.`;
-    
-    if (confirm(confirmMessage)) {
-        try {
-            departments = departments.filter(d => d.id !== id);
-            filteredDepartments = filteredDepartments.filter(d => d.id !== id);
-            
-            // Remove associated labs
-            labs = labs.filter(lab => lab.departmentId !== id);
-            
-            // Remove from selected
-            selectedDepartments = selectedDepartments.filter(sid => sid !== id);
-            
-            loadDepartments();
-            updateStatistics();
-            showNotification(`Department "${dept.name}" deleted successfully!`, 'success');
-            
-        } catch (error) {
-            console.error('Error deleting department:', error);
-            showNotification('Error deleting department', 'error');
-        }
+    if (confirm(`Are you sure you want to delete "${dept.name}"? This action cannot be undone.`)) {
+        departments = departments.filter(d => d.id !== id);
+        filteredDepartments = filteredDepartments.filter(d => d.id !== id);
+        
+        // Remove associated labs
+        labs = labs.filter(lab => lab.departmentId !== id);
+        
+        // Remove from selected
+        selectedDepartments = selectedDepartments.filter(sid => sid !== id);
+        
+        loadDepartments();
+        updateStatistics();
+        showNotification('Department deleted successfully!', 'success');
     }
 }
 
 function saveDepartment(event) {
     event.preventDefault();
     
-    if (isLoading) return;
-    
-    showLoading();
-    
-    try {
-        const formData = {
-            name: document.getElementById('departmentName').value.trim(),
-            code: document.getElementById('departmentCode').value.trim().toUpperCase(),
-            type: document.getElementById('departmentType').value,
-            establishedYear: parseInt(document.getElementById('establishedYear').value) || new Date().getFullYear(),
-            description: document.getElementById('departmentDescription').value.trim(),
-            hod: document.getElementById('hodName').value.trim(),
-            hodEmail: document.getElementById('hodEmail').value.trim(),
-            phone: document.getElementById('departmentPhone').value.trim(),
-            email: document.getElementById('departmentEmail').value.trim(),
-            location: document.getElementById('officeLocation').value.trim(),
-            facultyCount: parseInt(document.getElementById('facultyCount').value) || 0,
-            studentCapacity: parseInt(document.getElementById('studentCapacity').value) || 0,
-            currentStudents: parseInt(document.getElementById('currentStudents').value) || 0,
-            status: document.getElementById('departmentStatus').value
-        };
-        
-        // Enhanced validation
-        const validation = validateDepartmentForm(formData);
-        if (!validation.isValid) {
-            showFormErrors(validation.errors);
-            hideLoading();
-            return;
-        }
-        
-        setTimeout(() => {
-            if (currentDepartment) {
-                // Update existing
-                Object.assign(currentDepartment, formData);
-                const index = departments.findIndex(d => d.id === currentDepartment.id);
-                if (index !== -1) {
-                    departments[index] = currentDepartment;
-                }
-                showNotification('Department updated successfully!', 'success');
-            } else {
-                // Add new
-                formData.id = Math.max(...departments.map(d => d.id), 0) + 1;
-                formData.labs = [];
-                departments.push(formData);
-                showNotification('Department added successfully!', 'success');
-            }
-            
-            applyFilters();
-            loadDepartments();
-            updateStatistics();
-            closeModal();
-            hideLoading();
-            
-        }, 500); // Simulate processing time
-        
-    } catch (error) {
-        console.error('Error saving department:', error);
-        showNotification('Error saving department', 'error');
-        hideLoading();
-    }
-}
-
-// Form Validation
-function validateDepartmentForm(data) {
-    const errors = [];
-    
-    if (!data.name || data.name.length < 3) {
-        errors.push({ field: 'departmentName', message: 'Department name must be at least 3 characters' });
-    }
-    
-    if (!data.code || data.code.length < 2) {
-        errors.push({ field: 'departmentCode', message: 'Department code is required' });
-    }
-    
-    if (!data.type) {
-        errors.push({ field: 'departmentType', message: 'Department type is required' });
-    }
-    
-    if (data.hodEmail && !isValidEmail(data.hodEmail)) {
-        errors.push({ field: 'hodEmail', message: 'Invalid email format' });
-    }
-    
-    if (data.email && !isValidEmail(data.email)) {
-        errors.push({ field: 'departmentEmail', message: 'Invalid email format' });
-    }
-    
-    if (data.currentStudents > data.studentCapacity) {
-        errors.push({ field: 'currentStudents', message: 'Current students cannot exceed capacity' });
-    }
-    
-    // Check for duplicate codes (excluding current department)
-    const existingDept = departments.find(d => 
-        d.code === data.code && (!currentDepartment || d.id !== currentDepartment.id)
-    );
-    if (existingDept) {
-        errors.push({ field: 'departmentCode', message: 'Department code already exists' });
-    }
-    
-    return {
-        isValid: errors.length === 0,
-        errors: errors
+    const formData = {
+        name: document.getElementById('departmentName').value.trim(),
+        code: document.getElementById('departmentCode').value.trim().toUpperCase(),
+        type: document.getElementById('departmentType').value,
+        establishedYear: parseInt(document.getElementById('establishedYear').value) || new Date().getFullYear(),
+        description: document.getElementById('departmentDescription').value.trim(),
+        hod: document.getElementById('hodName').value.trim(),
+        hodEmail: document.getElementById('hodEmail').value.trim(),
+        phone: document.getElementById('departmentPhone').value.trim(),
+        email: document.getElementById('departmentEmail').value.trim(),
+        location: document.getElementById('officeLocation').value.trim(),
+        facultyCount: parseInt(document.getElementById('facultyCount').value) || 0,
+        studentCapacity: parseInt(document.getElementById('studentCapacity').value) || 0,
+        currentStudents: parseInt(document.getElementById('currentStudents').value) || 0,
+        status: document.getElementById('departmentStatus').value
     };
-}
-
-function showFormErrors(errors) {
-    clearFormErrors();
     
-    errors.forEach(error => {
-        const field = document.getElementById(error.field);
-        if (field) {
-            field.classList.add('error');
-            
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = error.message;
-            field.parentNode.appendChild(errorDiv);
+    if (!formData.name || !formData.code || !formData.type) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (currentDepartment) {
+        // Update existing
+        Object.assign(currentDepartment, formData);
+        const index = departments.findIndex(d => d.id === currentDepartment.id);
+        if (index !== -1) {
+            departments[index] = currentDepartment;
         }
-    });
+        showNotification('Department updated successfully!', 'success');
+    } else {
+        // Add new
+        formData.id = Math.max(...departments.map(d => d.id), 0) + 1;
+        formData.labs = [];
+        departments.push(formData);
+        showNotification('Department added successfully!', 'success');
+    }
     
-    showNotification('Please fix the form errors', 'error');
+    applyFilters();
+    loadDepartments();
+    updateStatistics();
+    closeModal();
 }
 
-function clearFormErrors() {
-    document.querySelectorAll('.error-message').forEach(el => el.remove());
-    document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-}
-
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Search and Filter Functions - Enhanced
+// Search and Filter Functions
 function searchDepartments() {
     const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
-    
-    // Debounced search
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(() => {
-        applyFilters(searchTerm);
-    }, 300);
+    applyFilters(searchTerm);
 }
 
 function filterDepartments() {
@@ -1070,8 +725,7 @@ function applyFilters(searchTerm = null) {
             dept.name.toLowerCase().includes(searchTerm) ||
             dept.code.toLowerCase().includes(searchTerm) ||
             dept.hod.toLowerCase().includes(searchTerm) ||
-            dept.type.toLowerCase().includes(searchTerm) ||
-            dept.location.toLowerCase().includes(searchTerm);
+            dept.type.toLowerCase().includes(searchTerm);
         
         const matchesStatus = !statusFilter || dept.status === statusFilter;
         const matchesType = !typeFilter || dept.type === typeFilter;
@@ -1095,60 +749,9 @@ function applyFilters(searchTerm = null) {
     });
     
     loadDepartments();
-    updateFilterInfo();
 }
 
-function clearFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('statusFilter').value = '';
-    document.getElementById('typeFilter').value = '';
-    document.getElementById('labFilter').value = '';
-    
-    filteredDepartments = [...departments];
-    loadDepartments();
-    showNotification('Filters cleared', 'info');
-}
-
-function updateFilterInfo() {
-    const filterInfo = document.getElementById('filterInfo');
-    if (filterInfo) {
-        const total = departments.length;
-        const filtered = filteredDepartments.length;
-        
-        if (filtered < total) {
-            filterInfo.textContent = `Showing ${filtered} of ${total} departments`;
-            filterInfo.style.display = 'block';
-        } else {
-            filterInfo.style.display = 'none';
-        }
-    }
-}
-
-function updateFilters() {
-    // Update filter options based on current data
-    const statusFilter = document.getElementById('statusFilter');
-    const typeFilter = document.getElementById('typeFilter');
-    
-    if (statusFilter) {
-        const statuses = [...new Set(departments.map(d => d.status))];
-        const currentValue = statusFilter.value;
-        statusFilter.innerHTML = '<option value="">All Statuses</option>';
-        statuses.forEach(status => {
-            statusFilter.innerHTML += `<option value="${status}" ${status === currentValue ? 'selected' : ''}>${formatStatus(status)}</option>`;
-        });
-    }
-    
-    if (typeFilter) {
-        const types = [...new Set(departments.map(d => d.type))];
-        const currentValue = typeFilter.value;
-        typeFilter.innerHTML = '<option value="">All Types</option>';
-        types.forEach(type => {
-            typeFilter.innerHTML += `<option value="${type}" ${type === currentValue ? 'selected' : ''}>${type}</option>`;
-        });
-    }
-}
-
-// Selection Management - Enhanced
+// Selection Management
 function toggleDepartmentSelection(id) {
     const index = selectedDepartments.indexOf(id);
     if (index > -1) {
@@ -1157,7 +760,6 @@ function toggleDepartmentSelection(id) {
         selectedDepartments.push(id);
     }
     updateSelectedCount();
-    updateMasterCheckbox();
 }
 
 function toggleSelectAll() {
@@ -1175,22 +777,28 @@ function toggleSelectAll() {
     updateSelectedCount();
 }
 
-function updateMasterCheckbox() {
-    const masterCheckbox = document.getElementById('selectAll');
-    if (masterCheckbox && filteredDepartments.length > 0) {
-        const selectedInFiltered = filteredDepartments.filter(d => selectedDepartments.includes(d.id)).length;
-        
-        if (selectedInFiltered === 0) {
-            masterCheckbox.checked = false;
-            masterCheckbox.indeterminate = false;
-        } else if (selectedInFiltered === filteredDepartments.length) {
-            masterCheckbox.checked = true;
-            masterCheckbox.indeterminate = false;
-        } else {
-            masterCheckbox.checked = false;
-            masterCheckbox.indeterminate = true;
-        }
+function toggleMasterCheckbox() {
+    const masterCheckbox = document.getElementById('masterCheckbox');
+    if (masterCheckbox?.checked) {
+        filteredDepartments.forEach(dept => {
+            if (!selectedDepartments.includes(dept.id)) {
+                selectedDepartments.push(dept.id);
+            }
+        });
+    } else {
+        filteredDepartments.forEach(dept => {
+            const index = selectedDepartments.indexOf(dept.id);
+            if (index > -1) {
+                selectedDepartments.splice(index, 1);
+            }
+        });
     }
+    
+    document.querySelectorAll('input[type="checkbox"][value]').forEach(checkbox => {
+        checkbox.checked = selectedDepartments.includes(parseInt(checkbox.value));
+    });
+    
+    updateSelectedCount();
 }
 
 function updateSelectedCount() {
@@ -1203,11 +811,9 @@ function updateSelectedCount() {
     if (bulkActions) {
         bulkActions.style.display = selectedDepartments.length > 0 ? 'flex' : 'none';
     }
-    
-    updateMasterCheckbox();
 }
 
-// Bulk Operations - Enhanced
+// Bulk Operations
 function bulkAction(action) {
     if (selectedDepartments.length === 0) {
         showNotification('Please select departments first', 'error');
@@ -1216,121 +822,24 @@ function bulkAction(action) {
     
     const selectedDepts = departments.filter(d => selectedDepartments.includes(d.id));
     
-    let confirmMessage = '';
     switch (action) {
         case 'activate':
-            confirmMessage = `Activate ${selectedDepts.length} selected departments?`;
+            selectedDepts.forEach(dept => dept.status = 'active');
+            showNotification(`${selectedDepts.length} departments activated`, 'success');
             break;
         case 'deactivate':
-            confirmMessage = `Deactivate ${selectedDepts.length} selected departments?`;
-            break;
-        case 'delete':
-            confirmMessage = `Delete ${selectedDepts.length} selected departments?\n\nThis action cannot be undone.`;
+            selectedDepts.forEach(dept => dept.status = 'inactive');
+            showNotification(`${selectedDepts.length} departments deactivated`, 'success');
             break;
     }
     
-    if (confirm(confirmMessage)) {
-        showLoading();
-        
-        setTimeout(() => {
-            try {
-                switch (action) {
-                    case 'activate':
-                        selectedDepts.forEach(dept => dept.status = 'active');
-                        showNotification(`${selectedDepts.length} departments activated`, 'success');
-                        break;
-                    case 'deactivate':
-                        selectedDepts.forEach(dept => dept.status = 'inactive');
-                        showNotification(`${selectedDepts.length} departments deactivated`, 'success');
-                        break;
-                    case 'delete':
-                        departments = departments.filter(d => !selectedDepartments.includes(d.id));
-                        labs = labs.filter(lab => !selectedDepartments.includes(lab.departmentId));
-                        showNotification(`${selectedDepts.length} departments deleted`, 'success');
-                        break;
-                }
-                
-                selectedDepartments = [];
-                applyFilters();
-                loadDepartments();
-                updateStatistics();
-                hideLoading();
-                
-            } catch (error) {
-                console.error('Bulk operation error:', error);
-                showNotification('Error performing bulk operation', 'error');
-                hideLoading();
-            }
-        }, 500);
-    }
+    selectedDepartments = [];
+    applyFilters();
+    loadDepartments();
+    updateStatistics();
 }
 
-// Pagination (placeholder for future implementation)
-function updatePagination() {
-    // Placeholder for pagination logic
-    const paginationElement = document.getElementById('pagination');
-    if (paginationElement && filteredDepartments.length > 10) {
-        // Implementation for pagination
-    }
-}
-
-// Pull to Refresh
-function setupPullToRefresh() {
-    let startY = 0;
-    let currentY = 0;
-    let pullDistance = 0;
-    const threshold = 80;
-    
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) return;
-    
-    mainContent.addEventListener('touchstart', (e) => {
-        if (mainContent.scrollTop === 0) {
-            startY = e.touches[0].clientY;
-        }
-    });
-    
-    mainContent.addEventListener('touchmove', (e) => {
-        if (startY === 0) return;
-        
-        currentY = e.touches[0].clientY;
-        pullDistance = currentY - startY;
-        
-        if (pullDistance > 0 && mainContent.scrollTop === 0) {
-            e.preventDefault();
-            
-            const pullIndicator = document.getElementById('pullIndicator');
-            if (pullIndicator) {
-                pullIndicator.style.transform = `translateY(${Math.min(pullDistance, threshold)}px)`;
-                pullIndicator.style.opacity = Math.min(pullDistance / threshold, 1);
-                
-                if (pullDistance >= threshold) {
-                    pullIndicator.innerHTML = '<i class="fas fa-arrow-up"></i> Release to refresh';
-                } else {
-                    pullIndicator.innerHTML = '<i class="fas fa-arrow-down"></i> Pull to refresh';
-                }
-            }
-        }
-    });
-    
-    mainContent.addEventListener('touchend', () => {
-        if (pullDistance >= threshold) {
-            refreshDepartments();
-        }
-        
-        const pullIndicator = document.getElementById('pullIndicator');
-        if (pullIndicator) {
-            pullIndicator.style.transform = 'translateY(-100%)';
-            pullIndicator.style.opacity = '0';
-        }
-        
-        startY = 0;
-        currentY = 0;
-        pullDistance = 0;
-    });
-}
-
-// Lab Management - Enhanced (keeping existing functions but improving them)
+// Lab Management
 function openLabManagementModal() {
     populateLabDepartmentFilter();
     loadLabManagement();
@@ -1340,10 +849,7 @@ function openLabManagementModal() {
 function openAddLabModal() {
     document.getElementById('labModalTitle').textContent = 'Add New Laboratory';
     const form = document.getElementById('labForm');
-    if (form) {
-        form.reset();
-        clearFormErrors();
-    }
+    if (form) form.reset();
     currentLab = null;
     populateDepartmentOptions();
     openModal('addLabModal');
@@ -1375,172 +881,67 @@ function loadLabManagement() {
     
     container.innerHTML = '';
     
-    // Apply lab filters
-    let filteredLabs = [...labs];
-    const deptFilter = document.getElementById('labDepartmentFilter')?.value;
-    const typeFilter = document.getElementById('labTypeFilter')?.value;
-    const searchTerm = document.getElementById('labSearchInput')?.value?.toLowerCase();
-    
-    if (deptFilter) {
-        filteredLabs = filteredLabs.filter(lab => lab.departmentId == deptFilter);
-    }
-    
-    if (typeFilter) {
-        filteredLabs = filteredLabs.filter(lab => lab.type === typeFilter);
-    }
-    
-    if (searchTerm) {
-        filteredLabs = filteredLabs.filter(lab => 
-            lab.name.toLowerCase().includes(searchTerm) ||
-            lab.incharge.toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    if (filteredLabs.length === 0) {
+    if (labs.length === 0) {
         container.innerHTML = `
             <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
                 <i class="fas fa-flask" style="font-size: 3rem; margin-bottom: 20px;"></i>
                 <h3>No laboratories found</h3>
                 <p>Add some laboratories to get started</p>
-                <button class="btn btn-primary" onclick="openAddLabModal()" style="margin-top: 15px;">
-                    <i class="fas fa-plus"></i> Add Laboratory
-                </button>
             </div>
         `;
         return;
     }
     
-    filteredLabs.forEach((lab, index) => {
-        setTimeout(() => {
-            const card = createLabCard(lab);
-            container.appendChild(card);
-        }, index * 50);
+    labs.forEach(lab => {
+        const card = document.createElement('div');
+        card.className = 'lab-card';
+        card.innerHTML = `
+            <div class="lab-header">
+                <h5>${lab.name}</h5>
+                <span class="lab-type-badge">${lab.type}</span>
+            </div>
+            <div class="lab-details">
+                <div class="lab-detail-item">
+                    <label>Department</label>
+                    <span>${lab.departmentName}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Capacity</label>
+                    <span>${lab.capacity} students</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Utilization</label>
+                    <span class="utilization-badge">${lab.utilization}%</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>In-charge</label>
+                    <span>${lab.incharge || 'Not assigned'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Location</label>
+                    <span>${lab.location || 'Not specified'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Status</label>
+                    <span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn action-edit" onclick="editLab(${lab.id})">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="action-btn action-delete" onclick="deleteLab(${lab.id})">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
     });
-}
-
-function createLabCard(lab) {
-    const card = document.createElement('div');
-    card.className = 'lab-card';
-    card.innerHTML = `
-        <div class="lab-header">
-            <h5>${lab.name}</h5>
-            <span class="lab-type-badge">${lab.type}</span>
-        </div>
-        <div class="lab-details">
-            <div class="lab-detail-item">
-                <label>Department</label>
-                <span>${lab.departmentName}</span>
-            </div>
-            <div class="lab-detail-item">
-                <label>Capacity</label>
-                <span>${lab.capacity} students</span>
-            </div>
-            <div class="lab-detail-item">
-                <label>Utilization</label>
-                <div class="utilization-display">
-                    <span class="utilization-badge ${lab.utilization > 80 ? 'high' : lab.utilization < 60 ? 'low' : 'medium'}">${lab.utilization}%</span>
-                    <div class="utilization-bar">
-                        <div class="utilization-fill" style="width: ${lab.utilization}%"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="lab-detail-item">
-                <label>In-charge</label>
-                <span>${lab.incharge || 'Not assigned'}</span>
-            </div>
-            <div class="lab-detail-item">
-                <label>Location</label>
-                <span>${lab.location || 'Not specified'}</span>
-            </div>
-            <div class="lab-detail-item">
-                <label>Status</label>
-                <span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span>
-            </div>
-        </div>
-        <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
-            <button class="action-btn action-view" onclick="viewLab(${lab.id})" title="View Details">
-                <i class="fas fa-eye"></i> View
-            </button>
-            <button class="action-btn action-edit" onclick="editLab(${lab.id})" title="Edit">
-                <i class="fas fa-edit"></i> Edit
-            </button>
-            <button class="action-btn action-delete" onclick="deleteLab(${lab.id})" title="Delete">
-                <i class="fas fa-trash"></i> Delete
-            </button>
-        </div>
-    `;
-    
-    return card;
-}
-
-function viewLab(id) {
-    const lab = labs.find(l => l.id === id);
-    if (!lab) {
-        showNotification('Laboratory not found', 'error');
-        return;
-    }
-    
-    document.getElementById('labDetailsTitle').textContent = `${lab.name} - Details`;
-    
-    const content = `
-        <div style="max-height: 70vh; overflow-y: auto;">
-            <div class="form-section">
-                <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                    <div><label>Name</label><span>${lab.name}</span></div>
-                    <div><label>Type</label><span>${lab.type}</span></div>
-                    <div><label>Department</label><span>${lab.departmentName}</span></div>
-                    <div><label>Capacity</label><span>${lab.capacity} students</span></div>
-                    <div><label>Location</label><span>${lab.location || 'Not specified'}</span></div>
-                    <div><label>Status</label><span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span></div>
-                </div>
-            </div>
-            
-            <div class="form-section">
-                <h4><i class="fas fa-user"></i> Management</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                    <div><label>In-charge</label><span>${lab.incharge || 'Not assigned'}</span></div>
-                    <div><label>Utilization</label>
-                        <div class="utilization-display">
-                            <span class="utilization-badge ${lab.utilization > 80 ? 'high' : lab.utilization < 60 ? 'low' : 'medium'}">${lab.utilization}%</span>
-                            <div class="utilization-bar">
-                                <div class="utilization-fill" style="width: ${lab.utilization}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            ${lab.equipment && lab.equipment.length > 0 ? `
-                <div class="form-section">
-                    <h4><i class="fas fa-tools"></i> Equipment</h4>
-                    <div class="equipment-list">
-                        ${lab.equipment.map(eq => `<span class="equipment-tag">${eq}</span>`).join('')}
-                    </div>
-                </div>
-            ` : ''}
-            
-            ${lab.software && lab.software.length > 0 ? `
-                <div class="form-section">
-                    <h4><i class="fas fa-laptop-code"></i> Software</h4>
-                    <div class="software-list">
-                        ${lab.software.map(sw => `<span class="software-tag">${sw}</span>`).join('')}
-                    </div>
-                </div>
-            ` : ''}
-        </div>
-    `;
-    
-    document.getElementById('labDetailsContent').innerHTML = content;
-    openModal('labDetailsModal');
 }
 
 function editLab(id) {
     const lab = labs.find(l => l.id === id);
-    if (!lab) {
-        showNotification('Laboratory not found', 'error');
-        return;
-    }
+    if (!lab) return;
     
     currentLab = lab;
     document.getElementById('labModalTitle').textContent = 'Edit Laboratory';
@@ -1557,164 +958,184 @@ function editLab(id) {
     document.getElementById('labStatus').value = lab.status || 'active';
     
     populateDepartmentOptions();
-    clearFormErrors();
     openModal('addLabModal');
 }
 
 function deleteLab(id) {
     const lab = labs.find(l => l.id === id);
-    if (!lab) {
-        showNotification('Laboratory not found', 'error');
-        return;
-    }
+    if (!lab) return;
     
-    if (confirm(`Are you sure you want to delete "${lab.name}"?\n\nThis action cannot be undone.`)) {
-        try {
-            labs = labs.filter(l => l.id !== id);
-            
-            const dept = departments.find(d => d.id === lab.departmentId);
-            if (dept && dept.labs) {
-                dept.labs = dept.labs.filter(l => l.id !== id);
-            }
-            
-            loadLabManagement();
-            updateStatistics();
-            showNotification('Laboratory deleted successfully!', 'success');
-            
-        } catch (error) {
-            console.error('Error deleting lab:', error);
-            showNotification('Error deleting laboratory', 'error');
+    if (confirm(`Are you sure you want to delete "${lab.name}"?`)) {
+        labs = labs.filter(l => l.id !== id);
+        
+        const dept = departments.find(d => d.id === lab.departmentId);
+        if (dept && dept.labs) {
+            dept.labs = dept.labs.filter(l => l.id !== id);
         }
+        
+        loadLabManagement();
+        showNotification('Laboratory deleted successfully!', 'success');
     }
 }
 
 function saveLab(event) {
     event.preventDefault();
     
-    if (isLoading) return;
+    const departmentId = parseInt(document.getElementById('labDepartment').value);
+    const department = departments.find(d => d.id === departmentId);
     
-    showLoading();
+    if (!department) {
+        showNotification('Please select a valid department', 'error');
+        return;
+    }
+    
+    const formData = {
+        name: document.getElementById('labName').value.trim(),
+        type: document.getElementById('labType').value,
+        departmentId: departmentId,
+        departmentName: department.name,
+        capacity: parseInt(document.getElementById('labCapacity').value) || 0,
+        incharge: document.getElementById('labIncharge').value.trim(),
+        location: document.getElementById('labLocation').value.trim(),
+        equipment: document.getElementById('labEquipment').value.split('\n').filter(item => item.trim()),
+        software: document.getElementById('labSoftware').value.split('\n').filter(item => item.trim()),
+        utilization: parseInt(document.getElementById('utilizationRate').value) || 0,
+        status: document.getElementById('labStatus').value
+    };
+    
+    if (!formData.name || !formData.type || !formData.capacity) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (currentLab) {
+        Object.assign(currentLab, formData);
+        if (department.labs) {
+            const labIndex = department.labs.findIndex(l => l.id === currentLab.id);
+            if (labIndex !== -1) {
+                department.labs[labIndex] = {...currentLab};
+            }
+        }
+        showNotification('Laboratory updated successfully!', 'success');
+    } else {
+        formData.id = Math.max(...labs.map(l => l.id), 0) + 1;
+        labs.push(formData);
+        
+        if (!department.labs) department.labs = [];
+        department.labs.push({...formData});
+        
+        showNotification('Laboratory added successfully!', 'success');
+    }
+    
+    loadLabManagement();
+    loadDepartments();
+    closeModal();
+}
+
+// Utility Functions
+function refreshDepartments() {
+    applyFilters();
+    loadDepartments();
+    updateStatistics();
+    showNotification('Data refreshed successfully!', 'info');
+}
+
+function exportDepartments() {
+    const data = departments.map(dept => ({
+        'Name': dept.name,
+        'Code': dept.code,
+        'Type': dept.type,
+        'HOD': dept.hod,
+        'Faculty': dept.facultyCount,
+        'Students': dept.currentStudents,
+        'Labs': dept.labs ? dept.labs.length : 0,
+        'Status': formatStatus(dept.status)
+    }));
+    
+    exportToCSV(data, 'departments.csv');
+    showNotification('Departments exported successfully!', 'success');
+}
+
+function exportSelected() {
+    if (selectedDepartments.length === 0) {
+        showNotification('Please select departments to export', 'error');
+        return;
+    }
+    
+    const selectedDepts = departments.filter(d => selectedDepartments.includes(d.id));
+    const data = selectedDepts.map(dept => ({
+        'Name': dept.name,
+        'Code': dept.code,
+        'Type': dept.type,
+        'Status': formatStatus(dept.status)
+    }));
+    
+    exportToCSV(data, 'selected_departments.csv');
+    showNotification(`${selectedDepts.length} departments exported!`, 'success');
+}
+
+function exportToCSV(data, filename) {
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(header => row[header]).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importDepartments() {
+    showNotification('Import functionality coming soon!', 'info');
+}
+
+// Notification System
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    
+    if (!notification || !notificationText) return;
+    
+    const iconElement = notification.querySelector('i');
+    if (iconElement) {
+        const icons = {
+            'success': 'fas fa-check-circle',
+            'error': 'fas fa-exclamation-circle',
+            'info': 'fas fa-info-circle'
+        };
+        iconElement.className = icons[type] || icons['success'];
+    }
+    
+    notificationText.textContent = message;
+    notification.className = `notification ${type} show`;
     
     setTimeout(() => {
-        try {
-            const departmentId = parseInt(document.getElementById('labDepartment').value);
-            const department = departments.find(d => d.id === departmentId);
-            
-            if (!department) {
-                showNotification('Please select a valid department', 'error');
-                hideLoading();
-                return;
-            }
-            
-            const formData = {
-                name: document.getElementById('labName').value.trim(),
-                type: document.getElementById('labType').value,
-                departmentId: departmentId,
-                departmentName: department.name,
-                capacity: parseInt(document.getElementById('labCapacity').value) || 0,
-                incharge: document.getElementById('labIncharge').value.trim(),
-                location: document.getElementById('labLocation').value.trim(),
-                equipment: document.getElementById('labEquipment').value.split('\n').filter(item => item.trim()),
-                software: document.getElementById('labSoftware').value.split('\n').filter(item => item.trim()),
-                utilization: Math.min(100, Math.max(0, parseInt(document.getElementById('utilizationRate').value) || 0)),
-                status: document.getElementById('labStatus').value
-            };
-            
-            // Enhanced validation
-            const validation = validateLabForm(formData);
-            if (!validation.isValid) {
-                showFormErrors(validation.errors);
-                hideLoading();
-                return;
-            }
-            
-            if (currentLab) {
-                // Update existing
-                Object.assign(currentLab, formData);
-                const labIndex = labs.findIndex(l => l.id === currentLab.id);
-                if (labIndex !== -1) {
-                    labs[labIndex] = currentLab;
-                }
-                
-                if (department.labs) {
-                    const deptLabIndex = department.labs.findIndex(l => l.id === currentLab.id);
-                    if (deptLabIndex !== -1) {
-                        department.labs[deptLabIndex] = {...currentLab};
-                    }
-                }
-                showNotification('Laboratory updated successfully!', 'success');
-            } else {
-                // Add new
-                formData.id = Math.max(...labs.map(l => l.id), 0) + 1;
-                labs.push(formData);
-                
-                if (!department.labs) department.labs = [];
-                department.labs.push({...formData});
-                
-                showNotification('Laboratory added successfully!', 'success');
-            }
-            
-            loadLabManagement();
-            loadDepartments();
-            updateStatistics();
-            closeModal();
-            hideLoading();
-            
-        } catch (error) {
-            console.error('Error saving lab:', error);
-            showNotification('Error saving laboratory', 'error');
-            hideLoading();
-        }
-    }, 500);
+        notification.classList.remove('show');
+    }, 3000);
 }
 
-function validateLabForm(data) {
-    const errors = [];
-    
-    if (!data.name || data.name.length < 3) {
-        errors.push({ field: 'labName', message: 'Laboratory name must be at least 3 characters' });
-    }
-    
-    if (!data.type) {
-        errors.push({ field: 'labType', message: 'Laboratory type is required' });
-    }
-    
-    if (!data.departmentId) {
-        errors.push({ field: 'labDepartment', message: 'Department selection is required' });
-    }
-    
-    if (!data.capacity || data.capacity < 1) {
-        errors.push({ field: 'labCapacity', message: 'Capacity must be at least 1' });
-    }
-    
-    if (data.utilization < 0 || data.utilization > 100) {
-        errors.push({ field: 'utilizationRate', message: 'Utilization must be between 0 and 100' });
-    }
-    
-    // Check for duplicate names within the same department
-    const existingLab = labs.find(l => 
-        l.name === data.name && 
-        l.departmentId === data.departmentId && 
-        (!currentLab || l.id !== currentLab.id)
-    );
-    if (existingLab) {
-        errors.push({ field: 'labName', message: 'Laboratory name already exists in this department' });
-    }
-    
-    return {
-        isValid: errors.length === 0,
-        errors: errors
-    };
+// Helper Functions
+function formatStatus(status) {
+    return status.replace('-', ' ').split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
 }
 
-// Lab Search Functions - Enhanced
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+}
+
+// Lab Search Functions (placeholders)
 function searchLabs() {
-    const searchTerm = document.getElementById('labSearchInput')?.value?.toLowerCase() || '';
-    
-    clearTimeout(window.labSearchTimeout);
-    window.labSearchTimeout = setTimeout(() => {
-        loadLabManagement();
-    }, 300);
+    loadLabManagement();
 }
 
 function filterLabsByDepartment() {
@@ -1725,313 +1146,12 @@ function filterLabsByType() {
     loadLabManagement();
 }
 
-// Utility Functions - Enhanced
-function refreshDepartments() {
-    showLoading();
-    
-    setTimeout(() => {
-        applyFilters();
-        loadDepartments();
-        updateStatistics();
-        updateFilters();
-        hideLoading();
-        showNotification('Data refreshed successfully!', 'info');
-    }, 1000);
-}
-
-function exportDepartments() {
-    try {
-        const data = departments.map(dept => ({
-            'Name': dept.name,
-            'Code': dept.code,
-            'Type': dept.type,
-            'HOD': dept.hod,
-            'HOD Email': dept.hodEmail,
-            'Phone': dept.phone,
-            'Email': dept.email,
-            'Location': dept.location,
-            'Faculty': dept.facultyCount,
-            'Student Capacity': dept.studentCapacity,
-            'Current Students': dept.currentStudents,
-            'Labs': dept.labs ? dept.labs.length : 0,
-            'Status': formatStatus(dept.status),
-            'Established': dept.establishedYear,
-            'Occupancy Rate': dept.studentCapacity > 0 ? 
-                Math.round((dept.currentStudents / dept.studentCapacity) * 100) + '%' : '0%'
-        }));
-        
-        exportToCSV(data, `departments_${new Date().toISOString().split('T')[0]}.csv`);
-        showNotification('Departments exported successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Export error:', error);
-        showNotification('Error exporting departments', 'error');
-    }
-}
-
-function exportSelected() {
-    if (selectedDepartments.length === 0) {
-        showNotification('Please select departments to export', 'error');
-        return;
-    }
-    
-    try {
-        const selectedDepts = departments.filter(d => selectedDepartments.includes(d.id));
-        const data = selectedDepts.map(dept => ({
-            'Name': dept.name,
-            'Code': dept.code,
-            'Type': dept.type,
-            'HOD': dept.hod,
-            'Status': formatStatus(dept.status),
-            'Faculty': dept.facultyCount,
-            'Students': dept.currentStudents,
-            'Labs': dept.labs ? dept.labs.length : 0
-        }));
-        
-        exportToCSV(data, `selected_departments_${new Date().toISOString().split('T')[0]}.csv`);
-        showNotification(`${selectedDepts.length} departments exported!`, 'success');
-        
-    } catch (error) {
-        console.error('Export error:', error);
-        showNotification('Error exporting selected departments', 'error');
-    }
-}
-
-function exportToCSV(data, filename) {
-    if (!data || data.length === 0) {
-        showNotification('No data to export', 'error');
-        return;
-    }
-    
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-        headers.join(','),
-        ...data.map(row => 
-            headers.map(header => {
-                const value = row[header];
-                // Escape commas and quotes in CSV
-                return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
-                    ? `"${value.replace(/"/g, '""')}"` 
-                    : value;
-            }).join(',')
-        )
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function importDepartments() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv,.json';
-    
-    input.onchange = function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        showLoading();
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let importedData = [];
-                
-                if (file.name.endsWith('.json')) {
-                    importedData = JSON.parse(e.target.result);
-                } else if (file.name.endsWith('.csv')) {
-                    const csv = e.target.result;
-                    const lines = csv.split('\n');
-                    const headers = lines[0].split(',');
-                    
-                    for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(',');
-                        if (values.length === headers.length) {
-                            const obj = {};
-                            headers.forEach((header, index) => {
-                                obj[header.trim()] = values[index].trim();
-                            });
-                            importedData.push(obj);
-                        }
-                    }
-                }
-                
-                // Process imported data (this is a simplified version)
-                if (importedData.length > 0) {
-                    showNotification(`Successfully imported ${importedData.length} records!`, 'success');
-                    // Here you would process and validate the imported data
-                } else {
-                    showNotification('No valid data found in file', 'error');
-                }
-                
-            } catch (error) {
-                console.error('Import error:', error);
-                showNotification('Error importing file. Please check the format.', 'error');
-            } finally {
-                hideLoading();
-            }
-        };
-        
-        reader.readAsText(file);
-    };
-    
-    input.click();
-}
-
-// Notification System - Enhanced
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    const notificationText = document.getElementById('notificationText');
-    
-    if (!notification || !notificationText) {
-        // Fallback to browser notification
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('SCMS Department Management', {
-                body: message,
-                icon: '/favicon.ico'
-            });
-        }
-        return;
-    }
-    
-    const iconElement = notification.querySelector('i');
-    if (iconElement) {
-        const icons = {
-            'success': 'fas fa-check-circle',
-            'error': 'fas fa-exclamation-circle',
-            'info': 'fas fa-info-circle',
-            'warning': 'fas fa-exclamation-triangle'
-        };
-        iconElement.className = icons[type] || icons['success'];
-    }
-    
-    notificationText.textContent = message;
-    notification.className = `notification ${type} show`;
-    
-    // Add click to dismiss
-    notification.onclick = () => {
-        notification.classList.remove('show');
-    };
-    
-    // Auto-dismiss
-    const duration = type === 'error' ? 5000 : 3000;
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, duration);
-    
-    // Vibration for mobile
-    if ('vibrate' in navigator && (type === 'error' || type === 'warning')) {
-        navigator.vibrate([100, 50, 100]);
-    }
-}
-
-// Helper Functions - Enhanced
-function formatStatus(status) {
-    const statusMap = {
-        'active': 'Active',
-        'inactive': 'Inactive',
-        'under-review': 'Under Review',
-        'maintenance': 'Maintenance',
-        'suspended': 'Suspended'
-    };
-    
-    return statusMap[status] || status.replace('-', ' ').split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        // Clear all data
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Show loading
-        showLoading();
-        
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1000);
-    }
-}
-
-// PWA Support
-function setupPWA() {
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered successfully');
-            })
-            .catch(error => {
-                console.log('SW registration failed');
-            });
-    }
-    
-    // Install prompt
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        const installBtn = document.getElementById('installApp');
-        if (installBtn) {
-            installBtn.style.display = 'block';
-            installBtn.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showNotification('App installed successfully!', 'success');
-                    }
-                    deferredPrompt = null;
-                    installBtn.style.display = 'none';
-                });
-            };
-        }
-    });
-}
-
-// Event Listeners Setup - Enhanced
+// Event Listeners Setup
 function setupEventListeners() {
-    // Window resize with debouncing
-    let resizeTimeout;
+    // Window resize
     window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (window.innerWidth > 768) {
-                closeMobileSidebar();
-            }
-        }, 250);
-    });
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // ESC to close modals
-        if (e.key === 'Escape') {
-            closeModal();
+        if (window.innerWidth > 768) {
             closeMobileSidebar();
-        }
-        
-        // Ctrl+/ for search focus
-        if (e.ctrlKey && e.key === '/') {
-            e.preventDefault();
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.focus();
-            }
-        }
-        
-        // Ctrl+N for new department
-        if (e.ctrlKey && e.key === 'n') {
-            e.preventDefault();
-            openAddDepartmentModal();
         }
     });
     
@@ -2052,73 +1172,7 @@ function setupEventListeners() {
             }
         });
     });
-    
-    // Form validation on input
-    document.querySelectorAll('input, select, textarea').forEach(input => {
-        input.addEventListener('blur', function() {
-            if (this.classList.contains('error')) {
-                this.classList.remove('error');
-                const errorMsg = this.parentNode.querySelector('.error-message');
-                if (errorMsg) {
-                    errorMsg.remove();
-                }
-            }
-        });
-    });
-    
-    // Online/Offline status
-    window.addEventListener('online', () => {
-        showNotification('Connection restored', 'success');
-    });
-    
-    window.addEventListener('offline', () => {
-        showNotification('You are offline', 'warning');
-    });
-    
-    // Request notification permission
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-    }
-    
-    // Setup PWA
-    setupPWA();
 }
 
-// Initialize when DOM loads - Enhanced
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn && window.location.pathname !== '/login.html') {
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    // Load preferred view
-    const preferredView = localStorage.getItem('preferredView') || 'table';
-    currentView = preferredView;
-    
-    // Initialize app
-    initializeApp();
-    
-    // Add loading screen removal
-    setTimeout(() => {
-        const loadingScreen = document.getElementById('loadingScreen');
-        if (loadingScreen) {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 300);
-        }
-    }, 1500);
-});
-
-// Error Handling
-window.addEventListener('error', function(e) {
-    console.error('Global error:', e.error);
-    showNotification('An unexpected error occurred', 'error');
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('Unhandled promise rejection:', e.reason);
-    showNotification('An unexpected error occurred', 'error');
-});
+// Initialize when DOM loads
+document.addEventListener('DOMContentLoaded', initializeApp);
