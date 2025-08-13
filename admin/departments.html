@@ -9,30 +9,25 @@
     <link rel="stylesheet" href="departments.css">
 </head>
 <body>
-    <!-- Mobile Header - Enhanced -->
     <div class="mobile-header">
         <div class="mobile-header-content">
             <div class="mobile-logo">
                 🎓 <span>SCMS Departments</span>
             </div>
             <div class="mobile-controls">
-                <button class="mobile-theme-toggle" onclick="toggleTheme()" 
-                        title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                     <i class="fas fa-moon" id="mobileThemeIcon"></i>
                 </button>
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" 
-                        aria-label="Toggle navigation menu">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
     <div class="dashboard">
-        <!-- Sidebar - Enhanced -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>🎓 SCMS</h2>
@@ -49,9 +44,7 @@
                 </div>
             </div>
             
-            <!-- Theme Toggle - Enhanced -->
-            <div class="theme-toggle-sidebar" onclick="toggleTheme()" 
-                 tabindex="0" role="button" aria-label="Toggle theme">
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
                 <div class="theme-toggle-icon">
                     <i class="fas fa-moon" id="themeIcon"></i>
                     <span id="themeLabel">Dark Mode</span>
@@ -61,76 +54,73 @@
                 </div>
             </div>
             
-            <!-- Navigation - Enhanced -->
             <nav class="sidebar-nav">
                 <ul>
                     <li>
                         <a href="dashboard.html">
                             <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
+                            Dashboard
                         </a>
                     </li>
                     <li>
                         <a href="users.html">
                             <i class="fas fa-chalkboard-teacher"></i>
-                            <span>Class Management</span>
+                            Class Management
                         </a>
                     </li>
                     <li>
                         <a href="students.html">
                             <i class="fas fa-user-graduate"></i>
-                            <span>Students</span>
+                            Students
                         </a>
                     </li>
                     <li>
                         <a href="teachers.html">
                             <i class="fas fa-user-tie"></i>
-                            <span>Faculty</span>
+                            Faculty
                         </a>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="departments.html">
                             <i class="fas fa-building"></i>
-                            <span>Departments</span>
+                            Departments
                         </a>
                     </li>
                     <li>
                         <a href="labs.html">
                             <i class="fas fa-flask"></i>
-                            <span>Lab Management</span>
+                            Lab Management
                         </a>
                     </li>
-                    <li>
+                     <li>
                         <a href="feedback.html">
                             <i class="fas fa-comment-dots"></i>
-                            <span>Feedback & Complaints</span>
+                            Feedback & Complaints
                         </a>
                     </li>
                     <li>
                         <a href="reports.html">
                             <i class="fas fa-chart-bar"></i>
-                            <span>Reports & Analytics</span>
+                            Reports & Analytics
                         </a>
                     </li>
                     <li>
                         <a href="settings.html">
                             <i class="fas fa-cog"></i>
-                            <span>System Settings</span>
+                            System Settings
                         </a>
                     </li>
                     <li>
                         <a href="#" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
+                            Logout
                         </a>
                     </li>
                 </ul>
             </nav>
         </div>
         
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Header - Enhanced Mobile Support -->
             <div class="header">
                 <div>
                     <h1>🏛️ Department Management</h1>
@@ -139,26 +129,25 @@
                 <div class="header-actions">
                     <button class="btn btn-success" onclick="openAddDepartmentModal()">
                         <i class="fas fa-plus"></i>
-                        <span class="btn-text">Add Department</span>
+                        Add Department
                     </button>
                     <button class="btn btn-primary" onclick="openLabManagementModal()">
                         <i class="fas fa-flask"></i>
-                        <span class="btn-text">Manage Labs</span>
+                        Manage Labs
                     </button>
                     <button class="btn btn-warning" onclick="importDepartments()">
                         <i class="fas fa-upload"></i>
-                        <span class="btn-text">Import</span>
+                        Import Data
                     </button>
                     <button class="btn btn-secondary" onclick="exportDepartments()">
                         <i class="fas fa-download"></i>
-                        <span class="btn-text">Export</span>
+                        Export Data
                     </button>
                 </div>
             </div>
 
-            <!-- Stats Grid - Mobile Optimized -->
             <div class="stats-grid">
-                <div class="stat-card total" tabindex="0">
+                <div class="stat-card total">
                     <div class="stat-icon">
                         <i class="fas fa-building"></i>
                     </div>
@@ -169,18 +158,18 @@
                     </div>
                 </div>
                 
-                <div class="stat-card active" tabindex="0">
+                <div class="stat-card active">
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-info">
                         <div class="stat-number" id="activeDepartments">10</div>
                         <div class="stat-label">Active Departments</div>
-                        <div class="stat-change success">83% active</div>
+                        <div class="stat-change">83% active</div>
                     </div>
                 </div>
                 
-                <div class="stat-card faculty" tabindex="0">
+                <div class="stat-card faculty">
                     <div class="stat-icon">
                         <i class="fas fa-user-tie"></i>
                     </div>
@@ -191,43 +180,35 @@
                     </div>
                 </div>
                 
-                <div class="stat-card students" tabindex="0">
+                <div class="stat-card students">
                     <div class="stat-icon">
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <div class="stat-info">
                         <div class="stat-number" id="totalStudents">2,450</div>
                         <div class="stat-label">Total Students</div>
-                        <div class="stat-change success">Enrolled students</div>
+                        <div class="stat-change">Enrolled students</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Lab Statistics Section - Added -->
-        </div>
-                </div>
-            </div>
-
-            <!-- Filters Section - Mobile Optimized -->
+            <!-- New Lab Statistics Row -->
+           
             <div class="filters-section">
                 <div class="search-box">
-                    <input type="text" class="search-input" 
-                           placeholder="Search departments, labs, faculty..." 
-                           id="searchInput" onkeyup="searchDepartments()"
-                           aria-label="Search departments">
+                    <input type="text" class="search-input" placeholder="Search departments, labs, faculty..." 
+                           id="searchInput" onkeyup="searchDepartments()">
                     <i class="fas fa-search search-icon"></i>
                 </div>
                 
-                <select class="filter-select" id="statusFilter" 
-                        onchange="filterDepartments()" aria-label="Filter by status">
+                <select class="filter-select" id="statusFilter" onchange="filterDepartments()">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="under-review">Under Review</option>
                 </select>
                 
-                <select class="filter-select" id="typeFilter" 
-                        onchange="filterDepartments()" aria-label="Filter by type">
+                <select class="filter-select" id="typeFilter" onchange="filterDepartments()">
                     <option value="">All Types</option>
                     <option value="Engineering">Engineering</option>
                     <option value="Science">Science</option>
@@ -237,74 +218,58 @@
                     <option value="Management">Management</option>
                 </select>
 
-                <select class="filter-select" id="labFilter" 
-                        onchange="filterDepartments()" aria-label="Filter by lab availability">
+                <!-- New Lab Filter -->
+                <select class="filter-select" id="labFilter" onchange="filterDepartments()">
                     <option value="">All Labs</option>
                     <option value="has-labs">With Labs</option>
                     <option value="no-labs">No Labs</option>
-                    <option value="high-utilization">High Utilization (&gt;80%)</option>
-                    <option value="low-utilization">Low Utilization (&lt;60%)</option>
+                    <option value="high-utilization">High Utilization (>80%)</option>
+                    <option value="low-utilization">Low Utilization (<60%)</option>
                 </select>
             </div>
 
-            <!-- Bulk Actions - Mobile Optimized -->
-            <div class="bulk-actions" id="bulkActions" style="display: none;">
-                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" 
-                       aria-label="Select all departments">
+            <div class="bulk-actions" id="bulkActions">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                 <span class="selected-count" id="selectedCount">0 departments selected</span>
                 <button class="btn btn-warning btn-sm" onclick="bulkAction('activate')">
                     <i class="fas fa-check"></i>
-                    <span class="btn-text">Activate</span>
+                    Activate
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="bulkAction('deactivate')">
                     <i class="fas fa-ban"></i>
-                    <span class="btn-text">Deactivate</span>
+                    Deactivate
                 </button>
                 <button class="btn btn-primary btn-sm" onclick="exportSelected()">
                     <i class="fas fa-download"></i>
-                    <span class="btn-text">Export</span>
+                    Export Selected
                 </button>
             </div>
 
-            <!-- Departments Section - Mobile Optimized -->
             <div class="departments-section">
                 <div class="table-header">
-                    <h3>
-                        <i class="fas fa-building"></i> 
-                        Department Directory
-                        <span class="count-badge" id="departmentCount">12</span>
-                    </h3>
+                    <h3><i class="fas fa-building"></i> Department Directory</h3>
                     <div class="view-controls">
-                        <button class="btn btn-sm view-btn active" id="cardViewBtn" 
-                                onclick="switchView('card')" title="Card View" aria-label="Switch to card view">
+                        <button class="btn btn-sm" id="cardViewBtn" onclick="switchView('card')" title="Card View">
                             <i class="fas fa-th-large"></i>
                         </button>
-                        <button class="btn btn-sm view-btn" id="tableViewBtn" 
-                                onclick="switchView('table')" title="Table View" aria-label="Switch to table view">
+                        <button class="btn btn-sm active" id="tableViewBtn" onclick="switchView('table')" title="Table View">
                             <i class="fas fa-table"></i>
                         </button>
                         <button class="btn btn-primary btn-sm" onclick="refreshDepartments()">
                             <i class="fas fa-sync-alt"></i>
-                            <span class="btn-text">Refresh</span>
+                            Refresh
                         </button>
                     </div>
                 </div>
 
-                <!-- Card View Container -->
-                <div class="departments-container" id="departmentsContainer">
-                    <!-- Department cards will be dynamically populated here -->
+                <div class="departments-container" id="departmentsContainer" style="display: none;">
                 </div>
 
-                <!-- Table View Container -->
-                <div class="table-container" id="tableContainer" style="display: none;">
+                <div class="table-container" id="tableContainer">
                     <table>
                         <thead>
                             <tr>
-                                <th>
-                                    <input type="checkbox" id="masterCheckbox" 
-                                           onchange="toggleMasterCheckbox()" 
-                                           aria-label="Select all visible departments">
-                                </th>
+                                <th><input type="checkbox" id="masterCheckbox" onchange="toggleMasterCheckbox()"></th>
                                 <th>Department Info</th>
                                 <th>Head of Department</th>
                                 <th>Faculty Count</th>
@@ -315,56 +280,40 @@
                             </tr>
                         </thead>
                         <tbody id="departmentsTableBody">
-                            <!-- Table rows will be dynamically populated here -->
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Empty State -->
-                <div class="empty-state" id="emptyState" style="display: none;">
-                    <i class="fas fa-building"></i>
-                    <h3>No Departments Found</h3>
-                    <p>No departments match your current filters. Try adjusting your search criteria or add a new department.</p>
-                    <button class="btn btn-primary" onclick="openAddDepartmentModal()">
-                        <i class="fas fa-plus"></i>
-                        Add First Department
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Department Modal - Enhanced -->
-    <div class="modal" id="departmentModal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <!-- Department Modal -->
+    <div class="modal" id="departmentModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle">Add New Department</h3>
-                <button class="close-btn" onclick="closeModal('departmentModal')" aria-label="Close modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <form id="departmentForm" onsubmit="saveDepartment(event)" novalidate>
+            <form id="departmentForm" onsubmit="saveDepartment(event)">
                 <div class="form-section">
                     <h4><i class="fas fa-building"></i> Department Information</h4>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="departmentName">Department Name *</label>
-                            <input type="text" id="departmentName" name="name" required 
-                                   placeholder="e.g., Computer Science Engineering">
+                            <label>Department Name *</label>
+                            <input type="text" id="departmentName" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="departmentCode">Department Code *</label>
-                            <input type="text" id="departmentCode" name="code" required 
-                                   placeholder="e.g., CSE" maxlength="10">
+                            <label>Department Code *</label>
+                            <input type="text" id="departmentCode" required placeholder="e.g., CSE">
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="departmentType">Department Type *</label>
-                            <select id="departmentType" name="type" required>
+                            <label>Department Type *</label>
+                            <select id="departmentType" required>
                                 <option value="">Select Type</option>
                                 <option value="Engineering">Engineering</option>
                                 <option value="Science">Science</option>
@@ -376,16 +325,14 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="establishedYear">Established Year</label>
-                            <input type="number" id="establishedYear" name="establishedYear" 
-                                   min="1900" max="2030" placeholder="2020">
+                            <label>Established Year</label>
+                            <input type="number" id="establishedYear" min="1900" max="2030" placeholder="2020">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="departmentDescription">Description</label>
-                        <textarea id="departmentDescription" name="description" rows="3" 
-                                  placeholder="Department description and objectives"></textarea>
+                        <label>Description</label>
+                        <textarea id="departmentDescription" rows="3" placeholder="Department description and objectives"></textarea>
                     </div>
                 </div>
 
@@ -394,36 +341,31 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="hodName">Head of Department</label>
-                            <input type="text" id="hodName" name="hodName" 
-                                   placeholder="Dr. John Smith">
+                            <label>Head of Department</label>
+                            <input type="text" id="hodName" placeholder="Dr. John Smith">
                         </div>
                         
                         <div class="form-group">
-                            <label for="hodEmail">HOD Email</label>
-                            <input type="email" id="hodEmail" name="hodEmail" 
-                                   placeholder="hod@department.edu">
+                            <label>HOD Email</label>
+                            <input type="email" id="hodEmail" placeholder="hod@department.edu">
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="departmentPhone">Department Phone</label>
-                            <input type="tel" id="departmentPhone" name="phone" 
-                                   placeholder="+91-98765-43210">
+                            <label>Department Phone</label>
+                            <input type="tel" id="departmentPhone" placeholder="+91-98765-43210">
                         </div>
                         
                         <div class="form-group">
-                            <label for="departmentEmail">Department Email</label>
-                            <input type="email" id="departmentEmail" name="email" 
-                                   placeholder="info@department.edu">
+                            <label>Department Email</label>
+                            <input type="email" id="departmentEmail" placeholder="info@department.edu">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="officeLocation">Office Location</label>
-                        <input type="text" id="officeLocation" name="location" 
-                               placeholder="Building A, Floor 2, Room 201">
+                        <label>Office Location</label>
+                        <input type="text" id="officeLocation" placeholder="Building A, Floor 2, Room 201">
                     </div>
                 </div>
 
@@ -432,28 +374,25 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="facultyCount">Faculty Count</label>
-                            <input type="number" id="facultyCount" name="facultyCount" 
-                                   min="0" placeholder="25">
+                            <label>Faculty Count</label>
+                            <input type="number" id="facultyCount" min="0" placeholder="25">
                         </div>
                         
                         <div class="form-group">
-                            <label for="studentCapacity">Student Capacity</label>
-                            <input type="number" id="studentCapacity" name="capacity" 
-                                   min="0" placeholder="500">
+                            <label>Student Capacity</label>
+                            <input type="number" id="studentCapacity" min="0" placeholder="500">
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="currentStudents">Current Students</label>
-                            <input type="number" id="currentStudents" name="currentStudents" 
-                                   min="0" placeholder="450">
+                            <label>Current Students</label>
+                            <input type="number" id="currentStudents" min="0" placeholder="450">
                         </div>
                         
                         <div class="form-group">
-                            <label for="departmentStatus">Status</label>
-                            <select id="departmentStatus" name="status">
+                            <label>Status</label>
+                            <select id="departmentStatus">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                                 <option value="under-review">Under Review</option>
@@ -467,7 +406,7 @@
                         <i class="fas fa-save"></i>
                         Save Department
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('departmentModal')">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
                         Cancel
                     </button>
                 </div>
@@ -475,36 +414,29 @@
         </div>
     </div>
 
-    <!-- Lab Management Modal - Enhanced -->
-    <div class="modal" id="labManagementModal" role="dialog" aria-labelledby="labManagementTitle" aria-hidden="true">
+    <!-- Lab Management Modal -->
+    <div class="modal" id="labManagementModal">
         <div class="modal-content modal-large">
             <div class="modal-header">
-                <h3 id="labManagementTitle"><i class="fas fa-flask"></i> Laboratory Management</h3>
-                <button class="close-btn" onclick="closeModal('labManagementModal')" aria-label="Close modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3><i class="fas fa-flask"></i> Laboratory Management</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="lab-management-content">
                 <div class="lab-management-header">
                     <div class="lab-search">
-                        <input type="text" placeholder="Search labs..." id="labSearchInput" 
-                               onkeyup="searchLabs()" aria-label="Search laboratories">
+                        <input type="text" placeholder="Search labs..." id="labSearchInput" onkeyup="searchLabs()">
                         <i class="fas fa-search"></i>
                     </div>
                     <div class="lab-filters">
-                        <select id="labDepartmentFilter" onchange="filterLabsByDepartment()" 
-                                aria-label="Filter labs by department">
+                        <select id="labDepartmentFilter" onchange="filterLabsByDepartment()">
                             <option value="">All Departments</option>
                         </select>
-                        <select id="labTypeFilter" onchange="filterLabsByType()" 
-                                aria-label="Filter labs by type">
+                        <select id="labTypeFilter" onchange="filterLabsByType()">
                             <option value="">All Lab Types</option>
                             <option value="Computer Lab">Computer Lab</option>
                             <option value="Electronics Lab">Electronics Lab</option>
                             <option value="Workshop Lab">Workshop Lab</option>
                             <option value="Research Lab">Research Lab</option>
-                            <option value="Chemistry Lab">Chemistry Lab</option>
-                            <option value="Physics Lab">Physics Lab</option>
                         </select>
                     </div>
                     <button class="btn btn-success" onclick="openAddLabModal()">
@@ -515,42 +447,30 @@
                 <div class="labs-grid" id="labsGrid">
                     <!-- Lab cards will be populated here -->
                 </div>
-                <div class="empty-lab-state" id="emptyLabState" style="display: none;">
-                    <i class="fas fa-flask"></i>
-                    <h3>No Labs Found</h3>
-                    <p>No laboratories match your current filters or no labs have been added yet.</p>
-                    <button class="btn btn-success" onclick="openAddLabModal()">
-                        <i class="fas fa-plus"></i>
-                        Add First Lab
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Lab Modal - Enhanced -->
-    <div class="modal" id="addLabModal" role="dialog" aria-labelledby="labModalTitle" aria-hidden="true">
+    <!-- Add Lab Modal -->
+    <div class="modal" id="addLabModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="labModalTitle">Add New Laboratory</h3>
-                <button class="close-btn" onclick="closeModal('addLabModal')" aria-label="Close modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <form id="labForm" onsubmit="saveLab(event)" novalidate>
+            <form id="labForm" onsubmit="saveLab(event)">
                 <div class="form-section">
                     <h4><i class="fas fa-flask"></i> Laboratory Information</h4>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="labName">Lab Name *</label>
-                            <input type="text" id="labName" name="name" required 
-                                   placeholder="Programming Lab">
+                            <label>Lab Name *</label>
+                            <input type="text" id="labName" required placeholder="Programming Lab">
                         </div>
                         
                         <div class="form-group">
-                            <label for="labType">Lab Type *</label>
-                            <select id="labType" name="type" required>
+                            <label>Lab Type *</label>
+                            <select id="labType" required>
                                 <option value="">Select Lab Type</option>
                                 <option value="Computer Lab">Computer Lab</option>
                                 <option value="Electronics Lab">Electronics Lab</option>
@@ -565,55 +485,49 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="labDepartment">Department *</label>
-                            <select id="labDepartment" name="department" required>
+                            <label>Department *</label>
+                            <select id="labDepartment" required>
                                 <option value="">Select Department</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="labCapacity">Capacity *</label>
-                            <input type="number" id="labCapacity" name="capacity" required 
-                                   min="1" placeholder="30">
+                            <label>Capacity *</label>
+                            <input type="number" id="labCapacity" required min="1" placeholder="30">
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="labIncharge">Lab In-charge</label>
-                            <input type="text" id="labIncharge" name="incharge" 
-                                   placeholder="Prof. Smith">
+                            <label>Lab In-charge</label>
+                            <input type="text" id="labIncharge" placeholder="Prof. Smith">
                         </div>
                         
                         <div class="form-group">
-                            <label for="labLocation">Location</label>
-                            <input type="text" id="labLocation" name="location" 
-                                   placeholder="Block A, Ground Floor">
+                            <label>Location</label>
+                            <input type="text" id="labLocation" placeholder="Block A, Ground Floor">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="labEquipment">Equipment (one per line)</label>
-                        <textarea id="labEquipment" name="equipment" rows="4" 
-                                  placeholder="Desktop PCs&#10;Projector&#10;Whiteboard&#10;Air Conditioning"></textarea>
+                        <label>Equipment (one per line)</label>
+                        <textarea id="labEquipment" rows="4" placeholder="Desktop PCs&#10;Projector&#10;Whiteboard&#10;Air Conditioning"></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label for="labSoftware">Software (one per line)</label>
-                        <textarea id="labSoftware" name="software" rows="3" 
-                                  placeholder="Visual Studio&#10;MySQL&#10;Eclipse"></textarea>
+                        <label>Software (one per line)</label>
+                        <textarea id="labSoftware" rows="3" placeholder="Visual Studio&#10;MySQL&#10;Eclipse"></textarea>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="utilizationRate">Utilization Rate (%)</label>
-                            <input type="number" id="utilizationRate" name="utilization" 
-                                   min="0" max="100" placeholder="85">
+                            <label>Utilization Rate (%)</label>
+                            <input type="number" id="utilizationRate" min="0" max="100" placeholder="85">
                         </div>
                         
                         <div class="form-group">
-                            <label for="labStatus">Status</label>
-                            <select id="labStatus" name="status">
+                            <label>Status</label>
+                            <select id="labStatus">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                                 <option value="maintenance">Under Maintenance</option>
@@ -627,7 +541,7 @@
                         <i class="fas fa-save"></i>
                         Save Laboratory
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('addLabModal')">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
                         Cancel
                     </button>
                 </div>
@@ -635,36 +549,23 @@
         </div>
     </div>
 
-    <!-- Department Details Modal - Enhanced -->
-    <div class="modal" id="departmentDetailsModal" role="dialog" aria-labelledby="departmentDetailsTitle" aria-hidden="true">
+    <!-- Department Details Modal -->
+    <div class="modal" id="departmentDetailsModal">
         <div class="modal-content modal-large">
             <div class="modal-header">
                 <h3 id="departmentDetailsTitle">Department Details</h3>
-                <button class="close-btn" onclick="closeModal('departmentDetailsModal')" aria-label="Close modal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="department-details-view" id="departmentDetailsContent">
-                <!-- Department details will be populated here -->
+            <div id="departmentDetailsContent">
             </div>
         </div>
     </div>
 
-    <!-- Notification - Enhanced -->
-    <div class="notification" id="notification" role="alert" aria-live="polite">
-        <i class="fas fa-check-circle" id="notificationIcon"></i>
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
         <span id="notificationText">Success message</span>
-    </div>
-
-    <!-- Loading Overlay (Optional) -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading departments...</p>
-        </div>
     </div>
 
     <script src="departments.js"></script>
 </body>
 </html>
-
