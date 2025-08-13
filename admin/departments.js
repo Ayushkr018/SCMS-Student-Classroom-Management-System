@@ -1,733 +1,1031 @@
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('scms-theme') || 'light';
-    const themeIcon = document.getElementById('themeIcon');
-    const mobileThemeIcon = document.getElementById('mobileThemeIcon');
-    const themeLabel = document.getElementById('themeLabel');
-    const themeSwitch = document.getElementById('themeSwitch');
-    
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun';
-        if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-sun';
-        if (themeLabel) themeLabel.textContent = 'Light Mode';
-        if (themeSwitch) themeSwitch.classList.add('active');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        if (themeIcon) themeIcon.className = 'fas fa-moon';
-        if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-moon';
-        if (themeLabel) themeLabel.textContent = 'Dark Mode';
-        if (themeSwitch) themeSwitch.classList.remove('active');
-    }
-}
+// Global variables
+let currentDepartment = null;
+let currentLab = null;
+let departments = [];
+let labs = [];
+let currentView = 'table';
+let selectedDepartments = [];
+let filteredDepartments = [];
+let currentUser = null;
 
+// Theme Management
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    const themeIcon = document.getElementById('themeIcon');
-    const mobileThemeIcon = document.getElementById('mobileThemeIcon');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('scms-theme', newTheme);
+    
+    updateThemeIcons(newTheme);
+    
+    // Add smooth transition effect
+    document.body.style.transition = 'background-color 0.3s ease';
+    setTimeout(() => {
+        document.body.style.transition = '';
+    }, 300);
+}
+
+function updateThemeIcons(theme) {
+    const elements = [
+        { id: 'themeIcon', darkClass: 'fas fa-sun', lightClass: 'fas fa-moon' },
+        { id: 'mobileThemeIcon', darkClass: 'fas fa-sun', lightClass: 'fas fa-moon' }
+    ];
+    
+    elements.forEach(({ id, darkClass, lightClass }) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.className = theme === 'dark' ? darkClass : lightClass;
+        }
+    });
+    
     const themeLabel = document.getElementById('themeLabel');
     const themeSwitch = document.getElementById('themeSwitch');
     
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('scms-theme', 'light');
-        if (themeIcon) themeIcon.className = 'fas fa-moon';
-        if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-moon';
-        if (themeLabel) themeLabel.textContent = 'Dark Mode';
-        if (themeSwitch) themeSwitch.classList.remove('active');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('scms-theme', 'dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun';
-        if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-sun';
-        if (themeLabel) themeLabel.textContent = 'Light Mode';
-        if (themeSwitch) themeSwitch.classList.add('active');
-    }
+    if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    if (themeSwitch) themeSwitch.classList.toggle('active', theme === 'dark');
 }
 
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('scms-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+}
+
+// Mobile Navigation
 function toggleMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    const body = document.body;
     
-    if (sidebar && overlay) {
+    if (!sidebar || !overlay) return;
+    
+    const isActive = sidebar.classList.contains('active');
+    
+    if (isActive) {
+        closeMobileSidebar();
+    } else {
         sidebar.classList.add('active');
         overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        body.style.overflow = 'hidden';
+        
+        // Add slide animation
+        sidebar.style.transform = 'translateX(0)';
     }
 }
 
 function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    const body = document.body;
     
-    if (sidebar && overlay) {
+    if (sidebar) {
         sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
+        sidebar.style.transform = 'translateX(-100%)';
     }
+    if (overlay) overlay.classList.remove('active');
+    body.style.overflow = 'auto';
 }
 
-let DEPARTMENTS_DATA = JSON.parse(localStorage.getItem('scms_departments_data')) || [
+// Modal Management
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus trap for accessibility
+    const focusableElements = modal.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+    }
+    
+    // Add escape key listener
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+function closeModal() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.remove('show');
+        
+        // Reset forms
+        const forms = modal.querySelectorAll('form');
+        forms.forEach(form => {
+            if (form.reset) form.reset();
+        });
+    });
+    
+    document.body.style.overflow = 'auto';
+    
+    // Reset current objects
+    currentDepartment = null;
+    currentLab = null;
+}
+
+// Sample Data with Enhanced Structure
+const sampleDepartments = [
     {
-        id: 'DEPT001',
-        name: 'Computer Science & Engineering',
-        code: 'CSE',
-        type: 'Engineering',
-        description: 'Department of Computer Science and Engineering focuses on cutting-edge technology, programming, and software development with state-of-the-art laboratory facilities.',
-        establishedYear: 2005,
-        hodName: 'Dr. Rajesh Kumar',
-        hodEmail: 'rajesh.kumar@college.edu',
-        departmentPhone: '+91-98765-43210',
-        departmentEmail: 'cse@college.edu',
-        officeLocation: 'Academic Block A, 3rd Floor',
-        facultyCount: 25,
-        studentCapacity: 240,
-        currentStudents: 220,
-        status: 'active',
-        labs: [
-            {
-                labId: 'LAB001',
-                labName: 'Programming Lab',
-                labType: 'Computer Lab',
-                capacity: 30,
-                equipment: ['30 Desktop PCs', 'Projector', 'Whiteboard', 'Air Conditioning'],
-                software: ['Visual Studio', 'Eclipse', 'IntelliJ IDEA', 'MySQL'],
-                labIncharge: 'Prof. Kumar Sharma',
-                location: 'CSE Block, Ground Floor',
-                status: 'active',
-                utilizationRate: 85
-            },
-            {
-                labId: 'LAB002',
-                labName: 'Database Lab',
-                labType: 'Computer Lab',
-                capacity: 25,
-                equipment: ['25 Laptops', 'Server Rack', 'Network Switch', 'UPS System'],
-                software: ['Oracle 19c', 'MySQL', 'MongoDB', 'PostgreSQL'],
-                labIncharge: 'Dr. Priya Singh',
-                location: 'CSE Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 78
-            },
-            {
-                labId: 'LAB003',
-                labName: 'Network Lab',
-                labType: 'Networking Lab',
-                capacity: 20,
-                equipment: ['Cisco Routers', 'Switches', 'Cable Testers', 'Workstations'],
-                software: ['Cisco Packet Tracer', 'Wireshark', 'GNS3'],
-                labIncharge: 'Mr. Amit Gupta',
-                location: 'CSE Block, 2nd Floor',
-                status: 'active',
-                utilizationRate: 72
-            }
-        ],
-        totalLabCapacity: 75,
-        activeLabsCount: 3,
-        avgLabUtilization: 78
-    },
-    {
-        id: 'DEPT002',
-        name: 'Electronics & Communication',
-        code: 'ECE',
-        type: 'Engineering',
-        description: 'Electronics and Communication Engineering department specializes in electronic devices, communication systems, and signal processing with advanced laboratory infrastructure.',
-        establishedYear: 2003,
-        hodName: 'Dr. Priya Sharma',
-        hodEmail: 'priya.sharma@college.edu',
-        departmentPhone: '+91-98765-43211',
-        departmentEmail: 'ece@college.edu',
-        officeLocation: 'Academic Block B, 2nd Floor',
-        facultyCount: 20,
-        studentCapacity: 180,
-        currentStudents: 165,
-        status: 'active',
-        labs: [
-            {
-                labId: 'LAB004',
-                labName: 'Electronics Lab',
-                labType: 'Electronics Lab',
-                capacity: 30,
-                equipment: ['Oscilloscopes', 'Function Generators', 'Multimeters', 'Power Supplies'],
-                software: ['MATLAB', 'Proteus', 'Multisim'],
-                labIncharge: 'Prof. Ravi Kumar',
-                location: 'ECE Block, Ground Floor',
-                status: 'active',
-                utilizationRate: 82
-            },
-            {
-                labId: 'LAB005',
-                labName: 'Communication Lab',
-                labType: 'Communication Lab',
-                capacity: 25,
-                equipment: ['Signal Generators', 'Spectrum Analyzers', 'Antennas', 'RF Equipment'],
-                software: ['LabVIEW', 'GNU Radio', 'ADS'],
-                labIncharge: 'Dr. Sunita Mehta',
-                location: 'ECE Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 75
-            }
-        ],
-        totalLabCapacity: 55,
-        activeLabsCount: 2,
-        avgLabUtilization: 79
-    },
-    {
-        id: 'DEPT003',
-        name: 'Mechanical Engineering',
-        code: 'MECH',
-        type: 'Engineering',
-        description: 'Mechanical Engineering department covers design, manufacturing, thermal systems, and mechanical systems with comprehensive workshop and laboratory facilities.',
-        establishedYear: 2001,
-        hodName: 'Prof. Anand Gupta',
-        hodEmail: 'anand.gupta@college.edu',
-        departmentPhone: '+91-98765-43212',
-        departmentEmail: 'mech@college.edu',
-        officeLocation: 'Engineering Block, Ground Floor',
-        facultyCount: 22,
-        studentCapacity: 200,
-        currentStudents: 185,
-        status: 'active',
-        labs: [
-            {
-                labId: 'LAB006',
-                labName: 'Manufacturing Lab',
-                labType: 'Workshop Lab',
-                capacity: 20,
-                equipment: ['CNC Machines', 'Lathes', 'Milling Machines', 'Drilling Machines'],
-                software: ['AutoCAD', 'SolidWorks', 'CATIA'],
-                labIncharge: 'Prof. Vikram Singh',
-                location: 'Mech Workshop, Ground Floor',
-                status: 'active',
-                utilizationRate: 88
-            },
-            {
-                labId: 'LAB007',
-                labName: 'Thermal Lab',
-                labType: 'Thermal Lab',
-                capacity: 15,
-                equipment: ['Heat Exchangers', 'IC Engine Setup', 'Boiler Models', 'Refrigeration Units'],
-                software: ['ANSYS Fluent', 'MATLAB', 'AutoCAD'],
-                labIncharge: 'Dr. Meera Patel',
-                location: 'Mech Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 70
-            }
-        ],
-        totalLabCapacity: 35,
-        activeLabsCount: 2,
-        avgLabUtilization: 79
-    },
-    {
-        id: 'DEPT004',
-        name: 'Civil Engineering',
-        code: 'CIVIL',
-        type: 'Engineering',
-        description: 'Civil Engineering department focuses on infrastructure, construction, environmental engineering, and structural design with specialized testing laboratories.',
-        establishedYear: 2000,
-        hodName: 'Dr. Vikram Singh',
-        hodEmail: 'vikram.singh@college.edu',
-        departmentPhone: '+91-98765-43213',
-        departmentEmail: 'civil@college.edu',
-        officeLocation: 'Engineering Block, 1st Floor',
-        facultyCount: 18,
-        studentCapacity: 160,
-        currentStudents: 155,
-        status: 'active',
-        labs: [
-            {
-                labId: 'LAB008',
-                labName: 'Concrete Testing Lab',
-                labType: 'Material Testing Lab',
-                capacity: 15,
-                equipment: ['Compression Testing Machine', 'Concrete Mixer', 'Slump Cone', 'Vibrating Table'],
-                software: ['AutoCAD', 'STAAD Pro', 'ETABS'],
-                labIncharge: 'Prof. Rajesh Patel',
-                location: 'Civil Block, Ground Floor',
-                status: 'active',
-                utilizationRate: 65
-            },
-            {
-                labId: 'LAB009',
-                labName: 'Surveying Lab',
-                labType: 'Surveying Lab',
-                capacity: 20,
-                equipment: ['Total Stations', 'Theodolites', 'Levels', 'GPS Units'],
-                software: ['AutoCAD Civil 3D', 'ArcGIS', 'Total Station Software'],
-                labIncharge: 'Dr. Kavita Singh',
-                location: 'Civil Block, Outdoor Area',
-                status: 'active',
-                utilizationRate: 72
-            }
-        ],
-        totalLabCapacity: 35,
-        activeLabsCount: 2,
-        avgLabUtilization: 69
-    },
-    {
-        id: 'DEPT005',
-        name: 'Information Technology',
-        code: 'IT',
-        type: 'Engineering',
-        description: 'Information Technology department specializes in software development, database systems, and IT infrastructure with modern computing laboratories.',
-        establishedYear: 2008,
-        hodName: 'Dr. Kavitha Reddy',
-        hodEmail: 'kavitha.reddy@college.edu',
-        departmentPhone: '+91-98765-43214',
-        departmentEmail: 'it@college.edu',
-        officeLocation: 'IT Block, 2nd Floor',
-        facultyCount: 15,
-        studentCapacity: 120,
-        currentStudents: 110,
-        status: 'active',
-        labs: [
-            {
-                labId: 'LAB010',
-                labName: 'Software Development Lab',
-                labType: 'Computer Lab',
-                capacity: 30,
-                equipment: ['High-end PCs', 'Multiple Monitors', 'Development Servers', 'Testing Devices'],
-                software: ['Visual Studio', 'Android Studio', 'Xcode', 'Docker'],
-                labIncharge: 'Mr. Amit Joshi',
-                location: 'IT Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 90
-            },
-            {
-                labId: 'LAB011',
-                labName: 'Cloud Computing Lab',
-                labType: 'Cloud Lab',
-                capacity: 25,
-                equipment: ['Cloud Servers', 'Workstations', 'Network Infrastructure', 'Storage Systems'],
-                software: ['AWS Console', 'Azure Portal', 'Google Cloud', 'Kubernetes'],
-                labIncharge: 'Dr. Ravi Sharma',
-                location: 'IT Block, 2nd Floor',
-                status: 'active',
-                utilizationRate: 85
-            }
-        ],
-        totalLabCapacity: 55,
-        activeLabsCount: 2,
-        avgLabUtilization: 88
-    },
-    {
-        id: 'DEPT006',
-        name: 'Business Administration',
-        code: 'MBA',
-        type: 'Management',
-        description: 'Master of Business Administration program focusing on management, leadership, and business strategy with computer and simulation laboratories.',
+        id: 1,
+        name: "Computer Science Engineering",
+        code: "CSE",
+        type: "Engineering",
+        hod: "Dr. Rajesh Kumar",
+        hodEmail: "rajesh.kumar@scms.edu",
+        email: "cse@scms.edu",
+        phone: "+91-98765-43210",
+        location: "Block A, Floor 3",
+        facultyCount: 28,
+        studentCapacity: 600,
+        currentStudents: 545,
         establishedYear: 2010,
-        hodName: 'Dr. Arjun Patel',
-        hodEmail: 'arjun.patel@college.edu',
-        departmentPhone: '+91-98765-43215',
-        departmentEmail: 'mba@college.edu',
-        officeLocation: 'Management Block, 3rd Floor',
-        facultyCount: 12,
-        studentCapacity: 80,
-        currentStudents: 75,
-        status: 'active',
+        status: "active",
+        description: "Leading department in computer science and technology education with state-of-the-art facilities and experienced faculty members.",
         labs: [
             {
-                labId: 'LAB012',
-                labName: 'Business Analytics Lab',
-                labType: 'Computer Lab',
+                id: 1,
+                name: "Programming Laboratory",
+                type: "Computer Lab",
+                capacity: 60,
+                utilization: 85,
+                incharge: "Prof. Smith Anderson",
+                location: "Block A, Room 301",
+                equipment: ["High-end Desktop PCs - 60", "Interactive Projector - 2", "Smart Whiteboard - 1", "Central AC - 2", "Network Infrastructure"],
+                software: ["Visual Studio 2022", "IntelliJ IDEA", "MySQL Workbench", "Git", "Docker", "VS Code"],
+                status: "active"
+            },
+            {
+                id: 2,
+                name: "Data Structures Laboratory",
+                type: "Computer Lab",
+                capacity: 40,
+                utilization: 78,
+                incharge: "Prof. Johnson Lee",
+                location: "Block A, Room 302",
+                equipment: ["Desktop PCs - 40", "Projector - 1", "Interactive Board - 1", "Sound System"],
+                software: ["Dev C++", "Code Blocks", "Visual Studio", "Eclipse", "NetBeans"],
+                status: "active"
+            },
+            {
+                id: 3,
+                name: "AI & ML Laboratory",
+                type: "Research Lab",
+                capacity: 30,
+                utilization: 92,
+                incharge: "Dr. Sarah Williams",
+                location: "Block A, Room 305",
+                equipment: ["High-Performance Workstations - 30", "GPU Servers - 4", "Large Display - 2"],
+                software: ["Python", "TensorFlow", "PyTorch", "Jupyter Notebooks", "CUDA Toolkit"],
+                status: "active"
+            }
+        ]
+    },
+    {
+        id: 2,
+        name: "Electronics & Communication Engineering",
+        code: "ECE",
+        type: "Engineering",
+        hod: "Dr. Priya Sharma",
+        hodEmail: "priya.sharma@scms.edu",
+        email: "ece@scms.edu",
+        phone: "+91-98765-43211",
+        location: "Block B, Floor 2",
+        facultyCount: 22,
+        studentCapacity: 480,
+        currentStudents: 456,
+        establishedYear: 2012,
+        status: "active",
+        description: "Excellence in electronics and communication engineering with focus on innovation, research, and industry collaboration.",
+        labs: [
+            {
+                id: 4,
+                name: "Electronics Laboratory",
+                type: "Electronics Lab",
+                capacity: 50,
+                utilization: 82,
+                incharge: "Prof. Wilson Carter",
+                location: "Block B, Room 201",
+                equipment: ["Digital Oscilloscopes - 25", "Function Generators - 25", "Digital Multimeters - 50", "Power Supplies - 25"],
+                software: ["MATLAB", "Proteus Professional", "Multisim", "LabVIEW"],
+                status: "active"
+            },
+            {
+                id: 5,
+                name: "Communication Systems Lab",
+                type: "Electronics Lab",
+                capacity: 35,
+                utilization: 76,
+                incharge: "Dr. Michael Brown",
+                location: "Block B, Room 205",
+                equipment: ["Signal Generators - 18", "Spectrum Analyzers - 12", "Communication Trainers - 35"],
+                software: ["GNU Radio", "MATLAB Simulink", "LabVIEW Communications"],
+                status: "active"
+            }
+        ]
+    },
+    {
+        id: 3,
+        name: "Mechanical Engineering",
+        code: "MECH",
+        type: "Engineering",
+        hod: "Dr. Amit Patel",
+        hodEmail: "amit.patel@scms.edu",
+        email: "mech@scms.edu",
+        phone: "+91-98765-43212",
+        location: "Block C, Floor 1",
+        facultyCount: 20,
+        studentCapacity: 400,
+        currentStudents: 385,
+        establishedYear: 2008,
+        status: "active",
+        description: "Traditional engineering discipline focusing on design, manufacturing, and maintenance of mechanical systems with modern approach.",
+        labs: [
+            {
+                id: 6,
+                name: "Manufacturing Workshop",
+                type: "Workshop Lab",
+                capacity: 30,
+                utilization: 88,
+                incharge: "Prof. Davis Miller",
+                location: "Block C, Ground Floor",
+                equipment: ["CNC Lathe - 5", "Milling Machines - 8", "Drilling Machines - 10", "Welding Equipment - 12"],
+                software: ["AutoCAD", "SolidWorks", "ANSYS", "CATIA", "Fusion 360"],
+                status: "active"
+            },
+            {
+                id: 7,
+                name: "Thermal Engineering Lab",
+                type: "Research Lab",
                 capacity: 25,
-                equipment: ['Workstations', 'Presentation Equipment', 'Collaborative Displays'],
-                software: ['SPSS', 'R Studio', 'Tableau', 'Power BI'],
-                labIncharge: 'Prof. Neha Gupta',
-                location: 'MBA Block, 2nd Floor',
-                status: 'active',
-                utilizationRate: 75
+                utilization: 74,
+                incharge: "Dr. Jennifer White",
+                location: "Block C, Room 105",
+                equipment: ["Heat Exchangers - 6", "Steam Boiler Setup - 1", "IC Engine Setup - 2", "Refrigeration Unit - 3"],
+                software: ["ANSYS Fluent", "MATLAB", "EES Software"],
+                status: "active"
             }
-        ],
-        totalLabCapacity: 25,
-        activeLabsCount: 1,
-        avgLabUtilization: 75
+        ]
     },
     {
-        id: 'DEPT007',
-        name: 'Physics',
-        code: 'PHY',
-        type: 'Science',
-        description: 'Physics department covers theoretical and applied physics, quantum mechanics, and experimental physics with advanced research laboratories.',
-        establishedYear: 2002,
-        hodName: 'Dr. Sunita Mehta',
-        hodEmail: 'sunita.mehta@college.edu',
-        departmentPhone: '+91-98765-43216',
-        departmentEmail: 'physics@college.edu',
-        officeLocation: 'Science Block, 1st Floor',
-        facultyCount: 10,
-        studentCapacity: 60,
-        currentStudents: 55,
-        status: 'active',
+        id: 4,
+        name: "Business Administration",
+        code: "MBA",
+        type: "Management",
+        hod: "Dr. Sarah Williams",
+        hodEmail: "sarah.williams@scms.edu",
+        email: "mba@scms.edu",
+        phone: "+91-98765-43213",
+        location: "Block D, Floor 2",
+        facultyCount: 18,
+        studentCapacity: 240,
+        currentStudents: 228,
+        establishedYear: 2015,
+        status: "active",
+        description: "Comprehensive business education preparing future leaders and entrepreneurs with practical knowledge and skills.",
         labs: [
             {
-                labId: 'LAB013',
-                labName: 'Optics Lab',
-                labType: 'Physics Lab',
-                capacity: 15,
-                equipment: ['Lasers', 'Optical Benches', 'Spectrometers', 'Interferometers'],
-                software: ['LabVIEW', 'Origin', 'MATLAB'],
-                labIncharge: 'Dr. Ravi Kumar',
-                location: 'Physics Block, Ground Floor',
-                status: 'active',
-                utilizationRate: 68
-            },
-            {
-                labId: 'LAB014',
-                labName: 'Electronics Lab',
-                labType: 'Physics Lab',
-                capacity: 20,
-                equipment: ['Oscilloscopes', 'Function Generators', 'Digital Multimeters', 'Breadboards'],
-                software: ['Multisim', 'MATLAB', 'LabVIEW'],
-                labIncharge: 'Prof. Anita Sharma',
-                location: 'Physics Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 72
+                id: 8,
+                name: "Business Analytics Lab",
+                type: "Computer Lab",
+                capacity: 40,
+                utilization: 68,
+                incharge: "Prof. Robert Taylor",
+                location: "Block D, Room 210",
+                equipment: ["Business Computers - 40", "Financial Terminals - 4", "Presentation System - 1"],
+                software: ["R Studio", "SPSS", "Tableau", "Power BI", "Excel Advanced"],
+                status: "active"
             }
-        ],
-        totalLabCapacity: 35,
-        activeLabsCount: 2,
-        avgLabUtilization: 70
+        ]
     },
     {
-        id: 'DEPT008',
-        name: 'Chemistry',
-        code: 'CHEM',
-        type: 'Science',
-        description: 'Chemistry department focuses on organic, inorganic, physical chemistry, and chemical research with well-equipped analytical laboratories.',
-        establishedYear: 2002,
-        hodName: 'Dr. Ravi Kumar',
-        hodEmail: 'ravi.kumar@college.edu',
-        departmentPhone: '+91-98765-43217',
-        departmentEmail: 'chemistry@college.edu',
-        officeLocation: 'Science Block, 2nd Floor',
-        facultyCount: 8,
-        studentCapacity: 50,
-        currentStudents: 45,
-        status: 'active',
+        id: 5,
+        name: "English Literature",
+        code: "ENG",
+        type: "Arts",
+        hod: "Dr. Michael Brown",
+        hodEmail: "michael.brown@scms.edu",
+        email: "english@scms.edu",
+        phone: "+91-98765-43214",
+        location: "Block E, Floor 1",
+        facultyCount: 15,
+        studentCapacity: 360,
+        currentStudents: 342,
+        establishedYear: 2005,
+        status: "under-review",
+        description: "Rich tradition in literary studies and language education with emphasis on critical thinking and communication skills.",
         labs: [
             {
-                labId: 'LAB015',
-                labName: 'Analytical Chemistry Lab',
-                labType: 'Chemistry Lab',
-                capacity: 20,
-                equipment: ['HPLC', 'GC-MS', 'UV-Vis Spectrophotometer', 'Fume Hoods'],
-                software: ['ChemDraw', 'Gaussian', 'ChemSketch'],
-                labIncharge: 'Dr. Pooja Patel',
-                location: 'Chemistry Block, Ground Floor',
-                status: 'active',
-                utilizationRate: 80
-            },
-            {
-                labId: 'LAB016',
-                labName: 'Organic Chemistry Lab',
-                labType: 'Chemistry Lab',
-                capacity: 15,
-                equipment: ['Distillation Setup', 'Rotary Evaporator', 'Hot Plates', 'Glassware'],
-                software: ['ChemDraw', 'MarvinSketch', 'Reaxys'],
-                labIncharge: 'Prof. Suresh Modi',
-                location: 'Chemistry Block, 1st Floor',
-                status: 'active',
-                utilizationRate: 75
+                id: 9,
+                name: "Language Laboratory",
+                type: "Language Lab",
+                capacity: 45,
+                utilization: 65,
+                incharge: "Prof. Anderson Clark",
+                location: "Block E, Room 101",
+                equipment: ["Audio Systems - 45", "Headphones with Mic - 45", "Recording Equipment - 2", "Interactive Board - 1"],
+                software: ["Rosetta Stone", "Language Learning Pro", "Pronunciation Power"],
+                status: "active"
             }
-        ],
-        totalLabCapacity: 35,
-        activeLabsCount: 2,
-        avgLabUtilization: 78
+        ]
+    },
+    {
+        id: 6,
+        name: "Physics",
+        code: "PHY",
+        type: "Science",
+        hod: "Dr. Kumar Vishwanath",
+        hodEmail: "kumar.vishwanath@scms.edu",
+        email: "physics@scms.edu",
+        phone: "+91-98765-43215",
+        location: "Block F, Floor 2",
+        facultyCount: 16,
+        studentCapacity: 300,
+        currentStudents: 285,
+        establishedYear: 2006,
+        status: "active",
+        description: "Advanced physics education with modern laboratory facilities and research opportunities.",
+        labs: [
+            {
+                id: 10,
+                name: "Quantum Physics Lab",
+                type: "Physics Lab",
+                capacity: 25,
+                utilization: 89,
+                incharge: "Dr. Lisa Johnson",
+                location: "Block F, Room 205",
+                equipment: ["Laser Systems - 8", "Interferometers - 6", "Spectrometers - 10", "Oscilloscopes - 15"],
+                software: ["MATLAB", "LabVIEW", "Mathematica", "Origin Pro"],
+                status: "active"
+            }
+        ]
     }
 ];
 
-let filteredDepartments = [...DEPARTMENTS_DATA];
-let selectedDepartments = new Set();
-let editingDepartmentId = null;
-let currentView = 'table';
-
-function saveDataToStorage() {
-    localStorage.setItem('scms_departments_data', JSON.stringify(DEPARTMENTS_DATA));
+// Initialize Application
+function initializeApp() {
+    initializeTheme();
+    initializeDepartments();
+    setupEventListeners();
+    loadUserInfo();
+    setActiveNavigation();
+    
+    // Show loading animation briefly
+    showLoadingAnimation();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTheme();
-    loadCurrentUser();
-    loadDepartments();
-    updateStats();
+function showLoadingAnimation() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.style.opacity = '0';
+        setTimeout(() => {
+            mainContent.style.transition = 'opacity 0.5s ease';
+            mainContent.style.opacity = '1';
+        }, 100);
+    }
+}
+
+function loadUserInfo() {
+    // Simulate loading user info
+    const userName = document.getElementById('userName');
+    if (userName) {
+        userName.textContent = localStorage.getItem('userName') || 'Admin User';
+    }
     
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            closeMobileSidebar();
+    currentUser = {
+        name: localStorage.getItem('userName') || 'Admin User',
+        role: 'Administrator',
+        email: 'admin@scms.edu'
+    };
+}
+
+function setActiveNavigation() {
+    const currentPage = window.location.pathname.split('/').pop();
+    document.querySelectorAll('.sidebar-nav li').forEach(li => {
+        li.classList.remove('active');
+        const link = li.querySelector('a');
+        if (link && (link.getAttribute('href') === currentPage || 
+                     (currentPage === 'departments.html' && link.getAttribute('href') === 'departments.html'))) {
+            li.classList.add('active');
         }
     });
-});
-
-function loadCurrentUser() {
-    const currentUser = localStorage.getItem('scms_current_user');
-    const userNameElement = document.getElementById('userName');
-    
-    if (!currentUser) {
-        window.location.href = '../index.html';
-        return;
-    }
-
-    const user = JSON.parse(currentUser);
-    if (user.role !== 'admin') {
-        alert('Access denied. Admin privileges required.');
-        window.location.href = '../index.html';
-        return;
-    }
-
-    if (userNameElement) {
-        userNameElement.textContent = user.name;
-    }
 }
 
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('scms_current_user');
-        showNotification('Logged out successfully', 'info');
-        setTimeout(() => {
-            window.location.href = '../index.html';
-        }, 1500);
-    }
+// Data Management
+function initializeDepartments() {
+    departments = [...sampleDepartments];
+    
+    // Extract all labs into separate array
+    labs = [];
+    departments.forEach(dept => {
+        if (dept.labs && dept.labs.length > 0) {
+            dept.labs.forEach(lab => {
+                lab.departmentId = dept.id;
+                lab.departmentName = dept.name;
+                lab.departmentCode = dept.code;
+                labs.push({...lab});
+            });
+        }
+    });
+    
+    filteredDepartments = [...departments];
+    loadDepartments();
+    updateStatistics();
 }
 
-function updateStats() {
-    const totalDepartments = DEPARTMENTS_DATA.length;
-    const activeDepartments = DEPARTMENTS_DATA.filter(d => d.status === 'active').length;
-    const totalFaculty = DEPARTMENTS_DATA.reduce((sum, d) => sum + (parseInt(d.facultyCount) || 0), 0);
-    const totalStudents = DEPARTMENTS_DATA.reduce((sum, d) => sum + (parseInt(d.currentStudents) || 0), 0);
-    const totalLabs = DEPARTMENTS_DATA.reduce((sum, d) => sum + (d.activeLabsCount || 0), 0);
-    const totalLabCapacity = DEPARTMENTS_DATA.reduce((sum, d) => sum + (d.totalLabCapacity || 0), 0);
+// Statistics Management
+function updateStatistics() {
+    const totalDepts = departments.length;
+    const activeDepts = departments.filter(d => d.status === 'active').length;
+    const totalFaculty = departments.reduce((sum, d) => sum + (d.facultyCount || 0), 0);
+    const totalStudents = departments.reduce((sum, d) => sum + (d.currentStudents || 0), 0);
     
-    const totalElement = document.getElementById('totalDepartments');
-    const activeElement = document.getElementById('activeDepartments');  
-    const facultyElement = document.getElementById('totalFaculty');
-    const studentsElement = document.getElementById('totalStudents');
-    
-    if (totalElement) totalElement.textContent = totalDepartments.toLocaleString();
-    if (activeElement) activeElement.textContent = activeDepartments.toLocaleString();
-    if (facultyElement) facultyElement.textContent = totalFaculty.toLocaleString();
-    if (studentsElement) studentsElement.textContent = totalStudents.toLocaleString();
-    
-    // Update lab statistics if elements exist
-    const totalLabsElement = document.getElementById('totalLabs');
-    const labCapacityElement = document.getElementById('totalLabCapacity');
-    if (totalLabsElement) totalLabsElement.textContent = totalLabs.toLocaleString();
-    if (labCapacityElement) labCapacityElement.textContent = totalLabCapacity.toLocaleString();
+    // Animate number updates
+    animateCounter('totalDepartments', totalDepts);
+    animateCounter('activeDepartments', activeDepts);
+    animateCounter('totalFaculty', totalFaculty);
+    animateCounter('totalStudents', totalStudents);
 }
 
-function switchView(view) {
-    currentView = view;
-    const cardViewBtn = document.getElementById('cardViewBtn');
-    const tableViewBtn = document.getElementById('tableViewBtn');
-    const departmentsContainer = document.getElementById('departmentsContainer');
-    const tableContainer = document.getElementById('tableContainer');
+function animateCounter(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
     
-    if (!cardViewBtn || !tableViewBtn || !departmentsContainer || !tableContainer) return;
+    const currentValue = parseInt(element.textContent) || 0;
+    const increment = targetValue > currentValue ? 1 : -1;
+    const step = Math.abs(targetValue - currentValue) / 20;
     
-    if (view === 'card') {
-        cardViewBtn.classList.add('active');
-        tableViewBtn.classList.remove('active');
-        departmentsContainer.style.display = 'grid';
-        tableContainer.style.display = 'none';
-        loadDepartmentCards();
-    } else {
-        tableViewBtn.classList.add('active');
-        cardViewBtn.classList.remove('active');
-        departmentsContainer.style.display = 'none';
-        tableContainer.style.display = 'block';
-        loadDepartmentTable();
-    }
+    let current = currentValue;
+    const timer = setInterval(() => {
+        current += increment * step;
+        if ((increment > 0 && current >= targetValue) || (increment < 0 && current <= targetValue)) {
+            current = targetValue;
+            clearInterval(timer);
+        }
+        
+        if (elementId === 'totalStudents') {
+            element.textContent = Math.floor(current).toLocaleString();
+        } else {
+            element.textContent = Math.floor(current);
+        }
+    }, 50);
 }
 
+// Department Display Management
 function loadDepartments() {
-    if (currentView === 'card') {
-        loadDepartmentCards();
+    if (currentView === 'table') {
+        loadDepartmentsTable();
     } else {
-        loadDepartmentTable();
+        loadDepartmentsCards();
     }
     updateSelectedCount();
 }
 
-function loadDepartmentCards() {
-    const container = document.getElementById('departmentsContainer');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    if (filteredDepartments.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-building fa-3x"></i>
-                <h3>No Departments Found</h3>
-                <p>No departments match your current filters.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    filteredDepartments.forEach(department => {
-        const departmentCard = createDepartmentCard(department);
-        container.appendChild(departmentCard);
-    });
-}
-
-function loadDepartmentTable() {
+function loadDepartmentsTable() {
     const tbody = document.getElementById('departmentsTableBody');
     if (!tbody) return;
     
     tbody.innerHTML = '';
-
-    filteredDepartments.forEach(department => {
-        const row = createDepartmentTableRow(department);
+    
+    if (filteredDepartments.length === 0) {
+        tbody.innerHTML = createEmptyState('table');
+        return;
+    }
+    
+    filteredDepartments.forEach(dept => {
+        const row = createDepartmentTableRow(dept);
         tbody.appendChild(row);
     });
 }
 
-function createDepartmentCard(department) {
-    const card = document.createElement('div');
-    card.className = `department-card ${department.type.toLowerCase()}`;
-    
-    const statusClass = `status-${department.status.replace('-', '-')}`;
-    const labsCount = department.labs ? department.labs.length : 0;
-    const avgUtilization = department.avgLabUtilization || 0;
-    
-    card.innerHTML = `
-        <div class="department-card-header">
-            <div class="department-title">${department.name}</div>
-            <div class="department-code">${department.code} • ${department.type}</div>
-        </div>
-        
-        <div class="department-card-body">
-            <div class="department-stats">
-                <div class="stat-item">
-                    <div class="number">${department.facultyCount || 0}</div>
-                    <div class="label">Faculty</div>
-                </div>
-                <div class="stat-item">
-                    <div class="number">${department.currentStudents || 0}</div>
-                    <div class="label">Students</div>
-                </div>
-                <div class="stat-item">
-                    <div class="number">${labsCount}</div>
-                    <div class="label">Labs</div>
-                </div>
-            </div>
-            
-            <div class="lab-info">
-                <div class="info-row">
-                    <span class="info-label">Lab Capacity:</span>
-                    <span class="info-value">${department.totalLabCapacity || 0} seats</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Lab Utilization:</span>
-                    <span class="info-value">${avgUtilization}%</span>
-                </div>
-            </div>
-            
-            <div class="department-info">
-                <div class="info-row">
-                    <span class="info-label">Head of Department:</span>
-                    <span class="info-value">${department.hodName || 'Not assigned'}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Student Capacity:</span>
-                    <span class="info-value">${department.studentCapacity || 0}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Status:</span>
-                    <span class="info-value status-badge ${statusClass}">
-                        ${department.status.replace('-', ' ').toUpperCase()}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="department-actions">
-                <button class="action-btn action-view" onclick="showDepartmentDetails('${department.id}')">
-                    <i class="fas fa-eye"></i> View
-                </button>
-                <button class="action-btn action-edit" onclick="editDepartment('${department.id}')">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="action-btn action-delete" onclick="deleteDepartment('${department.id}')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        </div>
-    `;
-    
-    return card;
-}
-
-function createDepartmentTableRow(department) {
+function createDepartmentTableRow(dept) {
     const row = document.createElement('tr');
-    const statusClass = `status-${department.status.replace('-', '-')}`;
-    const typeClass = department.type.toLowerCase();
-    const labsCount = department.labs ? department.labs.length : 0;
+    const labCount = dept.labs ? dept.labs.length : 0;
+    const avgUtilization = labCount > 0 ? 
+        Math.round(dept.labs.reduce((sum, lab) => sum + (lab.utilization || 0), 0) / labCount) : 0;
+    const utilizationText = labCount > 0 ? `${avgUtilization}% avg` : 'No labs';
+    const occupancyRate = dept.studentCapacity > 0 ? 
+        Math.round((dept.currentStudents / dept.studentCapacity) * 100) : 0;
     
     row.innerHTML = `
         <td>
-            <input type="checkbox" class="department-checkbox" value="${department.id}" onchange="toggleDepartmentSelection('${department.id}')">
+            <input type="checkbox" value="${dept.id}" onchange="toggleDepartmentSelection(${dept.id})" 
+                   ${selectedDepartments.includes(dept.id) ? 'checked' : ''}>
         </td>
         <td>
             <div class="department-profile">
-                <div class="dept-icon ${typeClass}">
-                    ${department.code}
+                <div class="dept-icon ${dept.type.toLowerCase()}">
+                    ${dept.code}
                 </div>
                 <div class="department-info-text">
-                    <h4>${department.name}</h4>
-                    <p>${department.type} • Est. ${department.establishedYear || 'N/A'}</p>
-                    <p style="font-size: 0.8em; opacity: 0.8;">${labsCount} Labs • ${department.totalLabCapacity || 0} Capacity</p>
+                    <h4>${dept.name}</h4>
+                    <p>${dept.code} • Est. ${dept.establishedYear} • ${occupancyRate}% occupied</p>
                 </div>
             </div>
         </td>
         <td>
-            <div>${department.hodName || 'Not assigned'}</div>
-            <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">
-                ${department.hodEmail || 'No email'}
+            <div>
+                <strong>${dept.hod}</strong><br>
+                <small style="color: var(--text-secondary);">${dept.hodEmail}</small>
             </div>
         </td>
         <td>
-            <span class="count-badge">${department.facultyCount || 0} Faculty</span>
+            <span class="count-badge">${dept.facultyCount}</span>
         </td>
         <td>
-            <div>${department.currentStudents || 0} / ${department.studentCapacity || 0}</div>
-            <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">
-                ${department.currentStudents && department.studentCapacity ? 
-                    Math.round((department.currentStudents / department.studentCapacity) * 100) : 0}% occupied
+            <span class="count-badge">${dept.currentStudents}/${dept.studentCapacity}</span>
+        </td>
+        <td>
+            <div>
+                <span class="count-badge">${labCount} Labs</span>
+                ${labCount > 0 ? `<br><small style="color: var(--text-secondary);">${utilizationText}</small>` : ''}
             </div>
         </td>
         <td>
-            <div>${labsCount} Labs</div>
-            <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">
-                ${department.avgLabUtilization || 0}% avg utilization
-            </div>
-        </td>
-        <td>
-            <span class="status-badge ${statusClass}">
-                ${department.status.replace('-', ' ').charAt(0).toUpperCase() + department.status.replace('-', ' ').slice(1)}
-            </span>
+            <span class="status-badge status-${dept.status}">${formatStatus(dept.status)}</span>
         </td>
         <td>
             <div class="action-buttons">
-                <button class="action-btn action-view" onclick="showDepartmentDetails('${department.id}')">
+                <button class="action-btn action-view" onclick="viewDepartment(${dept.id})" title="View Details">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn action-edit" onclick="editDepartment('${department.id}')">
+                <button class="action-btn action-edit" onclick="editDepartment(${dept.id})" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="action-btn action-delete" onclick="deleteDepartment('${department.id}')">
+                <button class="action-btn action-delete" onclick="deleteDepartment(${dept.id})" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </td>
     `;
     
+    // Add hover effect
+    row.addEventListener('mouseenter', () => {
+        row.style.transform = 'translateX(5px)';
+    });
+    
+    row.addEventListener('mouseleave', () => {
+        row.style.transform = 'translateX(0)';
+    });
+    
     return row;
 }
 
+function loadDepartmentsCards() {
+    const container = document.getElementById('departmentsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (filteredDepartments.length === 0) {
+        container.innerHTML = createEmptyState('card');
+        return;
+    }
+    
+    filteredDepartments.forEach(dept => {
+        const card = createDepartmentCard(dept);
+        container.appendChild(card);
+    });
+}
+
+function createDepartmentCard(dept) {
+    const labCount = dept.labs ? dept.labs.length : 0;
+    const avgUtilization = labCount > 0 ? 
+        Math.round(dept.labs.reduce((sum, lab) => sum + (lab.utilization || 0), 0) / labCount) : 0;
+    const occupancyRate = dept.studentCapacity > 0 ? 
+        Math.round((dept.currentStudents / dept.studentCapacity) * 100) : 0;
+    
+    const card = document.createElement('div');
+    card.className = `department-card ${dept.type.toLowerCase()}`;
+    card.innerHTML = `
+        <div class="department-card-header">
+            <div class="department-title">${dept.name}</div>
+            <div class="department-code">${dept.code} • Est. ${dept.establishedYear}</div>
+        </div>
+        <div class="department-card-body">
+            <div class="department-stats">
+                <div class="stat-item">
+                    <div class="number">${dept.facultyCount}</div>
+                    <div class="label">Faculty</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">${dept.currentStudents}</div>
+                    <div class="label">Students</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">${labCount}</div>
+                    <div class="label">Labs</div>
+                </div>
+            </div>
+            <div class="department-info">
+                <div class="info-row">
+                    <span class="info-label">Head of Department</span>
+                    <span class="info-value">${dept.hod}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Location</span>
+                    <span class="info-value">${dept.location}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Occupancy</span>
+                    <span class="info-value">${occupancyRate}% (${dept.currentStudents}/${dept.studentCapacity})</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Lab Utilization</span>
+                    <span class="info-value">${labCount > 0 ? avgUtilization + '%' : 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="status-badge status-${dept.status}">${formatStatus(dept.status)}</span>
+                </div>
+            </div>
+            <div class="department-actions">
+                <button class="action-btn action-view" onclick="viewDepartment(${dept.id})" title="View Details">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="action-btn action-edit" onclick="editDepartment(${dept.id})" title="Edit">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="action-btn action-delete" onclick="deleteDepartment(${dept.id})" title="Delete">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add animation delay for staggered effect
+    const index = filteredDepartments.indexOf(dept);
+    card.style.animationDelay = `${index * 0.1}s`;
+    card.style.opacity = '0';
+    card.style.animation = 'slideInUp 0.5s ease forwards';
+    
+    return card;
+}
+
+function createEmptyState(type) {
+    const colSpan = type === 'table' ? 8 : '';
+    const gridColumn = type === 'card' ? 'style="grid-column: 1 / -1;"' : '';
+    
+    return `
+        <tr ${type === 'table' ? '' : 'style="display: none;"'}>
+            <td colspan="${colSpan}" class="empty-state" ${gridColumn}>
+                <div>
+                    <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <h3>No departments found</h3>
+                    <p>Try adjusting your search or filter criteria, or add a new department</p>
+                    <button class="btn btn-primary" onclick="openAddDepartmentModal()" style="margin-top: 15px;">
+                        <i class="fas fa-plus"></i> Add Department
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+// View Management
+function switchView(view) {
+    currentView = view;
+    
+    const cardBtn = document.getElementById('cardViewBtn');
+    const tableBtn = document.getElementById('tableViewBtn');
+    const cardContainer = document.getElementById('departmentsContainer');
+    const tableContainer = document.getElementById('tableContainer');
+    
+    // Update button states
+    cardBtn?.classList.toggle('active', view === 'card');
+    tableBtn?.classList.toggle('active', view === 'table');
+    
+    // Update container visibility
+    if (cardContainer && tableContainer) {
+        if (view === 'card') {
+            cardContainer.style.display = 'grid';
+            tableContainer.style.display = 'none';
+            loadDepartmentsCards();
+        } else {
+            tableContainer.style.display = 'block';
+            cardContainer.style.display = 'none';
+            loadDepartmentsTable();
+        }
+    }
+    
+    // Save view preference
+    localStorage.setItem('preferred-view', view);
+}
+
+// CRUD Operations
+function openAddDepartmentModal() {
+    document.getElementById('modalTitle').textContent = 'Add New Department';
+    currentDepartment = null;
+    
+    // Reset form
+    const form = document.getElementById('departmentForm');
+    if (form) form.reset();
+    
+    // Set default values
+    const statusSelect = document.getElementById('departmentStatus');
+    if (statusSelect) statusSelect.value = 'active';
+    
+    openModal('departmentModal');
+}
+
+function editDepartment(id) {
+    const dept = departments.find(d => d.id === id);
+    if (!dept) return;
+    
+    currentDepartment = dept;
+    document.getElementById('modalTitle').textContent = 'Edit Department';
+    
+    // Populate form fields
+    const fields = [
+        'departmentName', 'departmentCode', 'departmentType', 'establishedYear',
+        'departmentDescription', 'hodName', 'hodEmail', 'departmentPhone',
+        'departmentEmail', 'officeLocation', 'facultyCount', 'studentCapacity',
+        'currentStudents', 'departmentStatus'
+    ];
+    
+    const mappings = {
+        'departmentName': 'name',
+        'departmentCode': 'code',
+        'departmentType': 'type',
+        'departmentDescription': 'description',
+        'hodName': 'hod',
+        'departmentPhone': 'phone',
+        'departmentEmail': 'email',
+        'officeLocation': 'location'
+    };
+    
+    fields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        const dataKey = mappings[fieldId] || fieldId.replace('department', '').toLowerCase();
+        if (element && dept[dataKey] !== undefined) {
+            element.value = dept[dataKey];
+        }
+    });
+    
+    openModal('departmentModal');
+}
+
+function viewDepartment(id) {
+    const dept = departments.find(d => d.id === id);
+    if (!dept) return;
+    
+    document.getElementById('departmentDetailsTitle').textContent = `${dept.name} - Department Details`;
+    
+    const content = createDepartmentDetailsView(dept);
+    document.getElementById('departmentDetailsContent').innerHTML = content;
+    
+    openModal('departmentDetailsModal');
+}
+
+function createDepartmentDetailsView(dept) {
+    const labsHTML = dept.labs && dept.labs.length > 0 ? 
+        dept.labs.map(lab => createLabCard(lab)).join('') : 
+        '<div class="empty-lab-state"><i class="fas fa-flask" style="font-size: 2rem; margin-bottom: 15px;"></i><p>No laboratories assigned to this department</p></div>';
+    
+    const occupancyRate = dept.studentCapacity > 0 ? 
+        Math.round((dept.currentStudents / dept.studentCapacity) * 100) : 0;
+    
+    return `
+        <div class="department-details-view">
+            <div class="detail-section">
+                <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Department Name</label>
+                        <span>${dept.name}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Department Code</label>
+                        <span>${dept.code}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Type</label>
+                        <span>${dept.type}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Established</label>
+                        <span>${dept.establishedYear}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Status</label>
+                        <span class="status-badge status-${dept.status}">${formatStatus(dept.status)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Location</label>
+                        <span>${dept.location}</span>
+                    </div>
+                </div>
+                <div class="detail-item" style="margin-top: 20px;">
+                    <label>Description</label>
+                    <span>${dept.description || 'No description provided'}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4><i class="fas fa-user-tie"></i> Leadership & Contact</h4>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Head of Department</label>
+                        <span>${dept.hod}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>HOD Email</label>
+                        <span><a href="mailto:${dept.hodEmail}">${dept.hodEmail}</a></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Department Phone</label>
+                        <span><a href="tel:${dept.phone}">${dept.phone}</a></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Department Email</label>
+                        <span><a href="mailto:${dept.email}">${dept.email}</a></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4><i class="fas fa-chart-bar"></i> Statistics & Performance</h4>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Faculty Count</label>
+                        <span>${dept.facultyCount}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Student Capacity</label>
+                        <span>${dept.studentCapacity}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Current Students</label>
+                        <span>${dept.currentStudents}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Occupancy Rate</label>
+                        <span>${occupancyRate}%</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Faculty-Student Ratio</label>
+                        <span>1:${Math.round(dept.currentStudents / dept.facultyCount)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Laboratory Count</label>
+                        <span>${dept.labs ? dept.labs.length : 0}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4><i class="fas fa-flask"></i> Laboratory Facilities</h4>
+                <div class="labs-grid">
+                    ${labsHTML}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createLabCard(lab) {
+    return `
+        <div class="lab-card">
+            <div class="lab-header">
+                <h5>${lab.name}</h5>
+                <span class="lab-type-badge">${lab.type}</span>
+            </div>
+            <div class="lab-details">
+                <div class="lab-detail-item">
+                    <label>Capacity</label>
+                    <span>${lab.capacity} students</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Utilization</label>
+                    <span class="utilization-badge">${lab.utilization}%</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>In-charge</label>
+                    <span>${lab.incharge || 'Not assigned'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Location</label>
+                    <span>${lab.location || 'Not specified'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Status</label>
+                    <span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Equipment</label>
+                    <span>${lab.equipment ? lab.equipment.length : 0} items</span>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <button class="action-btn action-edit" onclick="editLab(${lab.id})" title="Edit Lab">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function deleteDepartment(id) {
+    const dept = departments.find(d => d.id === id);
+    if (!dept) return;
+    
+    // Enhanced confirmation dialog
+    const labCount = dept.labs ? dept.labs.length : 0;
+    const confirmMessage = `Are you sure you want to delete "${dept.name}"?\n\n` +
+        `This will also remove:\n` +
+        `• ${labCount} associated laboratories\n` +
+        `• All department records\n\n` +
+        `This action cannot be undone.`;
+    
+    if (confirm(confirmMessage)) {
+        // Remove department
+        departments = departments.filter(d => d.id !== id);
+        filteredDepartments = filteredDepartments.filter(d => d.id !== id);
+        
+        // Remove associated labs
+        labs = labs.filter(lab => lab.departmentId !== id);
+        
+        // Remove from selected if present
+        selectedDepartments = selectedDepartments.filter(sid => sid !== id);
+        
+        loadDepartments();
+        updateStatistics();
+        showNotification(`${dept.name} deleted successfully!`, 'success');
+        
+        // Add deletion animation
+        setTimeout(() => {
+            loadDepartments();
+        }, 300);
+    }
+}
+
+function saveDepartment(event) {
+    event.preventDefault();
+    
+    // Get form data with validation
+    const formData = {
+        name: document.getElementById('departmentName').value.trim(),
+        code: document.getElementById('departmentCode').value.trim().toUpperCase(),
+        type: document.getElementById('departmentType').value,
+        establishedYear: parseInt(document.getElementById('establishedYear').value) || new Date().getFullYear(),
+        description: document.getElementById('departmentDescription').value.trim(),
+        hod: document.getElementById('hodName').value.trim(),
+        hodEmail: document.getElementById('hodEmail').value.trim(),
+        phone: document.getElementById('departmentPhone').value.trim(),
+        email: document.getElementById('departmentEmail').value.trim(),
+        location: document.getElementById('officeLocation').value.trim(),
+        facultyCount: parseInt(document.getElementById('facultyCount').value) || 0,
+        studentCapacity: parseInt(document.getElementById('studentCapacity').value) || 0,
+        currentStudents: parseInt(document.getElementById('currentStudents').value) || 0,
+        status: document.getElementById('departmentStatus').value
+    };
+    
+    // Validation
+    if (!formData.name || !formData.code || !formData.type) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Check for duplicate codes (except when editing)
+    const existingDept = departments.find(d => d.code === formData.code && (!currentDepartment || d.id !== currentDepartment.id));
+    if (existingDept) {
+        showNotification('Department code already exists', 'error');
+        return;
+    }
+    
+    if (currentDepartment) {
+        // Update existing department
+        Object.assign(currentDepartment, formData);
+        
+        // Update in main array
+        const index = departments.findIndex(d => d.id === currentDepartment.id);
+        if (index !== -1) {
+            departments[index] = currentDepartment;
+        }
+        
+        showNotification(`${formData.name} updated successfully!`, 'success');
+    } else {
+        // Add new department
+        formData.id = Math.max(...departments.map(d => d.id), 0) + 1;
+        formData.labs = [];
+        departments.push(formData);
+        showNotification(`${formData.name} added successfully!`, 'success');
+    }
+    
+    applyFilters();
+    loadDepartments();
+    updateStatistics();
+    closeModal();
+}
+
+// Search and Filter Functions
 function searchDepartments() {
-    const searchInput = document.getElementById('searchInput');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
     applyFilters(searchTerm);
 }
 
@@ -735,64 +1033,90 @@ function filterDepartments() {
     applyFilters();
 }
 
-function applyFilters(searchTerm = '') {
-    const statusFilter = document.getElementById('statusFilter');
-    const typeFilter = document.getElementById('typeFilter');
-    const searchInput = document.getElementById('searchInput');
-    
-    const statusValue = statusFilter ? statusFilter.value : '';
-    const typeValue = typeFilter ? typeFilter.value : '';
-    
-    if (!searchTerm && searchInput) {
-        searchTerm = searchInput.value.toLowerCase();
+function applyFilters(searchTerm = null) {
+    if (searchTerm === null) {
+        searchTerm = document.getElementById('searchInput')?.value?.toLowerCase() || '';
     }
     
-    filteredDepartments = DEPARTMENTS_DATA.filter(department => {
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
+    const typeFilter = document.getElementById('typeFilter')?.value || '';
+    const labFilter = document.getElementById('labFilter')?.value || '';
+    
+    filteredDepartments = departments.filter(dept => {
+        // Search filter
         const matchesSearch = !searchTerm || 
-            department.name.toLowerCase().includes(searchTerm) ||
-            department.code.toLowerCase().includes(searchTerm) ||
-            department.type.toLowerCase().includes(searchTerm) ||
-            (department.hodName && department.hodName.toLowerCase().includes(searchTerm)) ||
-            (department.labs && department.labs.some(lab => 
-                lab.labName.toLowerCase().includes(searchTerm) ||
-                lab.labType.toLowerCase().includes(searchTerm) ||
-                lab.labIncharge.toLowerCase().includes(searchTerm)
-            ));
+            dept.name.toLowerCase().includes(searchTerm) ||
+            dept.code.toLowerCase().includes(searchTerm) ||
+            dept.hod.toLowerCase().includes(searchTerm) ||
+            dept.type.toLowerCase().includes(searchTerm) ||
+            dept.location.toLowerCase().includes(searchTerm);
         
-        const matchesStatus = !statusValue || department.status === statusValue;
-        const matchesType = !typeValue || department.type === typeValue;
+        // Status filter
+        const matchesStatus = !statusFilter || dept.status === statusFilter;
         
-        return matchesSearch && matchesStatus && matchesType;
+        // Type filter
+        const matchesType = !typeFilter || dept.type === typeFilter;
+        
+        // Lab filter
+        let matchesLab = true;
+        if (labFilter) {
+            const labCount = dept.labs ? dept.labs.length : 0;
+            const avgUtilization = labCount > 0 ? 
+                dept.labs.reduce((sum, lab) => sum + (lab.utilization || 0), 0) / labCount : 0;
+            
+            switch (labFilter) {
+                case 'has-labs':
+                    matchesLab = labCount > 0;
+                    break;
+                case 'no-labs':
+                    matchesLab = labCount === 0;
+                    break;
+                case 'high-utilization':
+                    matchesLab = avgUtilization > 80;
+                    break;
+                case 'low-utilization':
+                    matchesLab = avgUtilization < 60 && labCount > 0;
+                    break;
+            }
+        }
+        
+        return matchesSearch && matchesStatus && matchesType && matchesLab;
     });
     
     loadDepartments();
     
-    if (searchTerm || statusValue || typeValue) {
-        showNotification(`Found ${filteredDepartments.length} departments matching your criteria`, 'info');
+    // Show filter results count
+    const totalCount = departments.length;
+    const filteredCount = filteredDepartments.length;
+    
+    if (filteredCount !== totalCount) {
+        showNotification(`Showing ${filteredCount} of ${totalCount} departments`, 'info');
     }
 }
 
-function toggleDepartmentSelection(departmentId) {
-    if (selectedDepartments.has(departmentId)) {
-        selectedDepartments.delete(departmentId);
+// Selection Management
+function toggleDepartmentSelection(id) {
+    const index = selectedDepartments.indexOf(id);
+    if (index > -1) {
+        selectedDepartments.splice(index, 1);
     } else {
-        selectedDepartments.add(departmentId);
+        selectedDepartments.push(id);
     }
     updateSelectedCount();
+    updateMasterCheckbox();
 }
 
 function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
-    const isChecked = selectAll ? selectAll.checked : false;
-    const checkboxes = document.querySelectorAll('.department-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox?.checked) {
+        selectedDepartments = [...filteredDepartments.map(d => d.id)];
+    } else {
+        selectedDepartments = [];
+    }
     
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = isChecked;
-        if (isChecked) {
-            selectedDepartments.add(checkbox.value);
-        } else {
-            selectedDepartments.delete(checkbox.value);
-        }
+    // Update individual checkboxes
+    document.querySelectorAll('input[type="checkbox"][value]').forEach(checkbox => {
+        checkbox.checked = selectedDepartments.includes(parseInt(checkbox.value));
     });
     
     updateSelectedCount();
@@ -800,714 +1124,613 @@ function toggleSelectAll() {
 
 function toggleMasterCheckbox() {
     const masterCheckbox = document.getElementById('masterCheckbox');
-    const isChecked = masterCheckbox ? masterCheckbox.checked : false;
-    const checkboxes = document.querySelectorAll('.department-checkbox');
+    if (!masterCheckbox) return;
     
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = isChecked;
-        if (isChecked) {
-            selectedDepartments.add(checkbox.value);
-        } else {
-            selectedDepartments.delete(checkbox.value);
-        }
+    const visibleDeptIds = filteredDepartments.map(d => d.id);
+    const selectedVisibleDepts = selectedDepartments.filter(id => visibleDeptIds.includes(id));
+    
+    if (selectedVisibleDepts.length === 0) {
+        masterCheckbox.checked = false;
+        masterCheckbox.indeterminate = false;
+    } else if (selectedVisibleDepts.length === visibleDeptIds.length) {
+        masterCheckbox.checked = true;
+        masterCheckbox.indeterminate = false;
+    } else {
+        masterCheckbox.checked = false;
+        masterCheckbox.indeterminate = true;
+    }
+    
+    // Select all visible departments
+    if (masterCheckbox.checked) {
+        visibleDeptIds.forEach(id => {
+            if (!selectedDepartments.includes(id)) {
+                selectedDepartments.push(id);
+            }
+        });
+    } else if (!masterCheckbox.indeterminate) {
+        // Deselect all visible departments
+        visibleDeptIds.forEach(id => {
+            const index = selectedDepartments.indexOf(id);
+            if (index > -1) {
+                selectedDepartments.splice(index, 1);
+            }
+        });
+    }
+    
+    // Update individual checkboxes
+    document.querySelectorAll('input[type="checkbox"][value]').forEach(checkbox => {
+        checkbox.checked = selectedDepartments.includes(parseInt(checkbox.value));
     });
     
     updateSelectedCount();
 }
 
 function updateSelectedCount() {
-    const selectedCountElement = document.getElementById('selectedCount');
-    if (selectedCountElement) {
-        selectedCountElement.textContent = 
-            `${selectedDepartments.size} departments selected`;
+    const countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = `${selectedDepartments.length} departments selected`;
     }
     
-    const totalCheckboxes = document.querySelectorAll('.department-checkbox').length;
-    const masterCheckbox = document.getElementById('masterCheckbox');
-    
-    if (masterCheckbox) {
-        if (selectedDepartments.size === 0) {
-            masterCheckbox.indeterminate = false;
-            masterCheckbox.checked = false;
-        } else if (selectedDepartments.size === totalCheckboxes) {
-            masterCheckbox.indeterminate = false;
-            masterCheckbox.checked = true;
-        } else {
-            masterCheckbox.indeterminate = true;
-            masterCheckbox.checked = false;
-        }
+    // Update bulk actions visibility
+    const bulkActions = document.getElementById('bulkActions');
+    if (bulkActions) {
+        bulkActions.style.display = selectedDepartments.length > 0 ? 'flex' : 'none';
     }
 }
 
-function openAddDepartmentModal() {
-    editingDepartmentId = null;
-    const modalTitle = document.getElementById('modalTitle');
-    const departmentForm = document.getElementById('departmentForm');
-    const departmentModal = document.getElementById('departmentModal');
-    
-    if (modalTitle) modalTitle.textContent = 'Add New Department';
-    if (departmentForm) departmentForm.reset();
-    if (departmentModal) departmentModal.classList.add('show');
-}
-
-function editDepartment(departmentId) {
-    const department = DEPARTMENTS_DATA.find(d => d.id === departmentId);
-    if (!department) return;
-    
-    editingDepartmentId = departmentId;
-    const modalTitle = document.getElementById('modalTitle');
-    const departmentModal = document.getElementById('departmentModal');
-    
-    if (modalTitle) modalTitle.textContent = 'Edit Department';
-    
-    const fields = [
-        'departmentName', 'departmentCode', 'departmentType', 'establishedYear', 'departmentDescription',
-        'hodName', 'hodEmail', 'departmentPhone', 'departmentEmail', 'officeLocation',
-        'facultyCount', 'studentCapacity', 'currentStudents', 'departmentStatus'
-    ];
-    
-    const fieldMapping = {
-        'departmentName': 'name',
-        'departmentCode': 'code',
-        'departmentType': 'type',
-        'establishedYear': 'establishedYear',
-        'departmentDescription': 'description',
-        'hodName': 'hodName',
-        'hodEmail': 'hodEmail',
-        'departmentPhone': 'departmentPhone',
-        'departmentEmail': 'departmentEmail',
-        'officeLocation': 'officeLocation',
-        'facultyCount': 'facultyCount',
-        'studentCapacity': 'studentCapacity',
-        'currentStudents': 'currentStudents',
-        'departmentStatus': 'status'
-    };
-    
-    fields.forEach(fieldId => {
-        const element = document.getElementById(fieldId);
-        const dataKey = fieldMapping[fieldId];
-        if (element && department[dataKey] !== undefined) {
-            element.value = department[dataKey] || '';
-        }
-    });
-    
-    if (departmentModal) departmentModal.classList.add('show');
-}
-
-function deleteDepartment(departmentId) {
-    const department = DEPARTMENTS_DATA.find(d => d.id === departmentId);
-    if (!department) return;
-    
-    if (confirm(`Are you sure you want to delete ${department.name}? This action cannot be undone.`)) {
-        const index = DEPARTMENTS_DATA.findIndex(d => d.id === departmentId);
-        if (index !== -1) {
-            DEPARTMENTS_DATA.splice(index, 1);
-            filteredDepartments = filteredDepartments.filter(d => d.id !== departmentId);
-            selectedDepartments.delete(departmentId);
-            
-            saveDataToStorage();
-            loadDepartments();
-            updateStats();
-            showNotification(`${department.name} has been deleted successfully`, 'success');
-        }
-    }
-}
-
-function saveDepartment(event) {
-    event.preventDefault();
-    
-    const getElementValue = (id) => {
-        const element = document.getElementById(id);
-        return element ? element.value.trim() : '';
-    };
-    
-    const formData = {
-        name: getElementValue('departmentName'),
-        code: getElementValue('departmentCode'),
-        type: getElementValue('departmentType'),
-        description: getElementValue('departmentDescription'),
-        establishedYear: getElementValue('establishedYear'),
-        hodName: getElementValue('hodName'),
-        hodEmail: getElementValue('hodEmail'),
-        departmentPhone: getElementValue('departmentPhone'),
-        departmentEmail: getElementValue('departmentEmail'),
-        officeLocation: getElementValue('officeLocation'),
-        facultyCount: getElementValue('facultyCount'),
-        studentCapacity: getElementValue('studentCapacity'),
-        currentStudents: getElementValue('currentStudents'),
-        status: getElementValue('departmentStatus')
-    };
-    
-    if (!formData.name || !formData.code || !formData.type) {
-        showNotification('Please fill all required fields', 'error');
+// Bulk Operations
+function bulkAction(action) {
+    if (selectedDepartments.length === 0) {
+        showNotification('Please select departments first', 'error');
         return;
     }
     
-    if (editingDepartmentId) {
-        const departmentIndex = DEPARTMENTS_DATA.findIndex(d => d.id === editingDepartmentId);
-        if (departmentIndex !== -1) {
-            // Preserve existing lab data when editing
-            const existingLabs = DEPARTMENTS_DATA[departmentIndex].labs || [];
-            DEPARTMENTS_DATA[departmentIndex] = { 
-                ...DEPARTMENTS_DATA[departmentIndex], 
-                ...formData,
-                labs: existingLabs,
-                activeLabsCount: existingLabs.length,
-                totalLabCapacity: existingLabs.reduce((sum, lab) => sum + (lab.capacity || 0), 0),
-                avgLabUtilization: existingLabs.length > 0 ? 
-                    Math.round(existingLabs.reduce((sum, lab) => sum + (lab.utilizationRate || 0), 0) / existingLabs.length) : 0
-            };
-            showNotification(`${formData.name} updated successfully`, 'success');
-        }
-    } else {
-        const existingCode = DEPARTMENTS_DATA.find(d => d.code === formData.code);
-        if (existingCode) {
-            showNotification('Department code already exists', 'error');
+    const selectedDepts = departments.filter(d => selectedDepartments.includes(d.id));
+    
+    switch (action) {
+        case 'activate':
+            selectedDepts.forEach(dept => dept.status = 'active');
+            showNotification(`${selectedDepts.length} departments activated`, 'success');
+            break;
+        case 'deactivate':
+            selectedDepts.forEach(dept => dept.status = 'inactive');
+            showNotification(`${selectedDepts.length} departments deactivated`, 'success');
+            break;
+        default:
+            showNotification('Unknown action', 'error');
             return;
-        }
-        
-        const newDepartment = {
-            id: 'DEPT' + String(Date.now()).slice(-6),
-            ...formData,
-            labs: [],
-            totalLabCapacity: 0,
-            activeLabsCount: 0,
-            avgLabUtilization: 0
-        };
-        
-        DEPARTMENTS_DATA.push(newDepartment);
-        showNotification(`${formData.name} added successfully`, 'success');
     }
     
-    saveDataToStorage();
-    closeModal();
+    selectedDepartments = [];
     applyFilters();
-    updateStats();
+    loadDepartments();
+    updateStatistics();
 }
 
-function showDepartmentDetails(departmentId) {
-    const department = DEPARTMENTS_DATA.find(d => d.id === departmentId);
-    if (!department) return;
+// Lab Management
+function openLabManagementModal() {
+    populateLabDepartmentFilter();
+    loadLabManagement();
+    openModal('labManagementModal');
+}
+
+function openAddLabModal() {
+    document.getElementById('labModalTitle').textContent = 'Add New Laboratory';
+    const form = document.getElementById('labForm');
+    if (form) form.reset();
+    currentLab = null;
+    populateDepartmentOptions();
+    openModal('addLabModal');
+}
+
+function populateDepartmentOptions() {
+    const select = document.getElementById('labDepartment');
+    if (!select) return;
     
-    const detailsTitle = document.getElementById('departmentDetailsTitle');
-    const detailsContent = document.getElementById('departmentDetailsContent');
-    const detailsModal = document.getElementById('departmentDetailsModal');
+    select.innerHTML = '<option value="">Select Department</option>';
+    departments.forEach(dept => {
+        select.innerHTML += `<option value="${dept.id}">${dept.name} (${dept.code})</option>`;
+    });
+}
+
+function populateLabDepartmentFilter() {
+    const select = document.getElementById('labDepartmentFilter');
+    if (!select) return;
     
-    if (detailsTitle) detailsTitle.textContent = `${department.name} - Department Details`;
+    select.innerHTML = '<option value="">All Departments</option>';
+    departments.forEach(dept => {
+        select.innerHTML += `<option value="${dept.id}">${dept.name}</option>`;
+    });
+}
+
+function loadLabManagement() {
+    const container = document.getElementById('labsGrid');
+    if (!container) return;
     
-    if (detailsContent) {
-        const labs = department.labs || [];
-        
-        detailsContent.innerHTML = `
-            <div class="department-details-view">
-                <div class="detail-section">
-                    <h4><i class="fas fa-building"></i> Department Information</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Department Name:</label>
-                            <span>${department.name}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Department Code:</label>
-                            <span>${department.code}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Department Type:</label>
-                            <span class="type-badge">${department.type}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Established Year:</label>
-                            <span>${department.establishedYear || 'Not specified'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Status:</label>
-                            <span class="status-badge status-${department.status.replace('-', '-')}">
-                                ${department.status.replace('-', ' ').charAt(0).toUpperCase() + department.status.replace('-', ' ').slice(1)}
-                            </span>
-                        </div>
-                        <div class="detail-item" style="grid-column: 1 / -1;">
-                            <label>Description:</label>
-                            <span>${department.description || 'No description available'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h4><i class="fas fa-user-tie"></i> Leadership & Contact</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Head of Department:</label>
-                            <span>${department.hodName || 'Not assigned'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>HOD Email:</label>
-                            <span>${department.hodEmail || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Department Phone:</label>
-                            <span>${department.departmentPhone || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Department Email:</label>
-                            <span>${department.departmentEmail || 'Not provided'}</span>
-                        </div>
-                        <div class="detail-item" style="grid-column: 1 / -1;">
-                            <label>Office Location:</label>
-                            <span>${department.officeLocation || 'Not specified'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="detail-section">
-                    <h4><i class="fas fa-chart-bar"></i> Department Statistics</h4>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Faculty Count:</label>
-                            <span class="count-badge">${department.facultyCount || 0} Faculty</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Student Capacity:</label>
-                            <span>${department.studentCapacity || 0} students</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Current Students:</label>
-                            <span>${department.currentStudents || 0} students</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Occupancy Rate:</label>
-                            <span>${department.currentStudents && department.studentCapacity ? 
-                                Math.round((department.currentStudents / department.studentCapacity) * 100) : 0}%</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Total Labs:</label>
-                            <span class="count-badge">${labs.length} Labs</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Lab Capacity:</label>
-                            <span>${department.totalLabCapacity || 0} seats</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Avg Lab Utilization:</label>
-                            <span>${department.avgLabUtilization || 0}%</span>
-                        </div>
-                    </div>
-                </div>
-                
-                ${labs.length > 0 ? `
-                <div class="detail-section">
-                    <h4><i class="fas fa-flask"></i> Laboratory Information</h4>
-                    <div class="labs-grid">
-                        ${labs.map(lab => `
-                            <div class="lab-card">
-                                <div class="lab-header">
-                                    <h5>${lab.labName}</h5>
-                                    <span class="lab-type-badge">${lab.labType}</span>
-                                </div>
-                                <div class="lab-details">
-                                    <div class="lab-detail-item">
-                                        <label>Capacity:</label>
-                                        <span>${lab.capacity} seats</span>
-                                    </div>
-                                    <div class="lab-detail-item">
-                                        <label>In-charge:</label>
-                                        <span>${lab.labIncharge}</span>
-                                    </div>
-                                    <div class="lab-detail-item">
-                                        <label>Location:</label>
-                                        <span>${lab.location}</span>
-                                    </div>
-                                    <div class="lab-detail-item">
-                                        <label>Utilization:</label>
-                                        <span class="utilization-badge">${lab.utilizationRate}%</span>
-                                    </div>
-                                    ${lab.equipment && lab.equipment.length > 0 ? `
-                                    <div class="lab-detail-item" style="grid-column: 1 / -1;">
-                                        <label>Equipment:</label>
-                                        <span>${lab.equipment.slice(0, 3).join(', ')}${lab.equipment.length > 3 ? ` +${lab.equipment.length - 3} more` : ''}</span>
-                                    </div>
-                                    ` : ''}
-                                    ${lab.software && lab.software.length > 0 ? `
-                                    <div class="lab-detail-item" style="grid-column: 1 / -1;">
-                                        <label>Software:</label>
-                                        <span>${lab.software.slice(0, 3).join(', ')}${lab.software.length > 3 ? ` +${lab.software.length - 3} more` : ''}</span>
-                                    </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                ` : `
-                <div class="detail-section">
-                    <h4><i class="fas fa-flask"></i> Laboratory Information</h4>
-                    <div class="empty-lab-state">
-                        <i class="fas fa-flask fa-2x"></i>
-                        <p>No laboratories assigned to this department</p>
-                    </div>
-                </div>
-                `}
+    container.innerHTML = '';
+    
+    if (labs.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <i class="fas fa-flask" style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 20px;"></i>
+                <h3>No laboratories found</h3>
+                <p>Add some laboratories to get started</p>
+                <button class="btn btn-success" onclick="openAddLabModal()" style="margin-top: 15px;">
+                    <i class="fas fa-plus"></i> Add Laboratory
+                </button>
             </div>
         `;
-    }
-    
-    if (detailsModal) detailsModal.classList.add('show');
-}
-
-function closeModal() {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.classList.remove('show');
-    });
-    editingDepartmentId = null;
-}
-
-function bulkAction(action) {
-    if (selectedDepartments.size === 0) {
-        showNotification('No departments selected', 'error');
         return;
     }
     
-    const actionText = action === 'activate' ? 'activate' : 'deactivate';
-    const newStatus = action === 'activate' ? 'active' : 'inactive';
+    labs.forEach((lab, index) => {
+        const card = document.createElement('div');
+        card.className = 'lab-card';
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.innerHTML = `
+            <div class="lab-header">
+                <h5>${lab.name}</h5>
+                <span class="lab-type-badge">${lab.type}</span>
+            </div>
+            <div class="lab-details">
+                <div class="lab-detail-item">
+                    <label>Department</label>
+                    <span>${lab.departmentName} (${lab.departmentCode})</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Capacity</label>
+                    <span>${lab.capacity} students</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Utilization</label>
+                    <span class="utilization-badge">${lab.utilization}%</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>In-charge</label>
+                    <span>${lab.incharge || 'Not assigned'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Location</label>
+                    <span>${lab.location || 'Not specified'}</span>
+                </div>
+                <div class="lab-detail-item">
+                    <label>Status</label>
+                    <span class="status-badge status-${lab.status}">${formatStatus(lab.status)}</span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
+                <button class="action-btn action-edit" onclick="editLab(${lab.id})" title="Edit Lab">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="action-btn action-delete" onclick="deleteLab(${lab.id})" title="Delete Lab">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function editLab(id) {
+    const lab = labs.find(l => l.id === id);
+    if (!lab) return;
     
-    if (confirm(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${selectedDepartments.size} selected departments?`)) {
-        let updatedCount = 0;
-        DEPARTMENTS_DATA.forEach(department => {
-            if (selectedDepartments.has(department.id)) {
-                department.status = newStatus;
-                updatedCount++;
-            }
-        });
+    currentLab = lab;
+    document.getElementById('labModalTitle').textContent = 'Edit Laboratory';
+    
+    // Populate form
+    const fields = {
+        'labName': lab.name,
+        'labType': lab.type,
+        'labDepartment': lab.departmentId,
+        'labCapacity': lab.capacity,
+        'labIncharge': lab.incharge,
+        'labLocation': lab.location,
+        'labEquipment': lab.equipment ? lab.equipment.join('\n') : '',
+        'labSoftware': lab.software ? lab.software.join('\n') : '',
+        'utilizationRate': lab.utilization,
+        'labStatus': lab.status
+    };
+    
+    Object.entries(fields).forEach(([fieldId, value]) => {
+        const element = document.getElementById(fieldId);
+        if (element && value !== undefined) {
+            element.value = value;
+        }
+    });
+    
+    populateDepartmentOptions();
+    openModal('addLabModal');
+}
+
+function deleteLab(id) {
+    const lab = labs.find(l => l.id === id);
+    if (!lab) return;
+    
+    if (confirm(`Are you sure you want to delete "${lab.name}"? This action cannot be undone.`)) {
+        // Remove from labs array
+        labs = labs.filter(l => l.id !== id);
         
-        selectedDepartments.clear();
-        const checkboxes = document.querySelectorAll('.department-checkbox, #selectAll, #masterCheckbox');
-        checkboxes.forEach(cb => cb.checked = false);
+        // Remove from department's labs array
+        const dept = departments.find(d => d.id === lab.departmentId);
+        if (dept && dept.labs) {
+            dept.labs = dept.labs.filter(l => l.id !== id);
+        }
         
-        saveDataToStorage();
-        loadDepartments(); 
-        updateStats();
-        showNotification(`${updatedCount} departments ${actionText}d successfully`, 'success');
+        loadLabManagement();
+        updateStatistics();
+        showNotification(`${lab.name} deleted successfully!`, 'success');
     }
+}
+
+function saveLab(event) {
+    event.preventDefault();
+    
+    const departmentId = parseInt(document.getElementById('labDepartment').value);
+    const department = departments.find(d => d.id === departmentId);
+    
+    if (!department) {
+        showNotification('Please select a valid department', 'error');
+        return;
+    }
+    
+    const formData = {
+        name: document.getElementById('labName').value.trim(),
+        type: document.getElementById('labType').value,
+        departmentId: departmentId,
+        departmentName: department.name,
+        departmentCode: department.code,
+        capacity: parseInt(document.getElementById('labCapacity').value) || 0,
+        incharge: document.getElementById('labIncharge').value.trim(),
+        location: document.getElementById('labLocation').value.trim(),
+        equipment: document.getElementById('labEquipment').value.split('\n').filter(item => item.trim()),
+        software: document.getElementById('labSoftware').value.split('\n').filter(item => item.trim()),
+        utilization: parseInt(document.getElementById('utilizationRate').value) || 0,
+        status: document.getElementById('labStatus').value
+    };
+    
+    if (!formData.name || !formData.type || !formData.capacity) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (currentLab) {
+        // Update existing lab
+        Object.assign(currentLab, formData);
+        
+        // Update in department's labs array
+        if (department.labs) {
+            const labIndex = department.labs.findIndex(l => l.id === currentLab.id);
+            if (labIndex !== -1) {
+                department.labs[labIndex] = {...currentLab};
+            }
+        }
+        
+        showNotification(`${formData.name} updated successfully!`, 'success');
+    } else {
+        // Add new lab
+        formData.id = Math.max(...labs.map(l => l.id), 0) + 1;
+        
+        // Add to labs array
+        labs.push(formData);
+        
+        // Add to department's labs array
+        if (!department.labs) {
+            department.labs = [];
+        }
+        department.labs.push({...formData});
+        
+        showNotification(`${formData.name} added successfully!`, 'success');
+    }
+    
+    loadLabManagement();
+    loadDepartments(); // Refresh department view to show updated lab count
+    updateStatistics();
+    closeModal();
+}
+
+// Lab Search and Filter Functions
+function searchLabs() {
+    const searchTerm = document.getElementById('labSearchInput')?.value?.toLowerCase() || '';
+    // Implement lab search logic here
+    loadLabManagement();
+}
+
+function filterLabsByDepartment() {
+    const departmentId = document.getElementById('labDepartmentFilter')?.value;
+    // Implement department filter for labs
+    loadLabManagement();
+}
+
+function filterLabsByType() {
+    const labType = document.getElementById('labTypeFilter')?.value;
+    // Implement lab type filter
+    loadLabManagement();
+}
+
+// Utility Functions
+function refreshDepartments() {
+    // Add refresh animation
+    const refreshBtn = document.querySelector('[onclick="refreshDepartments()"]');
+    if (refreshBtn) {
+        const icon = refreshBtn.querySelector('i');
+        icon.style.animation = 'spin 1s linear';
+        setTimeout(() => {
+            icon.style.animation = '';
+        }, 1000);
+    }
+    
+    applyFilters();
+    loadDepartments();
+    updateStatistics();
+    showNotification('Data refreshed successfully!', 'info');
+}
+
+function exportDepartments() {
+    const data = departments.map(dept => ({
+        'Department Name': dept.name,
+        'Code': dept.code,
+        'Type': dept.type,
+        'Head of Department': dept.hod,
+        'Faculty Count': dept.facultyCount,
+        'Current Students': dept.currentStudents,
+        'Student Capacity': dept.studentCapacity,
+        'Occupancy Rate': dept.studentCapacity > 0 ? Math.round((dept.currentStudents / dept.studentCapacity) * 100) + '%' : 'N/A',
+        'Laboratory Count': dept.labs ? dept.labs.length : 0,
+        'Status': formatStatus(dept.status),
+        'Location': dept.location,
+        'Established Year': dept.establishedYear,
+        'Contact Phone': dept.phone,
+        'Email': dept.email
+    }));
+    
+    exportToCSV(data, `departments_export_${new Date().getTime()}.csv`);
+    showNotification('Departments exported successfully!', 'success');
 }
 
 function exportSelected() {
-    if (selectedDepartments.size === 0) {
-        showNotification('No departments selected for export', 'error');
+    if (selectedDepartments.length === 0) {
+        showNotification('Please select departments to export', 'error');
         return;
     }
     
-    const selectedData = DEPARTMENTS_DATA.filter(dept => selectedDepartments.has(dept.id));
-    const csvContent = convertToCSV(selectedData);
-    downloadCSV(csvContent, 'selected_departments.csv');
+    const selectedDepts = departments.filter(d => selectedDepartments.includes(d.id));
+    const data = selectedDepts.map(dept => ({
+        'Department Name': dept.name,
+        'Code': dept.code,
+        'Type': dept.type,
+        'Head of Department': dept.hod,
+        'Faculty Count': dept.facultyCount,
+        'Current Students': dept.currentStudents,
+        'Status': formatStatus(dept.status)
+    }));
     
-    showNotification(`${selectedDepartments.size} departments exported successfully!`, 'success');
+    exportToCSV(data, `selected_departments_${new Date().getTime()}.csv`);
+    showNotification(`${selectedDepts.length} departments exported successfully!`, 'success');
+}
+
+function exportToCSV(data, filename) {
+    if (data.length === 0) return;
+    
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(header => {
+            const value = row[header] || '';
+            return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+        }).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function importDepartments() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.csv,.json';
+    input.accept = '.csv';
     input.onchange = function(event) {
         const file = event.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let importedData;
-                if (file.name.endsWith('.json')) {
-                    importedData = JSON.parse(e.target.result);
-                } else {
-                    importedData = parseCSV(e.target.result);
-                }
-                
-                if (Array.isArray(importedData) && importedData.length > 0) {
-                    let addedCount = 0;
-                    importedData.forEach(deptData => {
-                        const existingCode = DEPARTMENTS_DATA.find(d => d.code === deptData.code);
-                        
-                        if (!existingCode && deptData.name && deptData.code) {
-                            const newDepartment = {
-                                id: 'DEPT' + String(Date.now() + addedCount).slice(-6),
-                                ...deptData,
-                                status: deptData.status || 'active',
-                                labs: deptData.labs || [],
-                                totalLabCapacity: 0,
-                                activeLabsCount: 0,
-                                avgLabUtilization: 0
-                            };
-                            
-                            // Calculate lab statistics
-                            if (newDepartment.labs && newDepartment.labs.length > 0) {
-                                newDepartment.activeLabsCount = newDepartment.labs.length;
-                                newDepartment.totalLabCapacity = newDepartment.labs.reduce((sum, lab) => sum + (lab.capacity || 0), 0);
-                                newDepartment.avgLabUtilization = Math.round(
-                                    newDepartment.labs.reduce((sum, lab) => sum + (lab.utilizationRate || 0), 0) / newDepartment.labs.length
-                                );
-                            }
-                            
-                            DEPARTMENTS_DATA.push(newDepartment);
-                            addedCount++;
-                        }
-                    });
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    // Basic CSV parsing (implement proper CSV parser for production)
+                    const lines = e.target.result.split('\n');
+                    const headers = lines[0].split(',');
                     
-                    if (addedCount > 0) {
-                        saveDataToStorage();
-                        applyFilters();
-                        updateStats();
-                        showNotification(`${addedCount} departments imported successfully!`, 'success');
-                    } else {
-                        showNotification('No new departments to import (duplicates found)', 'error');
-                    }
-                } else {
-                    showNotification('Invalid file format', 'error');
+                    showNotification('Import functionality is under development', 'info');
+                    console.log('CSV Headers:', headers);
+                    console.log('CSV Lines:', lines.length);
+                } catch (error) {
+                    showNotification('Error importing file', 'error');
+                    console.error('Import error:', error);
                 }
-            } catch (error) {
-                showNotification('Error reading file', 'error');
-            }
-        };
-        reader.readAsText(file);
+            };
+            reader.readAsText(file);
+        }
     };
     input.click();
 }
 
-function exportDepartments() {
-    if (DEPARTMENTS_DATA.length === 0) {
-        showNotification('No departments to export', 'error');
-        return;
-    }
+// Notification System
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
     
-    const csvContent = convertToCSV(DEPARTMENTS_DATA);
-    downloadCSV(csvContent, 'all_departments.csv');
+    if (!notification || !notificationText) return;
     
-    showNotification('All department data exported successfully!', 'success');
-}
-
-function convertToCSV(data) {
-    if (data.length === 0) return '';
-    
-    // Flatten lab data for CSV export
-    const flattenedData = data.map(dept => {
-        const { labs, ...deptData } = dept;
-        return {
-            ...deptData,
-            labsCount: labs ? labs.length : 0,
-            labNames: labs ? labs.map(lab => lab.labName).join('; ') : '',
-            labCapacities: labs ? labs.map(lab => lab.capacity).join('; ') : '',
-            labUtilization: labs ? labs.map(lab => lab.utilizationRate).join('; ') : ''
+    // Set icon based on type
+    const iconElement = notification.querySelector('i');
+    if (iconElement) {
+        const icons = {
+            'success': 'fas fa-check-circle',
+            'error': 'fas fa-exclamation-circle',
+            'info': 'fas fa-info-circle',
+            'warning': 'fas fa-exclamation-triangle'
         };
-    });
-    
-    const headers = Object.keys(flattenedData[0]).join(',');
-    const rows = flattenedData.map(row => 
-        Object.values(row).map(value => 
-            typeof value === 'string' && value.includes(',') ? `"${value}"` : value
-        ).join(',')
-    );
-    
-    return [headers, ...rows].join('\n');
-}
-
-function parseCSV(csvText) {
-    const lines = csvText.split('\n');
-    if (lines.length < 2) return [];
-    
-    const headers = lines[0].split(',').map(h => h.trim());
-    const data = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        
-        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-        const obj = {};
-        headers.forEach((header, index) => {
-            obj[header] = values[index] || '';
-        });
-        
-        // Reconstruct lab data if present
-        if (obj.labNames && obj.labCapacities) {
-            const labNames = obj.labNames.split(';');
-            const labCapacities = obj.labCapacities.split(';');
-            const labUtilization = obj.labUtilization ? obj.labUtilization.split(';') : [];
-            
-            obj.labs = labNames.map((name, index) => ({
-                labId: 'LAB' + String(Date.now() + index).slice(-6),
-                labName: name.trim(),
-                labType: 'Computer Lab',
-                capacity: parseInt(labCapacities[index]) || 0,
-                utilizationRate: parseInt(labUtilization[index]) || 0,
-                equipment: [],
-                software: [],
-                labIncharge: 'TBD',
-                location: 'TBD',
-                status: 'active'
-            }));
-            
-            obj.totalLabCapacity = obj.labs.reduce((sum, lab) => sum + lab.capacity, 0);
-            obj.activeLabsCount = obj.labs.length;
-            obj.avgLabUtilization = obj.labs.length > 0 ? 
-                Math.round(obj.labs.reduce((sum, lab) => sum + lab.utilizationRate, 0) / obj.labs.length) : 0;
-        } else {
-            obj.labs = [];
-            obj.totalLabCapacity = 0;
-            obj.activeLabsCount = 0;
-            obj.avgLabUtilization = 0;
-        }
-        
-        // Clean up CSV-specific fields
-        delete obj.labsCount;
-        delete obj.labNames;
-        delete obj.labCapacities;
-        delete obj.labUtilization;
-        
-        data.push(obj);
+        iconElement.className = icons[type] || icons['success'];
     }
     
-    return data;
-}
-
-function downloadCSV(csvContent, filename) {
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-}
-
-function refreshDepartments() {
-    showNotification('Refreshing department data...', 'info');
-    
-    setTimeout(() => {
-        loadDepartments();
-        updateStats();
-        showNotification('Department data refreshed successfully!', 'success');
-    }, 1000);
-}
-
-// Lab Management Functions
-function addLabToDepartment(departmentId, labData) {
-    const departmentIndex = DEPARTMENTS_DATA.findIndex(d => d.id === departmentId);
-    if (departmentIndex !== -1) {
-        if (!DEPARTMENTS_DATA[departmentIndex].labs) {
-            DEPARTMENTS_DATA[departmentIndex].labs = [];
-        }
-        
-        const newLab = {
-            labId: 'LAB' + String(Date.now()).slice(-6),
-            ...labData,
-            status: labData.status || 'active'
-        };
-        
-        DEPARTMENTS_DATA[departmentIndex].labs.push(newLab);
-        
-        // Update lab statistics
-        updateDepartmentLabStats(departmentIndex);
-        
-        saveDataToStorage();
-        return newLab;
-    }
-    return null;
-}
-
-function updateDepartmentLabStats(departmentIndex) {
-    const department = DEPARTMENTS_DATA[departmentIndex];
-    if (department.labs && department.labs.length > 0) {
-        department.activeLabsCount = department.labs.filter(lab => lab.status === 'active').length;
-        department.totalLabCapacity = department.labs.reduce((sum, lab) => sum + (lab.capacity || 0), 0);
-        department.avgLabUtilization = Math.round(
-            department.labs.reduce((sum, lab) => sum + (lab.utilizationRate || 0), 0) / department.labs.length
-        );
-    } else {
-        department.activeLabsCount = 0;
-        department.totalLabCapacity = 0;
-        department.avgLabUtilization = 0;
-    }
-}
-
-function removeLabFromDepartment(departmentId, labId) {
-    const departmentIndex = DEPARTMENTS_DATA.findIndex(d => d.id === departmentId);
-    if (departmentIndex !== -1 && DEPARTMENTS_DATA[departmentIndex].labs) {
-        DEPARTMENTS_DATA[departmentIndex].labs = DEPARTMENTS_DATA[departmentIndex].labs.filter(lab => lab.labId !== labId);
-        updateDepartmentLabStats(departmentIndex);
-        saveDataToStorage();
-        return true;
-    }
-    return false;
-}
-
-function getLabsByDepartment(departmentId) {
-    const department = DEPARTMENTS_DATA.find(d => d.id === departmentId);
-    return department ? (department.labs || []) : [];
-}
-
-function showNotification(message, type) {
-    const existingNotification = document.querySelector('.notification.show');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    const notification = document.createElement('div');
+    notificationText.textContent = message;
     notification.className = `notification ${type} show`;
     
-    const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-circle',
-        info: 'fas fa-info-circle'
-    };
-
-    notification.innerHTML = `
-        <i class="${icons[type]}"></i>
-        <span>${message}</span>
-    `;
-
-    document.body.appendChild(notification);
-
+    // Auto hide after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 400);
-    }, 4000);
+    }, 3000);
+    
+    // Add click to dismiss
+    notification.onclick = () => {
+        notification.classList.remove('show');
+    };
 }
 
-document.addEventListener('click', function(e) {
-    const sidebar = document.getElementById('sidebar');
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+// Helper Functions
+function formatStatus(status) {
+    return status.replace('-', ' ').split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear stored data
+        localStorage.removeItem('user-session');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('scms-theme');
+        
+        // Show logout animation
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.3s ease';
+        
+        setTimeout(() => {
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }, 300);
+    }
+}
+
+// Event Listeners Setup
+function setupEventListeners() {
+    // Window resize handler
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        }, 250);
+    });
     
-    if (window.innerWidth <= 768 && 
-        sidebar && sidebar.classList.contains('active') && 
-        !sidebar.contains(e.target) && 
-        mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
-        closeMobileSidebar();
+    // Close sidebar when clicking on links (mobile)
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
+        });
+    });
+    
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    });
+    
+    // Search input debouncing
+    let searchTimer;
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                searchDepartments();
+            }, 300);
+        });
+    }
+    
+    // Load saved view preference
+    const savedView = localStorage.getItem('preferred-view') || 'table';
+    switchView(savedView);
+}
+
+// CSS Animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .loading {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // Refresh data when page becomes visible
+        updateStatistics();
     }
 });
 
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        closeModal();
-    }
+// Handle online/offline status
+window.addEventListener('online', function() {
+    showNotification('Connection restored', 'success');
 });
 
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeMobileSidebar();
-    }
+window.addEventListener('offline', function() {
+    showNotification('No internet connection', 'warning');
 });
 
-window.addEventListener('beforeunload', function() {
-    saveDataToStorage();
-});
+// Export functions for global access (if needed)
+window.departmentManager = {
+    departments,
+    labs,
+    exportDepartments,
+    importDepartments,
+    refreshDepartments
+};
 
-setTimeout(() => {
-    if (document.getElementById('tableViewBtn')) {
-        switchView('table');
-    }
-}, 100);
+// Performance monitoring (optional)
+if (window.performance) {
+    window.addEventListener('load', function() {
+        const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+        console.log(`Page loaded in ${loadTime}ms`);
+    });
+}
