@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="departments.css">
 </head>
 <body>
+   
     <div class="mobile-header">
         <div class="mobile-header-content">
             <div class="mobile-logo">
@@ -28,18 +29,19 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
     <div class="dashboard">
+        <!-- Sidebar - Dashboard Style -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>🎓 SCMS</h2>
                 <p>Admin Portal</p>
             </div>
             
-            <div class="user-info" id="userInfo">
+            <div class="user-info">
                 <div class="user-avatar">
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <div class="user-details">
-                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-name" id="userName">Admin User</div>
                     <div class="user-role">Administrator</div>
                 </div>
             </div>
@@ -80,7 +82,7 @@
                             Faculty
                         </a>
                     </li>
-                    <li class = "active">
+                    <li class="active">
                         <a href="departments.html">
                             <i class="fas fa-building"></i>
                             Departments
@@ -92,7 +94,7 @@
                             Lab Management
                         </a>
                     </li>
-                     <li>
+                    <li>
                         <a href="feedback.html">
                             <i class="fas fa-comment-dots"></i>
                             Feedback & Complaints
@@ -152,7 +154,7 @@
                         <i class="fas fa-building"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-number" id="totalDepartments">12</div>
+                        <div class="stat-number" id="totalDepartments">0</div>
                         <div class="stat-label">Total Departments</div>
                         <div class="stat-change">+2 from last month</div>
                     </div>
@@ -163,7 +165,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-number" id="activeDepartments">10</div>
+                        <div class="stat-number" id="activeDepartments">0</div>
                         <div class="stat-label">Active Departments</div>
                         <div class="stat-change">83% active</div>
                     </div>
@@ -174,7 +176,7 @@
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-number" id="totalFaculty">145</div>
+                        <div class="stat-number" id="totalFaculty">0</div>
                         <div class="stat-label">Total Faculty</div>
                         <div class="stat-change">Across all depts</div>
                     </div>
@@ -185,14 +187,12 @@
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-number" id="totalStudents">2,450</div>
+                        <div class="stat-number" id="totalStudents">0</div>
                         <div class="stat-label">Total Students</div>
                         <div class="stat-change">Enrolled students</div>
                     </div>
                 </div>
             </div>
-
-            <!-- New Lab Statistics Row -->
            
             <div class="filters-section">
                 <div class="search-box">
@@ -218,7 +218,6 @@
                     <option value="Management">Management</option>
                 </select>
 
-                <!-- New Lab Filter -->
                 <select class="filter-select" id="labFilter" onchange="filterDepartments()">
                     <option value="">All Labs</option>
                     <option value="has-labs">With Labs</option>
@@ -228,7 +227,7 @@
                 </select>
             </div>
 
-            <div class="bulk-actions" id="bulkActions">
+            <div class="bulk-actions" id="bulkActions" style="display: none;">
                 <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                 <span class="selected-count" id="selectedCount">0 departments selected</span>
                 <button class="btn btn-warning btn-sm" onclick="bulkAction('activate')">
@@ -263,6 +262,7 @@
                 </div>
 
                 <div class="departments-container" id="departmentsContainer" style="display: none;">
+                    <!-- Department cards will be populated here -->
                 </div>
 
                 <div class="table-container" id="tableContainer">
@@ -280,6 +280,14 @@
                             </tr>
                         </thead>
                         <tbody id="departmentsTableBody">
+                            <tr>
+                                <td colspan="8" class="loading-state">
+                                    <div style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--text-tertiary);"></i>
+                                        <p style="margin-top: 15px; color: var(--text-secondary);">Loading departments...</p>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -287,7 +295,7 @@
         </div>
     </div>
 
-    <!-- Department Modal -->
+    <!-- All your existing modals remain the same -->
     <div class="modal" id="departmentModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -557,10 +565,12 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div id="departmentDetailsContent">
+                <!-- Content will be populated dynamically -->
             </div>
         </div>
     </div>
 
+    <!-- Notification -->
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
         <span id="notificationText">Success message</span>
@@ -569,5 +579,3 @@
     <script src="departments.js"></script>
 </body>
 </html>
-
-
