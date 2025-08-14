@@ -4,7 +4,7 @@ function initializeTheme() {
     const mobileThemeIcon = document.getElementById('mobileThemeIcon');
     const themeLabel = document.getElementById('themeLabel');
     const themeSwitch = document.getElementById('themeSwitch');
-    
+
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         if (themeIcon) themeIcon.className = 'fas fa-sun';
@@ -26,7 +26,7 @@ function toggleTheme() {
     const mobileThemeIcon = document.getElementById('mobileThemeIcon');
     const themeLabel = document.getElementById('themeLabel');
     const themeSwitch = document.getElementById('themeSwitch');
-    
+
     if (currentTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem('scms-theme', 'light');
@@ -47,7 +47,7 @@ function toggleTheme() {
 function toggleMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    
+
     if (sidebar && overlay) {
         sidebar.classList.add('active');
         overlay.classList.add('active');
@@ -58,7 +58,7 @@ function toggleMobileSidebar() {
 function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    
+
     if (sidebar && overlay) {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
@@ -66,6 +66,7 @@ function closeMobileSidebar() {
     }
 }
 
+// Faculty Data - All your existing data preserved
 let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
     {
         id: 'FAC001',
@@ -229,6 +230,9 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
     }
 ];
 
+// Teacher Attendance Data - NEW ADDITION
+let TEACHER_ATTENDANCE_DATA = JSON.parse(localStorage.getItem('scms_teacher_attendance')) || [];
+
 let filteredFaculty = [...FACULTY_DATA];
 let selectedFaculty = new Set();
 let editingFacultyId = null;
@@ -238,13 +242,87 @@ function saveDataToStorage() {
     localStorage.setItem('scms_faculty_data', JSON.stringify(FACULTY_DATA));
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// Load Teacher Attendance Data - NEW FUNCTION
+function loadTeacherAttendance() {
+    TEACHER_ATTENDANCE_DATA = JSON.parse(localStorage.getItem('scms_teacher_attendance')) || [];
+    return TEACHER_ATTENDANCE_DATA;
+}
+
+// Initialize Demo Teacher Attendance Data - NEW FUNCTION
+function initializeDemoTeacherAttendanceData() {
+    const existingData = localStorage.getItem('scms_teacher_attendance');
+    if (!existingData || TEACHER_ATTENDANCE_DATA.length === 0) {
+        const demoAttendanceData = [];
+        const today = new Date();
+
+        // Create attendance records for last 30 days
+        for (let i = 0; i < 30; i++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateString = date.toISOString().split('T')[0];
+
+            FACULTY_DATA.forEach((faculty) => {
+                // Skip weekends
+                if (date.getDay() === 0 || date.getDay() === 6) return;
+
+                const statuses = ['present', 'present', 'present', 'present', 'late', 'leave', 'absent'];
+                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+
+                let reason = null;
+                if (randomStatus === 'leave') {
+                    const leaveReasons = [
+                        'Medical appointment',
+                        'Family emergency',
+                        'Personal work',
+                        'Sick leave',
+                        'Conference attendance',
+                        'Training program',
+                        'Research work',
+                        'Academic meeting'
+                    ];
+                    reason = leaveReasons[Math.floor(Math.random() * leaveReasons.length)];
+                } else if (randomStatus === 'absent') {
+                    const absentReasons = [
+                        'Unplanned absence',
+                        'Health issues',
+                        'Transport problem',
+                        'Emergency'
+                    ];
+                    reason = absentReasons[Math.floor(Math.random() * absentReasons.length)];
+                }
+
+                demoAttendanceData.push({
+                    id: `ATT_${faculty.id}_${dateString}`,
+                    teacherId: faculty.id,
+                    teacherName: faculty.name,
+                    department: faculty.department,
+                    date: dateString,
+                    status: randomStatus,
+                    reason: reason,
+                    timestamp: date.toISOString(),
+                    checkInTime: randomStatus === 'present' || randomStatus === 'late' ?
+                        `${7 + Math.floor(Math.random() * 4)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} AM` : null
+                });
+            });
+        }
+
+        localStorage.setItem('scms_teacher_attendance', JSON.stringify(demoAttendanceData));
+        TEACHER_ATTENDANCE_DATA = demoAttendanceData;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     initializeTheme();
     loadCurrentUser();
+
+    // Initialize demo teacher attendance data
+    initializeDemoTeacherAttendanceData();
+    loadTeacherAttendance();
+
     loadFaculty();
     updateStats();
-    
-    window.addEventListener('resize', function() {
+
+    window.addEventListener('resize', function () {
         if (window.innerWidth > 768) {
             closeMobileSidebar();
         }
@@ -254,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadCurrentUser() {
     const currentUser = localStorage.getItem('scms_current_user');
     const userNameElement = document.getElementById('userName');
-    
+
     if (!currentUser) {
         window.location.href = '../index.html';
         return;
@@ -288,12 +366,12 @@ function updateStats() {
     const professors = FACULTY_DATA.filter(f => f.designation === 'Professor').length;
     const expSum = FACULTY_DATA.reduce((sum, f) => sum + parseFloat(f.experience || 0), 0);
     const avgExperience = totalFaculty > 0 ? expSum / totalFaculty : 0;
-    
+
     const totalElement = document.getElementById('totalFaculty');
     const activeElement = document.getElementById('activeFaculty');
     const professorsElement = document.getElementById('professors');
     const avgExpElement = document.getElementById('avgExperience');
-    
+
     if (totalElement) totalElement.textContent = totalFaculty.toLocaleString();
     if (activeElement) activeElement.textContent = activeFaculty.toLocaleString();
     if (professorsElement) professorsElement.textContent = professors.toLocaleString();
@@ -306,9 +384,9 @@ function switchView(view) {
     const tableViewBtn = document.getElementById('tableViewBtn');
     const facultyContainer = document.getElementById('facultyContainer');
     const tableContainer = document.getElementById('tableContainer');
-    
+
     if (!cardViewBtn || !tableViewBtn || !facultyContainer || !tableContainer) return;
-    
+
     if (view === 'card') {
         cardViewBtn.classList.add('active');
         tableViewBtn.classList.remove('active');
@@ -336,66 +414,257 @@ function loadFaculty() {
 function loadFacultyCards() {
     const container = document.getElementById('facultyContainer');
     if (!container) return;
-    
+
     container.innerHTML = '';
-    
+
     if (filteredFaculty.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <i class="fas fa-user-tie fa-3x"></i>
+                <i class="fas fa-users"></i>
                 <h3>No Faculty Found</h3>
                 <p>No faculty match your current filters.</p>
-            </div>
-        `;
+            </div>`;
         return;
     }
-    
+
     filteredFaculty.forEach(faculty => {
-        const facultyCard = createFacultyCard(faculty);
-        container.appendChild(facultyCard);
+        const card = createFacultyCard(faculty);
+        container.appendChild(card);
     });
 }
 
+// Updated loadFacultyTable function to include attendance info
 function loadFacultyTable() {
-    const tbody = document.getElementById('facultyTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
+    const container = document.getElementById('tableContainer');
+    if (!container) return;
+
+    const teacherAttendance = loadTeacherAttendance();
+    const today = new Date().toISOString().split('T')[0];
+
+    container.innerHTML = '';
+
+    if (filteredFaculty.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Faculty Found</h3>
+                <p>No faculty match your current filters.</p>
+            </div>`;
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onchange="toggleAllSelection()"></th>
+                <th>Faculty Info</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Experience</th>
+                <th>Subjects</th>
+                <th>Today's Attendance</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
 
     filteredFaculty.forEach(faculty => {
-        const row = createFacultyTableRow(faculty);
-        tbody.appendChild(row);
+        // Find today's attendance record
+        const todayAttendance = teacherAttendance.find(att =>
+            att.teacherId === faculty.id && att.date === today
+        );
+
+        const attendanceStatus = todayAttendance ? todayAttendance.status : 'not-marked';
+        const attendanceColor = {
+            'present': 'var(--accent-green)',
+            'late': 'var(--accent-yellow)',
+            'leave': 'var(--accent-blue)',
+            'absent': 'var(--accent-red)',
+            'not-marked': 'var(--text-tertiary)'
+        };
+
+        const attendanceBadge = `
+            <div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">
+                <span class="status-badge" style="background: rgba(${attendanceStatus === 'present' ? '16, 185, 129' :
+                attendanceStatus === 'late' ? '245, 158, 11' :
+                    attendanceStatus === 'leave' ? '37, 99, 235' :
+                        attendanceStatus === 'absent' ? '239, 68, 68' : '148, 163, 184'
+            }, 0.2); color: ${attendanceColor[attendanceStatus]}; cursor: pointer;" 
+                onclick="viewTeacherAttendanceHistory('${faculty.id}')">
+                    ${attendanceStatus === 'not-marked' ? 'Not Marked' : attendanceStatus.toUpperCase()}
+                </span>
+                ${todayAttendance && todayAttendance.checkInTime ?
+                `<small style="color: var(--text-secondary); font-size: 0.75rem;">${todayAttendance.checkInTime}</small>` : ''}
+                ${todayAttendance && todayAttendance.reason ?
+                `<small style="color: var(--text-secondary); font-style: italic; font-size: 0.75rem; max-width: 100px; overflow: hidden; text-overflow: ellipsis;" title="${todayAttendance.reason}">${todayAttendance.reason}</small>` : ''}
+            </div>
+        `;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="checkbox" value="${faculty.id}" onchange="toggleSelection('${faculty.id}')"></td>
+            <td>
+                <div class="faculty-profile">
+                    <div class="user-avatar-sm">${faculty.name.split(' ').map(n => n[0]).join('')}</div>
+                    <div class="faculty-info-text">
+                        <h4>${faculty.name}</h4>
+                        <p>${faculty.email}</p>
+                    </div>
+                </div>
+            </td>
+            <td><span class="department-badge">${faculty.department}</span></td>
+            <td><span class="designation-badge designation-${faculty.designation.toLowerCase().replace(' ', '-')}">${faculty.designation}</span></td>
+            <td><span class="experience-badge exp-${getExperienceLevel(faculty.experience)}">${faculty.experience} years</span></td>
+            <td>
+                <div class="subject-tags">
+                    ${faculty.subjects.split(',').slice(0, 2).map(subject =>
+            `<span class="subject-tag">${subject.trim()}</span>`
+        ).join('')}
+                    ${faculty.subjects.split(',').length > 2 ? '<span class="subject-tag">+' + (faculty.subjects.split(',').length - 2) + '</span>' : ''}
+                </div>
+            </td>
+            <td>${attendanceBadge}</td>
+            <td><span class="status-badge status-${faculty.status}">${faculty.status}</span></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn action-view" onclick="viewFaculty('${faculty.id}')">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="action-btn action-edit" onclick="openEditModal('${faculty.id}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="action-btn action-delete" onclick="deleteFaculty('${faculty.id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </td>
+        `;
+        table.querySelector('tbody').appendChild(row);
     });
+
+    table.innerHTML += '</tbody>';
+    container.appendChild(table);
+}
+
+// NEW FUNCTION - View Teacher Attendance History
+function viewTeacherAttendanceHistory(teacherId) {
+    const teacherAttendance = loadTeacherAttendance();
+    const teacher = FACULTY_DATA.find(f => f.id === teacherId);
+    const teacherRecords = teacherAttendance.filter(att => att.teacherId === teacherId).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Calculate attendance statistics
+    const totalDays = teacherRecords.length;
+    const presentDays = teacherRecords.filter(r => r.status === 'present').length;
+    const lateDays = teacherRecords.filter(r => r.status === 'late').length;
+    const leaveDays = teacherRecords.filter(r => r.status === 'leave').length;
+    const absentDays = teacherRecords.filter(r => r.status === 'absent').length;
+    const attendancePercentage = totalDays > 0 ? ((presentDays + lateDays) / totalDays * 100).toFixed(1) : 0;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-check"></i> ${teacher.name} - Attendance History</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Attendance Statistics -->
+                <div class="attendance-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    <div class="stat-item" style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-green);">${presentDays}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">Present</div>
+                    </div>
+                    <div class="stat-item" style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-yellow);">${lateDays}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">Late</div>
+                    </div>
+                    <div class="stat-item" style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-blue);">${leaveDays}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">Leave</div>
+                    </div>
+                    <div class="stat-item" style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-red);">${absentDays}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">Absent</div>
+                    </div>
+                    <div class="stat-item" style="background: var(--bg-secondary); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--accent-blue);">${attendancePercentage}%</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">Attendance</div>
+                    </div>
+                </div>
+                
+                <!-- Attendance History Table -->
+                <div class="attendance-history-table" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px;">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr style="background: var(--bg-secondary);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-secondary);">Date</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-secondary);">Day</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-secondary);">Status</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-secondary);">Check-in Time</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-secondary);">Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${teacherRecords.map(record => {
+        const date = new Date(record.date);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        return `
+                                <tr style="border-bottom: 1px solid var(--border-light);">
+                                    <td style="padding: 12px;">${formattedDate}</td>
+                                    <td style="padding: 12px; color: var(--text-secondary);">${dayName}</td>
+                                    <td style="padding: 12px;">
+                                        <span class="status-badge status-${record.status}" style="background: rgba(${record.status === 'present' ? '16, 185, 129' :
+                record.status === 'late' ? '245, 158, 11' :
+                    record.status === 'leave' ? '37, 99, 235' :
+                        '239, 68, 68'
+            }, 0.2); color: ${record.status === 'present' ? 'var(--accent-green)' :
+                record.status === 'late' ? 'var(--accent-yellow)' :
+                    record.status === 'leave' ? 'var(--accent-blue)' :
+                        'var(--accent-red)'
+            };">
+                                            ${record.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 12px;">${record.checkInTime || '-'}</td>
+                                    <td style="padding: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${record.reason || ''}">${record.reason || '-'}</td>
+                                </tr>
+                            `}).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
 function createFacultyCard(faculty) {
     const card = document.createElement('div');
     card.className = 'faculty-card';
-    
-    const initials = faculty.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    const expClass = getExperienceClass(parseFloat(faculty.experience || 0));
-    const designationClass = getDesignationClass(faculty.designation);
-    const statusClass = `status-${faculty.status.replace('-', '-')}`;
-    const subjects = faculty.subjects ? faculty.subjects.split(',').slice(0, 3) : [];
-    
+
     card.innerHTML = `
         <div class="faculty-card-header">
-            <div class="faculty-avatar">${initials}</div>
+            <div class="faculty-avatar">${faculty.name.split(' ').map(n => n[0]).join('')}</div>
             <div class="faculty-info">
                 <h3>${faculty.name}</h3>
                 <p>${faculty.employeeId} • ${faculty.department}</p>
             </div>
         </div>
-        
         <div class="faculty-card-body">
             <div class="info-grid">
                 <div class="info-item">
                     <div class="label">Designation</div>
-                    <div class="value designation-badge ${designationClass}">${faculty.designation}</div>
+                    <div class="value">${faculty.designation}</div>
                 </div>
                 <div class="info-item">
                     <div class="label">Experience</div>
-                    <div class="value experience-badge ${expClass}">${faculty.experience}Y</div>
+                    <div class="value">${faculty.experience} years</div>
                 </div>
                 <div class="info-item">
                     <div class="label">Qualification</div>
@@ -403,161 +672,45 @@ function createFacultyCard(faculty) {
                 </div>
                 <div class="info-item">
                     <div class="label">Status</div>
-                    <div class="value status-badge ${statusClass}">${faculty.status.replace('-', ' ').toUpperCase()}</div>
+                    <div class="value">
+                        <span class="status-badge status-${faculty.status}">${faculty.status}</span>
+                    </div>
                 </div>
             </div>
-            
-            ${subjects.length > 0 ? `
             <div class="subjects-list">
-                <div class="label">Subjects Teaching</div>
+                <div class="label">Teaching Subjects</div>
                 <div class="subject-tags">
-                    ${subjects.map(subject => `<span class="subject-tag">${subject.trim()}</span>`).join('')}
-                    ${faculty.subjects.split(',').length > 3 ? `<span class="subject-tag">+${faculty.subjects.split(',').length - 3} more</span>` : ''}
+                    ${faculty.subjects.split(',').slice(0, 3).map(subject =>
+        `<span class="subject-tag">${subject.trim()}</span>`
+    ).join('')}
+                    ${faculty.subjects.split(',').length > 3 ? '<span class="subject-tag">+' + (faculty.subjects.split(',').length - 3) + '</span>' : ''}
                 </div>
             </div>
-            ` : ''}
-            
             <div class="faculty-actions">
-                <button class="action-btn action-view" onclick="showFacultyDetails('${faculty.id}')">
+                <button class="btn btn-primary btn-sm" onclick="viewFaculty('${faculty.id}')">
                     <i class="fas fa-eye"></i> View
                 </button>
-                <button class="action-btn action-edit" onclick="editFaculty('${faculty.id}')">
+                <button class="btn btn-secondary btn-sm" onclick="openEditModal('${faculty.id}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="action-btn action-delete" onclick="deleteFaculty('${faculty.id}')">
+                <button class="btn btn-danger btn-sm" onclick="deleteFaculty('${faculty.id}')">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
-function createFacultyTableRow(faculty) {
-    const row = document.createElement('tr');
-    const initials = faculty.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    const expClass = getExperienceClass(parseFloat(faculty.experience || 0));
-    const designationClass = getDesignationClass(faculty.designation);
-    const statusClass = `status-${faculty.status.replace('-', '-')}`;
-    const subjects = faculty.subjects ? faculty.subjects.split(',').slice(0, 2) : [];
-    
-    row.innerHTML = `
-        <td>
-            <input type="checkbox" class="faculty-checkbox" value="${faculty.id}" onchange="toggleFacultySelection('${faculty.id}')">
-        </td>
-        <td>
-            <div class="faculty-profile">
-                <div class="user-avatar-sm">${initials}</div>
-                <div class="faculty-info-text">
-                    <h4>${faculty.name}</h4>
-                    <p>${faculty.employeeId}</p>
-                    <p style="font-size: 0.8em; opacity: 0.8;">${faculty.email}</p>
-                </div>
-            </div>
-        </td>
-        <td>
-            <span class="department-badge">${faculty.department}</span>
-        </td>
-        <td>
-            <span class="designation-badge ${designationClass}">${faculty.designation}</span>
-        </td>
-        <td>
-            <span class="experience-badge ${expClass}">${faculty.experience} Years</span>
-        </td>
-        <td>
-            <div>${subjects.map(s => s.trim()).join(', ')}</div>
-            ${faculty.subjects && faculty.subjects.split(',').length > 2 ? 
-                `<div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">
-                    +${faculty.subjects.split(',').length - 2} more subjects
-                </div>` : ''}
-        </td>
-        <td>
-            <span class="status-badge ${statusClass}">
-                ${faculty.status.replace('-', ' ').charAt(0).toUpperCase() + faculty.status.replace('-', ' ').slice(1)}
-            </span>
-        </td>
-        <td>
-            <div class="action-buttons">
-                <button class="action-btn action-view" onclick="showFacultyDetails('${faculty.id}')">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="action-btn action-edit" onclick="editFaculty('${faculty.id}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn action-delete" onclick="deleteFaculty('${faculty.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </td>
-    `;
-    
-    return row;
+function getExperienceLevel(experience) {
+    const exp = parseInt(experience);
+    if (exp >= 15) return 'senior';
+    if (exp >= 8) return 'mid';
+    return 'junior';
 }
 
-function getDesignationClass(designation) {
-    switch(designation) {
-        case 'Professor': return 'designation-professor';
-        case 'Associate Professor': return 'designation-associate';
-        case 'Assistant Professor': return 'designation-assistant';
-        case 'Lecturer': return 'designation-lecturer';
-        default: return 'designation-lecturer';
-    }
-}
-
-function getExperienceClass(exp) {
-    if (exp >= 15) return 'exp-senior';
-    if (exp >= 5) return 'exp-mid';
-    return 'exp-junior';
-}
-
-function searchFaculty() {
-    const searchInput = document.getElementById('searchInput');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-    applyFilters(searchTerm);
-}
-
-function filterFaculty() {
-    applyFilters();
-}
-
-function applyFilters(searchTerm = '') {
-    const departmentFilter = document.getElementById('departmentFilter');
-    const designationFilter = document.getElementById('designationFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    const searchInput = document.getElementById('searchInput');
-    
-    const departmentValue = departmentFilter ? departmentFilter.value : '';
-    const designationValue = designationFilter ? designationFilter.value : '';
-    const statusValue = statusFilter ? statusFilter.value : '';
-    
-    if (!searchTerm && searchInput) {
-        searchTerm = searchInput.value.toLowerCase();
-    }
-    
-    filteredFaculty = FACULTY_DATA.filter(faculty => {
-        const matchesSearch = !searchTerm || 
-            faculty.name.toLowerCase().includes(searchTerm) ||
-            faculty.employeeId.toLowerCase().includes(searchTerm) ||
-            faculty.email.toLowerCase().includes(searchTerm) ||
-            faculty.phone.includes(searchTerm) ||
-            (faculty.subjects && faculty.subjects.toLowerCase().includes(searchTerm));
-        
-        const matchesDepartment = !departmentValue || faculty.department === departmentValue;
-        const matchesDesignation = !designationValue || faculty.designation === designationValue;
-        const matchesStatus = !statusValue || faculty.status === statusValue;
-        
-        return matchesSearch && matchesDepartment && matchesDesignation && matchesStatus;
-    });
-    
-    loadFaculty();
-    
-    if (searchTerm || departmentValue || designationValue || statusValue) {
-        showNotification(`Found ${filteredFaculty.length} faculty matching your criteria`, 'info');
-    }
-}
-
-function toggleFacultySelection(facultyId) {
+function toggleSelection(facultyId) {
     if (selectedFaculty.has(facultyId)) {
         selectedFaculty.delete(facultyId);
     } else {
@@ -566,291 +719,366 @@ function toggleFacultySelection(facultyId) {
     updateSelectedCount();
 }
 
-function toggleSelectAll() {
+function toggleAllSelection() {
     const selectAll = document.getElementById('selectAll');
-    const isChecked = selectAll ? selectAll.checked : false;
-    const checkboxes = document.querySelectorAll('.faculty-checkbox');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = isChecked;
-        if (isChecked) {
-            selectedFaculty.add(checkbox.value);
-        } else {
-            selectedFaculty.delete(checkbox.value);
-        }
-    });
-    
-    updateSelectedCount();
-}
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][value]');
 
-function toggleMasterCheckbox() {
-    const masterCheckbox = document.getElementById('masterCheckbox');
-    const isChecked = masterCheckbox ? masterCheckbox.checked : false;
-    const checkboxes = document.querySelectorAll('.faculty-checkbox');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = isChecked;
-        if (isChecked) {
-            selectedFaculty.add(checkbox.value);
-        } else {
-            selectedFaculty.delete(checkbox.value);
-        }
-    });
-    
+    if (selectAll && selectAll.checked) {
+        checkboxes.forEach(cb => {
+            cb.checked = true;
+            selectedFaculty.add(cb.value);
+        });
+    } else {
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            selectedFaculty.delete(cb.value);
+        });
+    }
     updateSelectedCount();
 }
 
 function updateSelectedCount() {
-    const selectedCountElement = document.getElementById('selectedCount');
-    if (selectedCountElement) {
-        selectedCountElement.textContent = 
-            `${selectedFaculty.size} faculty selected`;
-    }
-    
-    const totalCheckboxes = document.querySelectorAll('.faculty-checkbox').length;
-    const masterCheckbox = document.getElementById('masterCheckbox');
-    
-    if (masterCheckbox) {
-        if (selectedFaculty.size === 0) {
-            masterCheckbox.indeterminate = false;
-            masterCheckbox.checked = false;
-        } else if (selectedFaculty.size === totalCheckboxes) {
-            masterCheckbox.indeterminate = false;
-            masterCheckbox.checked = true;
-        } else {
-            masterCheckbox.indeterminate = true;
-            masterCheckbox.checked = false;
-        }
+    const countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = `${selectedFaculty.size} faculty selected`;
     }
 }
 
-function openAddFacultyModal() {
+function searchFaculty() {
+    const searchTerm = document.getElementById('searchInput');
+    if (!searchTerm) return;
+
+    const term = searchTerm.value.toLowerCase();
+
+    filteredFaculty = FACULTY_DATA.filter(faculty =>
+        faculty.name.toLowerCase().includes(term) ||
+        faculty.employeeId.toLowerCase().includes(term) ||
+        faculty.email.toLowerCase().includes(term) ||
+        faculty.department.toLowerCase().includes(term) ||
+        faculty.designation.toLowerCase().includes(term) ||
+        faculty.subjects.toLowerCase().includes(term)
+    );
+
+    loadFaculty();
+}
+
+function filterByDepartment() {
+    const deptFilter = document.getElementById('departmentFilter');
+    if (!deptFilter) return;
+
+    const department = deptFilter.value;
+
+    if (department === 'all') {
+        filteredFaculty = [...FACULTY_DATA];
+    } else {
+        filteredFaculty = FACULTY_DATA.filter(faculty => faculty.department === department);
+    }
+
+    loadFaculty();
+}
+
+function filterByStatus() {
+    const statusFilter = document.getElementById('statusFilter');
+    if (!statusFilter) return;
+
+    const status = statusFilter.value;
+
+    if (status === 'all') {
+        filteredFaculty = [...FACULTY_DATA];
+    } else {
+        filteredFaculty = FACULTY_DATA.filter(faculty => faculty.status === status);
+    }
+
+    loadFaculty();
+}
+
+// FIXED: Add Faculty Button Functionality
+function openAddModal() {
     editingFacultyId = null;
-    const modalTitle = document.getElementById('modalTitle');
-    const facultyForm = document.getElementById('facultyForm');
-    const facultyModal = document.getElementById('facultyModal');
-    
-    if (modalTitle) modalTitle.textContent = 'Add New Faculty';
-    if (facultyForm) facultyForm.reset();
-    if (facultyModal) facultyModal.classList.add('show');
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = createFacultyModalHTML();
+    document.body.appendChild(modal);
 }
 
-function editFaculty(facultyId) {
-    const faculty = FACULTY_DATA.find(f => f.id === facultyId);
-    if (!faculty) return;
-    
+function openEditModal(facultyId) {
     editingFacultyId = facultyId;
-    const modalTitle = document.getElementById('modalTitle');
-    const facultyModal = document.getElementById('facultyModal');
-    
-    if (modalTitle) modalTitle.textContent = 'Edit Faculty';
-    
-    const fields = [
-        'facultyName', 'facultyEmail', 'facultyPhone', 'facultyDob', 'facultyAddress',
-        'employeeId', 'department', 'designation', 'experience', 'qualification', 
-        'salary', 'joinDate', 'status', 'subjects', 'specialization', 'researchInterest', 'publications'
-    ];
-    
-    const fieldMapping = {
-        'facultyName': 'name',
-        'facultyEmail': 'email',
-        'facultyPhone': 'phone',
-        'facultyDob': 'dob',
-        'facultyAddress': 'address',
-        'employeeId': 'employeeId',
-        'department': 'department',
-        'designation': 'designation',
-        'experience': 'experience',
-        'qualification': 'qualification',
-        'salary': 'salary',
-        'joinDate': 'joinDate',
-        'status': 'status',
-        'subjects': 'subjects',
-        'specialization': 'specialization',
-        'researchInterest': 'researchInterest',
-        'publications': 'publications'
-    };
-    
-    fields.forEach(fieldId => {
-        const element = document.getElementById(fieldId);
-        const dataKey = fieldMapping[fieldId];
-        if (element && faculty[dataKey] !== undefined) {
-            element.value = faculty[dataKey] || '';
-        }
-    });
-    
-    if (facultyModal) facultyModal.classList.add('show');
-}
-
-function deleteFaculty(facultyId) {
     const faculty = FACULTY_DATA.find(f => f.id === facultyId);
     if (!faculty) return;
-    
-    if (confirm(`Are you sure you want to delete ${faculty.name}? This action cannot be undone.`)) {
-        const index = FACULTY_DATA.findIndex(f => f.id === facultyId);
-        if (index !== -1) {
-            FACULTY_DATA.splice(index, 1);
-            filteredFaculty = filteredFaculty.filter(f => f.id !== facultyId);
-            selectedFaculty.delete(facultyId);
-            
-            saveDataToStorage();
-            loadFaculty();
-            updateStats();
-            showNotification(`${faculty.name} has been deleted successfully`, 'success');
-        }
-    }
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = createFacultyModalHTML(faculty);
+    document.body.appendChild(modal);
+}
+
+function createFacultyModalHTML(faculty = null) {
+    const isEdit = faculty !== null;
+
+    return `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-${isEdit ? 'edit' : 'plus'}"></i> ${isEdit ? 'Edit' : 'Add'} Faculty</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="saveFaculty(event)">
+                    <div class="form-section">
+                        <h4><i class="fas fa-user"></i> Personal Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Full Name *</label>
+                                <input type="text" id="facultyName" value="${faculty?.name || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="facultyEmail" value="${faculty?.email || ''}" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="facultyPhone" value="${faculty?.phone || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="facultyDob" value="${faculty?.dob || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea id="facultyAddress" rows="3">${faculty?.address || ''}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-briefcase"></i> Professional Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Employee ID *</label>
+                                <input type="text" id="facultyEmployeeId" value="${faculty?.employeeId || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Department *</label>
+                                <select id="facultyDepartment" required>
+                                    <option value="">Select Department</option>
+                                    <option value="CSE" ${faculty?.department === 'CSE' ? 'selected' : ''}>Computer Science</option>
+                                    <option value="ECE" ${faculty?.department === 'ECE' ? 'selected' : ''}>Electronics & Communication</option>
+                                    <option value="EEE" ${faculty?.department === 'EEE' ? 'selected' : ''}>Electrical Engineering</option>
+                                    <option value="MECH" ${faculty?.department === 'MECH' ? 'selected' : ''}>Mechanical Engineering</option>
+                                    <option value="CIVIL" ${faculty?.department === 'CIVIL' ? 'selected' : ''}>Civil Engineering</option>
+                                    <option value="IT" ${faculty?.department === 'IT' ? 'selected' : ''}>Information Technology</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Designation *</label>
+                                <select id="facultyDesignation" required>
+                                    <option value="">Select Designation</option>
+                                    <option value="Professor" ${faculty?.designation === 'Professor' ? 'selected' : ''}>Professor</option>
+                                    <option value="Associate Professor" ${faculty?.designation === 'Associate Professor' ? 'selected' : ''}>Associate Professor</option>
+                                    <option value="Assistant Professor" ${faculty?.designation === 'Assistant Professor' ? 'selected' : ''}>Assistant Professor</option>
+                                    <option value="Lecturer" ${faculty?.designation === 'Lecturer' ? 'selected' : ''}>Lecturer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Experience (Years)</label>
+                                <input type="number" id="facultyExperience" value="${faculty?.experience || ''}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Qualification</label>
+                                <select id="facultyQualification">
+                                    <option value="">Select Qualification</option>
+                                    <option value="Ph.D" ${faculty?.qualification === 'Ph.D' ? 'selected' : ''}>Ph.D</option>
+                                    <option value="M.Tech" ${faculty?.qualification === 'M.Tech' ? 'selected' : ''}>M.Tech</option>
+                                    <option value="M.E" ${faculty?.qualification === 'M.E' ? 'selected' : ''}>M.E</option>
+                                    <option value="M.Sc" ${faculty?.qualification === 'M.Sc' ? 'selected' : ''}>M.Sc</option>
+                                    <option value="B.Tech" ${faculty?.qualification === 'B.Tech' ? 'selected' : ''}>B.Tech</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Salary</label>
+                                <input type="number" id="facultySalary" value="${faculty?.salary || ''}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Join Date</label>
+                                <input type="date" id="facultyJoinDate" value="${faculty?.joinDate || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Status *</label>
+                                <select id="facultyStatus" required>
+                                    <option value="active" ${faculty?.status === 'active' ? 'selected' : ''}>Active</option>
+                                    <option value="inactive" ${faculty?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                                    <option value="on-leave" ${faculty?.status === 'on-leave' ? 'selected' : ''}>On Leave</option>
+                                    <option value="retired" ${faculty?.status === 'retired' ? 'selected' : ''}>Retired</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-book"></i> Academic Information</h4>
+                        <div class="form-group">
+                            <label>Teaching Subjects</label>
+                            <textarea id="facultySubjects" rows="3" placeholder="Enter subjects separated by commas">${faculty?.subjects || ''}</textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Specialization</label>
+                                <input type="text" id="facultySpecialization" value="${faculty?.specialization || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Publications</label>
+                                <input type="number" id="facultyPublications" value="${faculty?.publications || ''}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Research Interests</label>
+                            <textarea id="facultyResearchInterest" rows="3">${faculty?.researchInterest || ''}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Faculty
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
 }
 
 function saveFaculty(event) {
     event.preventDefault();
-    
-    const getElementValue = (id) => {
-        const element = document.getElementById(id);
-        return element ? element.value.trim() : '';
+
+    const facultyData = {
+        name: document.getElementById('facultyName').value,
+        email: document.getElementById('facultyEmail').value,
+        phone: document.getElementById('facultyPhone').value,
+        dob: document.getElementById('facultyDob').value,
+        address: document.getElementById('facultyAddress').value,
+        employeeId: document.getElementById('facultyEmployeeId').value,
+        department: document.getElementById('facultyDepartment').value,
+        designation: document.getElementById('facultyDesignation').value,
+        experience: document.getElementById('facultyExperience').value,
+        qualification: document.getElementById('facultyQualification').value,
+        salary: document.getElementById('facultySalary').value,
+        joinDate: document.getElementById('facultyJoinDate').value,
+        status: document.getElementById('facultyStatus').value,
+        subjects: document.getElementById('facultySubjects').value,
+        specialization: document.getElementById('facultySpecialization').value,
+        publications: document.getElementById('facultyPublications').value,
+        researchInterest: document.getElementById('facultyResearchInterest').value
     };
-    
-    const formData = {
-        name: getElementValue('facultyName'),
-        email: getElementValue('facultyEmail'),
-        phone: getElementValue('facultyPhone'),
-        dob: getElementValue('facultyDob'),
-        address: getElementValue('facultyAddress'),
-        employeeId: getElementValue('employeeId'),
-        department: getElementValue('department'),
-        designation: getElementValue('designation'),
-        experience: getElementValue('experience'),
-        qualification: getElementValue('qualification'),
-        salary: getElementValue('salary'),
-        joinDate: getElementValue('joinDate'),
-        status: getElementValue('status'),
-        subjects: getElementValue('subjects'),
-        specialization: getElementValue('specialization'),
-        researchInterest: getElementValue('researchInterest'),
-        publications: getElementValue('publications')
-    };
-    
-    if (!formData.name || !formData.email || !formData.employeeId || !formData.department || !formData.designation) {
-        showNotification('Please fill all required fields', 'error');
-        return;
-    }
-    
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(formData.email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return;
-    }
-    
+
     if (editingFacultyId) {
-        const facultyIndex = FACULTY_DATA.findIndex(f => f.id === editingFacultyId);
-        if (facultyIndex !== -1) {
-            FACULTY_DATA[facultyIndex] = { ...FACULTY_DATA[facultyIndex], ...formData };
-            showNotification(`${formData.name} updated successfully`, 'success');
+        // Update existing faculty
+        const index = FACULTY_DATA.findIndex(f => f.id === editingFacultyId);
+        if (index !== -1) {
+            FACULTY_DATA[index] = { ...FACULTY_DATA[index], ...facultyData };
+            showNotification('Faculty updated successfully', 'success');
         }
     } else {
-        const existingEmployeeId = FACULTY_DATA.find(f => f.employeeId === formData.employeeId);
-        if (existingEmployeeId) {
-            showNotification('Employee ID already exists', 'error');
-            return;
-        }
-        
-        const existingEmail = FACULTY_DATA.find(f => f.email === formData.email);
-        if (existingEmail) {
-            showNotification('Email already exists', 'error');
-            return;
-        }
-        
+        // Add new faculty
         const newFaculty = {
-            id: 'FAC' + String(Date.now()).slice(-6),
-            ...formData
+            id: 'FAC' + (Date.now().toString().slice(-6)),
+            ...facultyData
         };
-        
         FACULTY_DATA.push(newFaculty);
-        showNotification(`${formData.name} added successfully`, 'success');
+        showNotification('Faculty added successfully', 'success');
     }
-    
+
     saveDataToStorage();
-    closeModal();
-    applyFilters();
+    filteredFaculty = [...FACULTY_DATA];
+    loadFaculty();
     updateStats();
+
+    document.querySelector('.modal').remove();
 }
 
-function showFacultyDetails(facultyId) {
+// Updated viewFaculty function to include attendance history button
+function viewFaculty(facultyId) {
     const faculty = FACULTY_DATA.find(f => f.id === facultyId);
     if (!faculty) return;
-    
-    const detailsTitle = document.getElementById('facultyDetailsTitle');
-    const detailsContent = document.getElementById('facultyDetailsContent');
-    const detailsModal = document.getElementById('facultyDetailsModal');
-    
-    if (detailsTitle) detailsTitle.textContent = `${faculty.name} - Faculty Details`;
-    
-    if (detailsContent) {
-        const subjects = faculty.subjects ? faculty.subjects.split(',').map(s => s.trim()) : [];
-        
-        detailsContent.innerHTML = `
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Faculty Details</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
             <div class="faculty-details-view">
                 <div class="detail-section">
                     <h4><i class="fas fa-user"></i> Personal Information</h4>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Full Name:</label>
+                            <label>Full Name</label>
                             <span>${faculty.name}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Email:</label>
+                            <label>Email</label>
                             <span>${faculty.email}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Phone:</label>
-                            <span>${faculty.phone}</span>
+                            <label>Phone</label>
+                            <span>${faculty.phone || 'Not provided'}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Date of Birth:</label>
+                            <label>Date of Birth</label>
                             <span>${faculty.dob ? new Date(faculty.dob).toLocaleDateString() : 'Not provided'}</span>
                         </div>
                         <div class="detail-item" style="grid-column: 1 / -1;">
-                            <label>Address:</label>
+                            <label>Address</label>
                             <span>${faculty.address || 'Not provided'}</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="detail-section">
-                    <h4><i class="fas fa-graduation-cap"></i> Professional Information</h4>
+                    <h4><i class="fas fa-briefcase"></i> Professional Information</h4>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Employee ID:</label>
+                            <label>Employee ID</label>
                             <span>${faculty.employeeId}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Department:</label>
-                            <span class="department-badge">${faculty.department}</span>
+                            <label>Department</label>
+                            <span>${faculty.department}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Designation:</label>
-                            <span class="designation-badge ${getDesignationClass(faculty.designation)}">${faculty.designation}</span>
+                            <label>Designation</label>
+                            <span>${faculty.designation}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Experience:</label>
-                            <span class="experience-badge ${getExperienceClass(parseFloat(faculty.experience || 0))}">${faculty.experience} Years</span>
+                            <label>Experience</label>
+                            <span>${faculty.experience} years</span>
                         </div>
                         <div class="detail-item">
-                            <label>Qualification:</label>
-                            <span>${faculty.qualification}</span>
+                            <label>Qualification</label>
+                            <span>${faculty.qualification || 'Not specified'}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Salary:</label>
-                            <span>₹${faculty.salary ? parseFloat(faculty.salary).toLocaleString() : 'Not disclosed'}</span>
+                            <label>Salary</label>
+                            <span>₹${faculty.salary ? parseInt(faculty.salary).toLocaleString() : 'Not specified'}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Join Date:</label>
+                            <label>Join Date</label>
                             <span>${faculty.joinDate ? new Date(faculty.joinDate).toLocaleDateString() : 'Not provided'}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Status:</label>
-                            <span class="status-badge status-${faculty.status.replace('-', '-')}">
-                                ${faculty.status.replace('-', ' ').charAt(0).toUpperCase() + faculty.status.replace('-', ' ').slice(1)}
-                            </span>
+                            <label>Status</label>
+                            <span class="status-badge status-${faculty.status}">${faculty.status}</span>
                         </div>
                     </div>
                 </div>
@@ -859,287 +1087,418 @@ function showFacultyDetails(facultyId) {
                     <h4><i class="fas fa-book"></i> Academic Information</h4>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Specialization:</label>
+                            <label>Specialization</label>
                             <span>${faculty.specialization || 'Not specified'}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Research Interest:</label>
+                            <label>Publications</label>
+                            <span>${faculty.publications || '0'}</span>
+                        </div>
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <label>Teaching Subjects</label>
+                            <span>${faculty.subjects || 'Not specified'}</span>
+                        </div>
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <label>Research Interests</label>
                             <span>${faculty.researchInterest || 'Not specified'}</span>
                         </div>
-                        <div class="detail-item">
-                            <label>Publications:</label>
-                            <span>${faculty.publications || '0'} papers</span>
-                        </div>
                     </div>
-                    
-                    ${subjects.length > 0 ? `
-                    <div style="margin-top: 20px;">
-                        <label style="font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: block;">Subjects Teaching:</label>
-                        <div class="subject-tags">
-                            ${subjects.map(subject => `<span class="subject-tag">${subject}</span>`).join('')}
-                        </div>
+                </div>
+                
+                <!-- NEW: Attendance Management Section -->
+                <div class="detail-section">
+                    <h4><i class="fas fa-calendar-check"></i> Attendance Management</h4>
+                    <div class="form-actions" style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove(); viewTeacherAttendanceHistory('${faculty.id}')">
+                            <i class="fas fa-history"></i> View Attendance History
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportTeacherAttendance('${faculty.id}')">
+                            <i class="fas fa-download"></i> Export Attendance
+                        </button>
                     </div>
-                    ` : ''}
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="this.closest('.modal').remove(); openEditModal('${faculty.id}')">
+                        <i class="fas fa-edit"></i> Edit Faculty
+                    </button>
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
                 </div>
             </div>
-        `;
-    }
-    
-    if (detailsModal) detailsModal.classList.add('show');
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
-function updateEmployeeIdPrefix() {
-    const departmentSelect = document.getElementById('department');
-    const employeeIdField = document.getElementById('employeeId');
-    
-    if (departmentSelect && employeeIdField) {
-        const department = departmentSelect.value;
-        if (department) {
-            const prefix = `${department}`;
-            if (!employeeIdField.value.startsWith(prefix)) {
-                employeeIdField.placeholder = `${prefix}001`;
-            }
-        }
-    }
+// NEW FUNCTION - Export Teacher Attendance
+function exportTeacherAttendance(teacherId) {
+    const teacherAttendance = loadTeacherAttendance();
+    const teacher = FACULTY_DATA.find(f => f.id === teacherId);
+    const teacherRecords = teacherAttendance.filter(att => att.teacherId === teacherId).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const csvContent = [
+        ['Date', 'Day', 'Status', 'Check-in Time', 'Reason'],
+        ...teacherRecords.map(record => [
+            record.date,
+            new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' }),
+            record.status,
+            record.checkInTime || '-',
+            record.reason || '-'
+        ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${teacher.name}_attendance_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showNotification('Attendance data exported successfully', 'success');
 }
 
-function closeModal() {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.classList.remove('show');
-    });
-    editingFacultyId = null;
-}
+function deleteFaculty(facultyId) {
+    const faculty = FACULTY_DATA.find(f => f.id === facultyId);
+    if (!faculty) return;
 
-function bulkAction(action) {
-    if (selectedFaculty.size === 0) {
-        showNotification('No faculty selected', 'error');
-        return;
-    }
-    
-    const actionText = action === 'activate' ? 'activate' : 'deactivate';
-    const newStatus = action === 'activate' ? 'active' : 'inactive';
-    
-    if (confirm(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${selectedFaculty.size} selected faculty?`)) {
-        let updatedCount = 0;
-        FACULTY_DATA.forEach(faculty => {
-            if (selectedFaculty.has(faculty.id)) {
-                faculty.status = newStatus;
-                updatedCount++;
-            }
-        });
-        
-        selectedFaculty.clear();
-        const checkboxes = document.querySelectorAll('.faculty-checkbox, #selectAll, #masterCheckbox');
-        checkboxes.forEach(cb => cb.checked = false);
-        
+    if (confirm(`Are you sure you want to delete ${faculty.name}? This action cannot be undone.`)) {
+        FACULTY_DATA = FACULTY_DATA.filter(f => f.id !== facultyId);
+        filteredFaculty = filteredFaculty.filter(f => f.id !== facultyId);
+        selectedFaculty.delete(facultyId);
+
         saveDataToStorage();
         loadFaculty();
         updateStats();
-        showNotification(`${updatedCount} faculty ${actionText}d successfully`, 'success');
+
+        showNotification('Faculty deleted successfully', 'success');
     }
 }
 
-function exportSelected() {
+// FIXED: Bulk Delete Functionality
+function bulkDelete() {
     if (selectedFaculty.size === 0) {
-        showNotification('No faculty selected for export', 'error');
+        showNotification('Please select faculty members to delete', 'warning');
         return;
     }
-    
-    const selectedData = FACULTY_DATA.filter(faculty => selectedFaculty.has(faculty.id));
-    const csvContent = convertToCSV(selectedData);
-    downloadCSV(csvContent, 'selected_faculty.csv');
-    
-    showNotification(`${selectedFaculty.size} faculty exported successfully!`, 'success');
+
+    if (confirm(`Are you sure you want to delete ${selectedFaculty.size} faculty members? This action cannot be undone.`)) {
+        FACULTY_DATA = FACULTY_DATA.filter(f => !selectedFaculty.has(f.id));
+        filteredFaculty = filteredFaculty.filter(f => !selectedFaculty.has(f.id));
+
+        selectedFaculty.clear();
+        saveDataToStorage();
+        loadFaculty();
+        updateStats();
+
+        showNotification('Selected faculty deleted successfully', 'success');
+    }
 }
 
+// FIXED: Export Data Functionality
+function exportData() {
+    showNotification('Preparing export data...', 'info');
+
+    setTimeout(() => {
+        const csvContent = [
+            ['Name', 'Employee ID', 'Email', 'Phone', 'Department', 'Designation', 'Experience', 'Qualification', 'Salary', 'Join Date', 'Status', 'Subjects', 'Specialization', 'Research Interest', 'Publications'],
+            ...filteredFaculty.map(f => [
+                f.name,
+                f.employeeId,
+                f.email,
+                f.phone || '',
+                f.department,
+                f.designation,
+                f.experience,
+                f.qualification || '',
+                f.salary || '',
+                f.joinDate || '',
+                f.status,
+                f.subjects || '',
+                f.specialization || '',
+                f.researchInterest || '',
+                f.publications || ''
+            ])
+        ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `faculty_data_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showNotification('Faculty data exported successfully', 'success');
+    }, 1000);
+}
+
+// FIXED: Import Faculty Functionality
 function importFaculty() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv,.json';
-    input.onchange = function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let importedData;
-                if (file.name.endsWith('.json')) {
-                    importedData = JSON.parse(e.target.result);
-                } else {
-                    importedData = parseCSV(e.target.result);
-                }
-                
-                if (Array.isArray(importedData) && importedData.length > 0) {
-                    let addedCount = 0;
-                    importedData.forEach(facultyData => {
-                        const existingEmpId = FACULTY_DATA.find(f => f.employeeId === facultyData.employeeId);
-                        const existingEmail = FACULTY_DATA.find(f => f.email === facultyData.email);
-                        
-                        if (!existingEmpId && !existingEmail && facultyData.name && facultyData.email) {
-                            const newFaculty = {
-                                id: 'FAC' + String(Date.now() + addedCount).slice(-6),
-                                ...facultyData,
-                                status: facultyData.status || 'active'
-                            };
-                            FACULTY_DATA.push(newFaculty);
-                            addedCount++;
-                        }
-                    });
-                    
-                    if (addedCount > 0) {
-                        saveDataToStorage();
-                        applyFilters();
-                        updateStats();
-                        showNotification(`${addedCount} faculty imported successfully!`, 'success');
-                    } else {
-                        showNotification('No new faculty to import (duplicates found)', 'error');
-                    }
-                } else {
-                    showNotification('Invalid file format', 'error');
-                }
-            } catch (error) {
-                showNotification('Error reading file', 'error');
-            }
-        };
-        reader.readAsText(file);
-    };
+    input.onchange = handleFileImport;
     input.click();
 }
 
-function exportFaculty() {
-    if (FACULTY_DATA.length === 0) {
-        showNotification('No faculty to export', 'error');
-        return;
-    }
-    
-    const csvContent = convertToCSV(FACULTY_DATA);
-    downloadCSV(csvContent, 'all_faculty.csv');
-    
-    showNotification('All faculty data exported successfully!', 'success');
+function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const content = e.target.result;
+            let importedData = [];
+
+            if (file.name.endsWith('.json')) {
+                importedData = JSON.parse(content);
+            } else if (file.name.endsWith('.csv')) {
+                importedData = parseCSV(content);
+            }
+
+            if (importedData.length === 0) {
+                showNotification('No valid data found in the file', 'error');
+                return;
+            }
+
+            // Validate and process imported data
+            const processedData = processImportedData(importedData);
+
+            if (processedData.length > 0) {
+                showImportPreview(processedData);
+            } else {
+                showNotification('No valid faculty records found in the file', 'error');
+            }
+
+        } catch (error) {
+            showNotification('Error reading file: ' + error.message, 'error');
+        }
+    };
+
+    reader.readAsText(file);
 }
 
-function convertToCSV(data) {
-    if (data.length === 0) return '';
-    
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => 
-        Object.values(row).map(value => 
-            typeof value === 'string' && value.includes(',') ? `"${value}"` : value
-        ).join(',')
-    );
-    
-    return [headers, ...rows].join('\n');
-}
-
-function parseCSV(csvText) {
-    const lines = csvText.split('\n');
-    if (lines.length < 2) return [];
-    
-    const headers = lines[0].split(',').map(h => h.trim());
+function parseCSV(content) {
+    const lines = content.split('\n');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
     const data = [];
-    
+
     for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        
-        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-        const obj = {};
-        headers.forEach((header, index) => {
-            obj[header] = values[index] || '';
-        });
-        data.push(obj);
+        if (lines[i].trim()) {
+            const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header] = values[index] || '';
+            });
+            data.push(row);
+        }
     }
-    
+
     return data;
 }
 
-function downloadCSV(csvContent, filename) {
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+function processImportedData(rawData) {
+    const processedData = [];
+
+    rawData.forEach((item, index) => {
+        // Map various possible column names to our standard format
+        const mappedItem = {
+            name: item.Name || item.name || item.faculty_name || '',
+            email: item.Email || item.email || item.faculty_email || '',
+            phone: item.Phone || item.phone || item.contact || '',
+            employeeId: item['Employee ID'] || item.employeeId || item.employee_id || item.id || '',
+            department: item.Department || item.department || item.dept || '',
+            designation: item.Designation || item.designation || item.position || '',
+            experience: item.Experience || item.experience || item.exp || '0',
+            qualification: item.Qualification || item.qualification || item.degree || '',
+            salary: item.Salary || item.salary || item.pay || '',
+            joinDate: item['Join Date'] || item.joinDate || item.join_date || '',
+            status: item.Status || item.status || 'active',
+            subjects: item.Subjects || item.subjects || item.teaching_subjects || '',
+            specialization: item.Specialization || item.specialization || '',
+            researchInterest: item['Research Interest'] || item.researchInterest || item.research_interest || '',
+            publications: item.Publications || item.publications || '0'
+        };
+
+        // Validate required fields
+        if (mappedItem.name && mappedItem.email && mappedItem.employeeId) {
+            // Generate unique ID if not exists
+            mappedItem.id = 'FAC' + (Date.now() + index).toString().slice(-6);
+            processedData.push(mappedItem);
+        }
+    });
+
+    return processedData;
 }
 
-function refreshFaculty() {
-    showNotification('Refreshing faculty data...', 'info');
-    
+function showImportPreview(importedData) {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-upload"></i> Import Faculty Preview</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <p style="color: var(--text-primary); font-size: 1rem;">
+                        <strong>${importedData.length}</strong> faculty records found. Review and confirm import:
+                    </p>
+                </div>
+                
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr style="background: var(--bg-secondary);">
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color);">Name</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color);">Employee ID</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color);">Email</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color);">Department</th>
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color);">Designation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${importedData.map(faculty => `
+                                <tr style="border-bottom: 1px solid var(--border-light);">
+                                    <td style="padding: 10px;">${faculty.name}</td>
+                                    <td style="padding: 10px;">${faculty.employeeId}</td>
+                                    <td style="padding: 10px;">${faculty.email}</td>
+                                    <td style="padding: 10px;">${faculty.department}</td>
+                                    <td style="padding: 10px;">${faculty.designation}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="confirmImport(${JSON.stringify(importedData).replace(/"/g, '&quot;')})">
+                        <i class="fas fa-check"></i> Confirm Import
+                    </button>
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function confirmImport(importedData) {
+    try {
+        // Add imported data to faculty list
+        FACULTY_DATA.push(...importedData);
+        filteredFaculty = [...FACULTY_DATA];
+
+        saveDataToStorage();
+        loadFaculty();
+        updateStats();
+
+        // Close modal
+        document.querySelector('.modal').remove();
+
+        showNotification(`Successfully imported ${importedData.length} faculty records`, 'success');
+
+    } catch (error) {
+        showNotification('Error importing data: ' + error.message, 'error');
+    }
+}
+
+// FIXED: Refresh Functionality
+function refreshData() {
+    showNotification('Refreshing data...', 'info');
+
+    // Reset filters
+    filteredFaculty = [...FACULTY_DATA];
+    selectedFaculty.clear();
+
+    // Clear search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+
+    // Reset filters
+    const deptFilter = document.getElementById('departmentFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    if (deptFilter) deptFilter.value = 'all';
+    if (statusFilter) statusFilter.value = 'all';
+
+    // Reload data
     setTimeout(() => {
         loadFaculty();
         updateStats();
-        showNotification('Faculty data refreshed successfully!', 'success');
-    }, 1000);
+        showNotification('Data refreshed successfully', 'success');
+    }, 500);
 }
 
 function showNotification(message, type) {
-    const existingNotification = document.querySelector('.notification.show');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
     const notification = document.createElement('div');
     notification.className = `notification ${type} show`;
-    
+
     const icons = {
         success: 'fas fa-check-circle',
         error: 'fas fa-exclamation-circle',
-        info: 'fas fa-info-circle'
+        info: 'fas fa-info-circle',
+        warning: 'fas fa-exclamation-triangle'
     };
 
     notification.innerHTML = `
-        <i class="${icons[type]}"></i>
-        <span>${message}</span>
+        <div class="notification-icon">
+            <i class="${icons[type]}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
     `;
+
+    // Position notification
+    const existingNotifications = document.querySelectorAll('.notification');
+    const topOffset = 20 + (existingNotifications.length * 80);
+    notification.style.top = `${topOffset}px`;
 
     document.body.appendChild(notification);
 
+    // Auto remove
     setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 400);
-    }, 4000);
+        if (notification.parentElement) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                    repositionNotifications();
+                }
+            }, 400);
+        }
+    }, 5000);
 }
 
-document.addEventListener('click', function(e) {
+function repositionNotifications() {
+    const notifications = document.querySelectorAll('.notification');
+    notifications.forEach((notification, index) => {
+        const topOffset = 20 + (index * 80);
+        notification.style.top = `${topOffset}px`;
+    });
+}
+
+// Handle click outside sidebar on mobile
+document.addEventListener('click', function (e) {
     const sidebar = document.getElementById('sidebar');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    
-    if (window.innerWidth <= 768 && 
-        sidebar && sidebar.classList.contains('active') && 
-        !sidebar.contains(e.target) && 
+
+    if (window.innerWidth <= 768 &&
+        sidebar && sidebar.classList.contains('active') &&
+        !sidebar.contains(e.target) &&
         mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
         closeMobileSidebar();
     }
 });
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        closeModal();
-    }
-});
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeMobileSidebar();
-    }
-});
-
-window.addEventListener('beforeunload', function() {
-    saveDataToStorage();
-});
-
-setTimeout(() => {
-    if (document.getElementById('tableViewBtn')) {
-        switchView('table');
-    }
-}, 100);
