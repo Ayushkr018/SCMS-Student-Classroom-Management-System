@@ -230,7 +230,7 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
     }
 ];
 
-// Teacher Attendance Data - NEW ADDITION
+// Teacher Attendance Data
 let TEACHER_ATTENDANCE_DATA = JSON.parse(localStorage.getItem('scms_teacher_attendance')) || [];
 
 let filteredFaculty = [...FACULTY_DATA];
@@ -242,13 +242,13 @@ function saveDataToStorage() {
     localStorage.setItem('scms_faculty_data', JSON.stringify(FACULTY_DATA));
 }
 
-// Load Teacher Attendance Data - NEW FUNCTION
+// Load Teacher Attendance Data
 function loadTeacherAttendance() {
     TEACHER_ATTENDANCE_DATA = JSON.parse(localStorage.getItem('scms_teacher_attendance')) || [];
     return TEACHER_ATTENDANCE_DATA;
 }
 
-// Initialize Demo Teacher Attendance Data - NEW FUNCTION
+// Initialize Demo Teacher Attendance Data
 function initializeDemoTeacherAttendanceData() {
     const existingData = localStorage.getItem('scms_teacher_attendance');
     if (!existingData || TEACHER_ATTENDANCE_DATA.length === 0) {
@@ -314,11 +314,8 @@ function initializeDemoTeacherAttendanceData() {
 document.addEventListener('DOMContentLoaded', function () {
     initializeTheme();
     loadCurrentUser();
-
-    // Initialize demo teacher attendance data
     initializeDemoTeacherAttendanceData();
     loadTeacherAttendance();
-
     loadFaculty();
     updateStats();
 
@@ -433,7 +430,6 @@ function loadFacultyCards() {
     });
 }
 
-// Updated loadFacultyTable function to include attendance info
 function loadFacultyTable() {
     const container = document.getElementById('tableContainer');
     if (!container) return;
@@ -457,7 +453,7 @@ function loadFacultyTable() {
     table.innerHTML = `
         <thead>
             <tr>
-                <th><input type="checkbox" id="selectAll" onchange="toggleAllSelection()"></th>
+                <th><input type="checkbox" id="masterCheckbox" onchange="toggleMasterCheckbox()"></th>
                 <th>Faculty Info</th>
                 <th>Department</th>
                 <th>Designation</th>
@@ -472,7 +468,6 @@ function loadFacultyTable() {
     `;
 
     filteredFaculty.forEach(faculty => {
-        // Find today's attendance record
         const todayAttendance = teacherAttendance.find(att =>
             att.teacherId === faculty.id && att.date === today
         );
@@ -549,7 +544,155 @@ function loadFacultyTable() {
     container.appendChild(table);
 }
 
-// NEW FUNCTION - View Teacher Attendance History
+// FIXED: Properly link HTML button functions
+function openAddFacultyModal() {
+    openAddModal();
+}
+
+function importFaculty() {
+    importFacultyData();
+}
+
+function exportFaculty() {
+    exportData();
+}
+
+function refreshFaculty() {
+    refreshData();
+}
+
+function searchFaculty() {
+    const searchTerm = document.getElementById('searchInput');
+    if (!searchTerm) return;
+
+    const term = searchTerm.value.toLowerCase();
+
+    filteredFaculty = FACULTY_DATA.filter(faculty =>
+        faculty.name.toLowerCase().includes(term) ||
+        faculty.employeeId.toLowerCase().includes(term) ||
+        faculty.email.toLowerCase().includes(term) ||
+        faculty.department.toLowerCase().includes(term) ||
+        faculty.designation.toLowerCase().includes(term) ||
+        faculty.subjects.toLowerCase().includes(term)
+    );
+
+    loadFaculty();
+}
+
+function filterFaculty() {
+    const deptFilter = document.getElementById('departmentFilter');
+    const designationFilter = document.getElementById('designationFilter');
+    const statusFilter = document.getElementById('statusFilter');
+
+    let filtered = [...FACULTY_DATA];
+
+    if (deptFilter && deptFilter.value) {
+        filtered = filtered.filter(faculty => faculty.department === deptFilter.value);
+    }
+
+    if (designationFilter && designationFilter.value) {
+        filtered = filtered.filter(faculty => faculty.designation === designationFilter.value);
+    }
+
+    if (statusFilter && statusFilter.value) {
+        filtered = filtered.filter(faculty => faculty.status === statusFilter.value);
+    }
+
+    filteredFaculty = filtered;
+    loadFaculty();
+}
+
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][value]');
+
+    if (selectAllCheckbox && selectAllCheckbox.checked) {
+        checkboxes.forEach(cb => {
+            cb.checked = true;
+            selectedFaculty.add(cb.value);
+        });
+    } else {
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            selectedFaculty.delete(cb.value);
+        });
+    }
+    updateSelectedCount();
+}
+
+function toggleMasterCheckbox() {
+    toggleSelectAll();
+}
+
+function bulkAction(action) {
+    if (selectedFaculty.size === 0) {
+        showNotification('Please select faculty members first', 'warning');
+        return;
+    }
+
+    if (action === 'activate') {
+        FACULTY_DATA.forEach(faculty => {
+            if (selectedFaculty.has(faculty.id)) {
+                faculty.status = 'active';
+            }
+        });
+        showNotification(`${selectedFaculty.size} faculty activated successfully`, 'success');
+    } else if (action === 'deactivate') {
+        FACULTY_DATA.forEach(faculty => {
+            if (selectedFaculty.has(faculty.id)) {
+                faculty.status = 'inactive';
+            }
+        });
+        showNotification(`${selectedFaculty.size} faculty deactivated successfully`, 'success');
+    }
+
+    saveDataToStorage();
+    selectedFaculty.clear();
+    loadFaculty();
+    updateStats();
+}
+
+function exportSelected() {
+    if (selectedFaculty.size === 0) {
+        showNotification('Please select faculty members to export', 'warning');
+        return;
+    }
+
+    const selectedData = FACULTY_DATA.filter(faculty => selectedFaculty.has(faculty.id));
+    
+    const csvContent = [
+        ['Name', 'Employee ID', 'Email', 'Phone', 'Department', 'Designation', 'Experience', 'Qualification', 'Salary', 'Join Date', 'Status', 'Subjects', 'Specialization', 'Research Interest', 'Publications'],
+        ...selectedData.map(f => [
+            f.name,
+            f.employeeId,
+            f.email,
+            f.phone || '',
+            f.department,
+            f.designation,
+            f.experience,
+            f.qualification || '',
+            f.salary || '',
+            f.joinDate || '',
+            f.status,
+            f.subjects || '',
+            f.specialization || '',
+            f.researchInterest || '',
+            f.publications || ''
+        ])
+    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `selected_faculty_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showNotification(`${selectedData.length} faculty records exported successfully`, 'success');
+}
+
+// View Teacher Attendance History
 function viewTeacherAttendanceHistory(teacherId) {
     const teacherAttendance = loadTeacherAttendance();
     const teacher = FACULTY_DATA.find(f => f.id === teacherId);
@@ -719,24 +862,6 @@ function toggleSelection(facultyId) {
     updateSelectedCount();
 }
 
-function toggleAllSelection() {
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][value]');
-
-    if (selectAll && selectAll.checked) {
-        checkboxes.forEach(cb => {
-            cb.checked = true;
-            selectedFaculty.add(cb.value);
-        });
-    } else {
-        checkboxes.forEach(cb => {
-            cb.checked = false;
-            selectedFaculty.delete(cb.value);
-        });
-    }
-    updateSelectedCount();
-}
-
 function updateSelectedCount() {
     const countElement = document.getElementById('selectedCount');
     if (countElement) {
@@ -744,55 +869,6 @@ function updateSelectedCount() {
     }
 }
 
-function searchFaculty() {
-    const searchTerm = document.getElementById('searchInput');
-    if (!searchTerm) return;
-
-    const term = searchTerm.value.toLowerCase();
-
-    filteredFaculty = FACULTY_DATA.filter(faculty =>
-        faculty.name.toLowerCase().includes(term) ||
-        faculty.employeeId.toLowerCase().includes(term) ||
-        faculty.email.toLowerCase().includes(term) ||
-        faculty.department.toLowerCase().includes(term) ||
-        faculty.designation.toLowerCase().includes(term) ||
-        faculty.subjects.toLowerCase().includes(term)
-    );
-
-    loadFaculty();
-}
-
-function filterByDepartment() {
-    const deptFilter = document.getElementById('departmentFilter');
-    if (!deptFilter) return;
-
-    const department = deptFilter.value;
-
-    if (department === 'all') {
-        filteredFaculty = [...FACULTY_DATA];
-    } else {
-        filteredFaculty = FACULTY_DATA.filter(faculty => faculty.department === department);
-    }
-
-    loadFaculty();
-}
-
-function filterByStatus() {
-    const statusFilter = document.getElementById('statusFilter');
-    if (!statusFilter) return;
-
-    const status = statusFilter.value;
-
-    if (status === 'all') {
-        filteredFaculty = [...FACULTY_DATA];
-    } else {
-        filteredFaculty = FACULTY_DATA.filter(faculty => faculty.status === status);
-    }
-
-    loadFaculty();
-}
-
-// FIXED: Add Faculty Button Functionality
 function openAddModal() {
     editingFacultyId = null;
     const modal = document.createElement('div');
@@ -1005,7 +1081,6 @@ function saveFaculty(event) {
     document.querySelector('.modal').remove();
 }
 
-// Updated viewFaculty function to include attendance history button
 function viewFaculty(facultyId) {
     const faculty = FACULTY_DATA.find(f => f.id === facultyId);
     if (!faculty) return;
@@ -1105,7 +1180,6 @@ function viewFaculty(facultyId) {
                     </div>
                 </div>
                 
-                <!-- NEW: Attendance Management Section -->
                 <div class="detail-section">
                     <h4><i class="fas fa-calendar-check"></i> Attendance Management</h4>
                     <div class="form-actions" style="margin-top: 15px;">
@@ -1132,7 +1206,6 @@ function viewFaculty(facultyId) {
     document.body.appendChild(modal);
 }
 
-// NEW FUNCTION - Export Teacher Attendance
 function exportTeacherAttendance(teacherId) {
     const teacherAttendance = loadTeacherAttendance();
     const teacher = FACULTY_DATA.find(f => f.id === teacherId);
@@ -1177,27 +1250,6 @@ function deleteFaculty(facultyId) {
     }
 }
 
-// FIXED: Bulk Delete Functionality
-function bulkDelete() {
-    if (selectedFaculty.size === 0) {
-        showNotification('Please select faculty members to delete', 'warning');
-        return;
-    }
-
-    if (confirm(`Are you sure you want to delete ${selectedFaculty.size} faculty members? This action cannot be undone.`)) {
-        FACULTY_DATA = FACULTY_DATA.filter(f => !selectedFaculty.has(f.id));
-        filteredFaculty = filteredFaculty.filter(f => !selectedFaculty.has(f.id));
-
-        selectedFaculty.clear();
-        saveDataToStorage();
-        loadFaculty();
-        updateStats();
-
-        showNotification('Selected faculty deleted successfully', 'success');
-    }
-}
-
-// FIXED: Export Data Functionality
 function exportData() {
     showNotification('Preparing export data...', 'info');
 
@@ -1235,8 +1287,7 @@ function exportData() {
     }, 1000);
 }
 
-// FIXED: Import Faculty Functionality
-function importFaculty() {
+function importFacultyData() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv,.json';
@@ -1265,7 +1316,6 @@ function handleFileImport(event) {
                 return;
             }
 
-            // Validate and process imported data
             const processedData = processImportedData(importedData);
 
             if (processedData.length > 0) {
@@ -1305,7 +1355,6 @@ function processImportedData(rawData) {
     const processedData = [];
 
     rawData.forEach((item, index) => {
-        // Map various possible column names to our standard format
         const mappedItem = {
             name: item.Name || item.name || item.faculty_name || '',
             email: item.Email || item.email || item.faculty_email || '',
@@ -1324,9 +1373,7 @@ function processImportedData(rawData) {
             publications: item.Publications || item.publications || '0'
         };
 
-        // Validate required fields
         if (mappedItem.name && mappedItem.email && mappedItem.employeeId) {
-            // Generate unique ID if not exists
             mappedItem.id = 'FAC' + (Date.now() + index).toString().slice(-6);
             processedData.push(mappedItem);
         }
@@ -1392,7 +1439,6 @@ function showImportPreview(importedData) {
 
 function confirmImport(importedData) {
     try {
-        // Add imported data to faculty list
         FACULTY_DATA.push(...importedData);
         filteredFaculty = [...FACULTY_DATA];
 
@@ -1400,9 +1446,7 @@ function confirmImport(importedData) {
         loadFaculty();
         updateStats();
 
-        // Close modal
         document.querySelector('.modal').remove();
-
         showNotification(`Successfully imported ${importedData.length} faculty records`, 'success');
 
     } catch (error) {
@@ -1410,25 +1454,20 @@ function confirmImport(importedData) {
     }
 }
 
-// FIXED: Refresh Functionality
 function refreshData() {
     showNotification('Refreshing data...', 'info');
 
-    // Reset filters
     filteredFaculty = [...FACULTY_DATA];
     selectedFaculty.clear();
 
-    // Clear search
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
 
-    // Reset filters
     const deptFilter = document.getElementById('departmentFilter');
     const statusFilter = document.getElementById('statusFilter');
-    if (deptFilter) deptFilter.value = 'all';
-    if (statusFilter) statusFilter.value = 'all';
+    if (deptFilter) deptFilter.value = '';
+    if (statusFilter) statusFilter.value = '';
 
-    // Reload data
     setTimeout(() => {
         loadFaculty();
         updateStats();
@@ -1461,14 +1500,12 @@ function showNotification(message, type) {
         <div class="notification-progress"></div>
     `;
 
-    // Position notification
     const existingNotifications = document.querySelectorAll('.notification');
     const topOffset = 20 + (existingNotifications.length * 80);
     notification.style.top = `${topOffset}px`;
 
     document.body.appendChild(notification);
 
-    // Auto remove
     setTimeout(() => {
         if (notification.parentElement) {
             notification.classList.remove('show');
@@ -1500,5 +1537,19 @@ document.addEventListener('click', function (e) {
         !sidebar.contains(e.target) &&
         mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
         closeMobileSidebar();
+    }
+});
+
+// Properly close modals when clicking outside
+function closeModal() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.remove();
+    });
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.remove();
     }
 });
