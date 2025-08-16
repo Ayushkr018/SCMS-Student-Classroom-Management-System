@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="dashboard.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
@@ -15,7 +17,7 @@
                 <h2>SCMS</h2>
                 <p>Student Portal</p>
             </div>
-            
+
             <div class="user-info">
                 <div class="user-avatar" id="userAvatar">AR</div>
                 <div class="user-details">
@@ -33,16 +35,48 @@
                     <div class="theme-switch-handle"></div>
                 </div>
             </div>
-
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="active"><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="grades.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
-                    <li><a href="interactive.html"><i class="fas fa-video"></i> Live Classes</a></li>
-                    <li><a href="checkin.html"><i class="fas fa-qrcode"></i> Check-in</a></li>
-                    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    <li class="active">
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="checkin.html">
+                            <i class="fas fa-qrcode"></i>
+                            Check-in
+                        </a>
+                    </li>
+                    <li>
+                        <a href="interactive.html">
+                            <i class="fas fa-users"></i>
+                            Live Class
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="grades.html">
+                            <i class="fas fa-chart-line"></i>
+                            Grades
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            
+
         </div>
 
         <!-- Mobile Header -->
@@ -429,4 +463,5 @@
 
     <script src="dashboard.js"></script>
 </body>
+
 </html>
