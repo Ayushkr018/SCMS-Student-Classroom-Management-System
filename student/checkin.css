@@ -1100,7 +1100,7 @@ body {
     .notification:nth-child(3) { top: 180px; }
 }
 
-/* DESKTOP STYLES */
+/* DESKTOP STYLES - Optimized Layout */
 @media (min-width: 769px) {
     .sidebar {
         transform: translateX(0);
@@ -1109,8 +1109,9 @@ body {
     
     .main-content {
         margin-left: 280px;
-        padding: 30px;
-        padding-top: 30px;
+        padding: 40px 48px 40px 48px;
+        padding-top: 40px;
+        min-width: 0;
     }
     
     .mobile-header {
@@ -1118,149 +1119,311 @@ body {
     }
     
     .checkin-grid {
-        grid-template-columns: 1fr 350px;
-        gap: 30px;
+        grid-template-columns: 2fr 1fr;
+        gap: 48px;
+        margin-bottom: 0;
     }
     
     .main-panel {
         order: 1;
+        gap: 32px;
     }
     
     .status-section {
         order: 2;
+        padding: 12px 0 0 0;
     }
     
     .header {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        padding: 25px 30px;
+        padding: 36px 40px;
+        gap: 30px;
+        margin-bottom: 32px;
     }
     
     .header h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        margin-bottom: 0;
+    }
+    
+    .header p {
+        font-size: 1.1rem;
     }
     
     .header-actions {
+        gap: 16px;
         width: auto;
+        flex-wrap: nowrap;
         justify-content: flex-end;
     }
     
     .btn {
+        min-width: 120px;
+        font-size: 1rem;
+        min-height: 48px;
+        padding: 14px 28px;
         flex: none;
-        font-size: 0.9rem;
-        padding: 10px 20px;
     }
     
     .scanner-section {
-        padding: 40px;
-    }
-    
-    .qr-scanner {
-        width: 350px;
-        height: 350px;
-    }
-    
-    .scanner-icon {
-        font-size: 5rem;
-    }
-    
-    .scanner-text {
-        font-size: 1.2rem;
-    }
-    
-    .scanner-subtext {
-        font-size: 0.9rem;
-    }
-    
-    .method-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-    
-    .method-card {
-        padding: 25px;
-    }
-    
-    .method-icon {
-        font-size: 3rem;
-    }
-    
-    .method-title {
-        font-size: 1.1rem;
-    }
-    
-    .method-description {
-        font-size: 0.9rem;
-    }
-    
-    .class-details {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-    
-    .history-item {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px;
-    }
-    
-    .history-info {
-        width: auto;
-        flex: 1;
-    }
-    
-    .history-status {
-        width: auto;
-        justify-content: flex-end;
-    }
-    
-    .floating-scanner {
-        bottom: 30px;
-        right: 30px;
-        width: 70px;
-        height: 70px;
-        font-size: 1.5rem;
-    }
-    
-    .notification {
-        top: 20px;
-        right: 20px;
-        left: auto;
-        max-width: 400px;
-        transform: translateX(500px);
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification:nth-child(1) { top: 20px; }
-    .notification:nth-child(2) { top: 100px; }
-    .notification:nth-child(3) { top: 180px; }
-    
-    .card-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 25px;
-    }
-}
-
-/* LARGE DESKTOP */
-@media (min-width: 1200px) {
-    .main-content {
-        padding: 40px;
+        padding: 32px 0 0 0;
+        text-align: left;
     }
     
     .qr-scanner {
         width: 400px;
         height: 400px;
+        max-width: none;
+        max-height: none;
+        margin: 0 0 32px 0;
+        border-radius: 24px;
+        align-items: center;
+        justify-content: center;
     }
     
     .scanner-icon {
-        font-size: 6rem;
+        font-size: 7rem;
+        margin-bottom: 18px;
+    }
+    
+    .scanner-text {
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+    }
+    
+    .scanner-subtext {
+        font-size: 1.05rem;
+        padding: 0 28px;
+        margin-bottom: 0;
+    }
+    
+    .scan-animation {
+        height: 6px;
+    }
+    
+    .manual-checkin {
+        padding: 0;
+    }
+    
+    .method-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .method-card {
+        padding: 38px 18px 32px 18px;
+        min-height: 140px;
+        font-size: 1.07rem;
+        gap: 18px;
+        border-radius: 15px;
+    }
+    
+    .method-icon {
+        font-size: 3.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .method-title {
+        font-size: 1.25rem;
+        margin-bottom: 6px;
+    }
+    
+    .method-description {
+        font-size: 1.03rem;
+        line-height: 1.4;
+        padding: 0 6px;
+    }
+    
+    .attendance-status {
+        padding: 18px 10px;
+        font-size: 1.1rem;
+        min-height: 54px;
+        border-radius: 12px;
+    }
+    
+    .class-info {
+        padding: 28px 22px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        margin-bottom: 24px;
+    }
+    
+    .class-title {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+    }
+    
+    .class-details {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        font-size: 1.07rem;
+    }
+    
+    .detail-item {
+        gap: 12px;
+        padding: 10px 0;
+    }
+    
+    .history-list {
+        max-height: 420px;
+    }
+    
+    .history-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 22px;
+        padding: 22px 18px;
+        margin-bottom: 16px;
+        border-radius: 14px;
+    }
+    
+    .history-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.6rem;
+    }
+    
+    .history-details h4 {
+        font-size: 1.17rem;
+        margin-bottom: 6px;
+    }
+    
+    .history-details p {
+        font-size: 1.03rem;
+    }
+    
+    .history-status {
+        justify-content: flex-end;
+    }
+    
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 8px 18px;
+    }
+    
+    .geo-info {
+        padding: 22px 18px;
+        margin: 24px 0;
+        border-radius: 13px;
+    }
+    
+    .location-status {
+        gap: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .location-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1.35rem;
+    }
+    
+    .floating-scanner {
+        bottom: 42px;
+        right: 40px;
+        width: 85px;
+        height: 85px;
+        font-size: 2.1rem;
+        box-shadow: 0 9px 30px rgba(37,99,235,0.30);
+    }
+    
+    .notification {
+        top: 36px;
+        right: 32px;
+        left: auto;
+        max-width: 540px;
+        font-size: 1.05rem;
+        min-height: 64px;
+        padding: 22px 24px;
+        border-radius: 14px;
+        box-shadow: 0 14px 38px var(--shadow-heavy);
+    }
+    
+    .notification-icon {
+        font-size: 1.7rem;
+    }
+    
+    .notification-title {
+        font-size: 1.18rem;
+    }
+    
+    .notification-message {
+        font-size: 0.98rem;
+    }
+    
+    .notification-close {
+        font-size: 1.5rem;
+        width: 32px;
+        height: 32px;
+    }
+    
+    .notification:nth-child(1) { top: 36px; }
+    .notification:nth-child(2) { top: 120px; }
+    .notification:nth-child(3) { top: 204px; }
+    
+    .card-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 32px 24px;
+        gap: 16px;
+    }
+}
+
+/* LARGE DESKTOP - Extra Space */
+@media (min-width: 1200px) {
+    .main-content {
+        padding: 56px 164px 56px 164px;
+    }
+    
+    .checkin-grid {
+        grid-template-columns: 2fr 1fr;
+        gap: 108px;
+    }
+    
+    .method-grid {
+        gap: 44px;
+    }
+    
+    .scanner-section {
+        padding: 46px 0 0 0;
+    }
+    
+    .qr-scanner {
+        width: 500px;
+        height: 500px;
+    }
+    
+    .scanner-icon {
+        font-size: 8rem;
+    }
+    
+    .method-card {
+        padding: 48px 28px 44px 28px;
+        min-height: 180px;
+    }
+    
+    .status-section {
+        padding: 26px 0 0 0;
+    }
+    
+    .class-title {
+        font-size: 1.8rem;
+    }
+    
+    .history-list {
+        max-height: 608px;
+    }
+    
+    .notification {
+        max-width: 660px;
+        padding: 28px 34px;
+        font-size: 1.18rem;
+        border-radius: 15px;
     }
 }
 
@@ -1349,12 +1512,10 @@ body {
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
-
 .d-none { display: none; }
 .d-block { display: block; }
 .d-flex { display: flex; }
 .d-grid { display: grid; }
-
 .w-100 { width: 100%; }
 .h-100 { height: 100%; }
 
