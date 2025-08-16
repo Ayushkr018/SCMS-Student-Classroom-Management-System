@@ -408,6 +408,7 @@ body {
     box-shadow: 0 4px 20px var(--shadow-light);
     overflow: hidden;
     transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
 }
 
 .checkin-card:hover {
