@@ -935,7 +935,11 @@ body {
     }
     
     .attendance-status {
-        margin-bottom: 30px !important;
+        margin-bottom: 50px !important;
+    }
+    
+    .status-section {
+        padding: 40px 20px 20px 20px;
     }
 }
 
@@ -971,7 +975,7 @@ body {
     }
     
     .status-section {
-        padding: 20px;
+        padding: 45px 20px 20px 20px;
     }
     
     .card-header {
@@ -995,6 +999,10 @@ body {
         width: 50px;
         height: 50px;
         font-size: 1.2em;
+    }
+    
+    .attendance-status {
+        margin-bottom: 45px !important;
     }
 }
 
@@ -1034,7 +1042,7 @@ body {
     }
     
     .status-section {
-        padding: 15px;
+        padding: 40px 15px 15px 15px;
     }
     
     .card-header {
@@ -1060,5 +1068,9 @@ body {
         text-align: center;
         gap: 10px;
         padding: 12px;
+    }
+    
+    .attendance-status {
+        margin-bottom: 40px !important;
     }
 }
