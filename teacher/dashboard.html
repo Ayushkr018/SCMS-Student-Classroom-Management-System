@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SCMS Teacher Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>SCMS Dashboard</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                    <div class="user-status online" id="userStatus">
+                        <i class="fas fa-circle"></i> Online
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                    <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header with Live Time -->
+            <div class="header">
+                <div class="header-info">
+                    <h1>Welcome back, <span id="headerUserName">Dr. John Doe</span>! 👋</h1>
+                    <p id="headerGreeting">Ready to inspire minds today? Your classes await!</p>
+                    <div class="header-time">
+                        <i class="fas fa-clock"></i>
+                        <span id="liveDateTime">Saturday, August 16, 2025 - 10:09 PM</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary pulse" onclick="startClass()">
+                        <i class="fas fa-play"></i>
+                        Start Live Class
+                    </button>
+                    <button class="btn btn-success" onclick="markAttendance()">
+                        <i class="fas fa-user-check"></i>
+                        Quick Attendance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enhanced Stats Grid - Most Important Metrics -->
+            <div class="stats-grid">
+                <div class="stat-card classes">
+                    <div class="stat-icon">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="totalClasses">5</div>
+                        <div class="stat-label">My Classes</div>
+                        <div class="stat-change positive">+2 this semester</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card students">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="totalStudents">167</div>
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-change positive">+12 this week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card attendance">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="avgAttendance">91%</div>
+                        <div class="stat-label">Avg Attendance</div>
+                        <div class="stat-change positive">+5% this month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card engagement">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="engagementScore">96%</div>
+                        <div class="stat-label">Engagement</div>
+                        <div class="stat-change positive">Outstanding!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid - Focused Layout -->
+            <div class="dashboard-grid">
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <!-- Today's Schedule - Core Feature -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-day"></i> Today's Schedule</h3>
+                            <button class="btn btn-sm btn-primary" onclick="addNewClass()">
+                                <i class="fas fa-plus"></i> Add Class
+                            </button>
+                        </div>
+                        <div class="class-list" id="classList">
+                            <div class="class-item completed" data-class="cs103" onclick="selectClass('cs103')">
+                                <div class="class-info">
+                                    <h4>CS103 - Database Systems</h4>
+                                    <div class="class-details">
+                                        <span><i class="fas fa-clock"></i> 9:00 - 10:00 AM</span>
+                                        <span><i class="fas fa-map-marker-alt"></i> Room 205</span>
+                                        <span><i class="fas fa-users"></i> 42 students</span>
+                                    </div>
+                                </div>
+                                <div class="class-status">
+                                    <span class="status-badge status-completed">COMPLETED</span>
+                                    <span style="color: var(--accent-green);">40/42 Present</span>
+                                </div>
+                            </div>
+                            
+                            <div class="class-item active" data-class="cs101" onclick="selectClass('cs101')">
+                                <div class="class-info">
+                                    <h4>CS101 - Data Structures</h4>
+                                    <div class="class-details">
+                                        <span><i class="fas fa-clock"></i> 10:00 - 11:30 AM</span>
+                                        <span><i class="fas fa-map-marker-alt"></i> Room 201</span>
+                                        <span><i class="fas fa-users"></i> 45 students</span>
+                                    </div>
+                                    <div class="live-indicators">
+                                        <span class="live-indicator"><i class="fas fa-video"></i> Recording</span>
+                                        <span class="live-indicator"><i class="fas fa-comments"></i> 12 messages</span>
+                                    </div>
+                                </div>
+                                <div class="class-status">
+                                    <span class="status-badge status-live pulse">LIVE NOW</span>
+                                    <div class="class-actions">
+                                        <button class="btn btn-sm btn-primary" onclick="joinClass('cs101')">
+                                            <i class="fas fa-play"></i> Join
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="class-item upcoming" data-class="cs102" onclick="selectClass('cs102')">
+                                <div class="class-info">
+                                    <h4>CS102 - Algorithms</h4>
+                                    <div class="class-details">
+                                        <span><i class="fas fa-clock"></i> 2:00 - 3:30 PM</span>
+                                        <span><i class="fas fa-map-marker-alt"></i> Room 203</span>
+                                        <span><i class="fas fa-users"></i> 38 students</span>
+                                    </div>
+                                </div>
+                                <div class="class-status">
+                                    <span class="status-badge status-scheduled">SCHEDULED</span>
+                                    <div class="class-actions">
+                                        <button class="btn btn-sm btn-outline" onclick="prepareClass('cs102')">
+                                            <i class="fas fa-cog"></i> Prepare
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Attendance - Essential Feature -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-check"></i> Quick Attendance - CS101</h3>
+                            <div class="attendance-controls">
+                                <button class="btn btn-sm btn-primary" onclick="openQRScanner()">
+                                    <i class="fas fa-qrcode"></i> QR Scanner
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="simulateCheckIn()">
+                                    <i class="fas fa-plus"></i> Add Student
+                                </button>
+                            </div>
+                        </div>
+                        <div class="attendance-section">
+                            <!-- Attendance Summary -->
+                            <div class="attendance-summary">
+                                <div class="attendance-stat">
+                                    <div class="stat-circle present">
+                                        <span class="stat-number">37</span>
+                                        <span class="stat-label">Present</span>
+                                    </div>
+                                </div>
+                                <div class="attendance-stat">
+                                    <div class="stat-circle absent">
+                                        <span class="stat-number">6</span>
+                                        <span class="stat-label">Absent</span>
+                                    </div>
+                                </div>
+                                <div class="attendance-stat">
+                                    <div class="stat-circle late">
+                                        <span class="stat-number">2</span>
+                                        <span class="stat-label">Late</span>
+                                    </div>
+                                </div>
+                                <div class="attendance-percentage">
+                                    <div class="percentage-circle">
+                                        <span>87%</span>
+                                    </div>
+                                    <span>Attendance Rate</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="attendance-quick-actions">
+                                <button class="btn btn-warning" onclick="markAllPresent()">
+                                    <i class="fas fa-check-double"></i> Mark All Present
+                                </button>
+                                <button class="btn btn-info" onclick="viewAttendanceDetails()">
+                                    <i class="fas fa-list"></i> View Details
+                                </button>
+                                <button class="btn btn-secondary" onclick="exportAttendance()">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel - Essential Tools Only -->
+                <div class="side-panel">
+                    <!-- Quick Actions - Reduced to Essentials -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        </div>
+                        <div class="quick-actions">
+                            <div class="action-grid">
+                                <div class="action-btn primary" onclick="createPoll()">
+                                    <i class="fas fa-poll"></i>
+                                    <span>Create Poll</span>
+                                </div>
+                                <div class="action-btn success" onclick="shareResource()">
+                                    <i class="fas fa-share"></i>
+                                    <span>Share File</span>
+                                </div>
+                                <div class="action-btn warning" onclick="sendAnnouncement()">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <span>Announcement</span>
+                                </div>
+                                <div class="action-btn info" onclick="viewAnalytics()">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <span>View Analytics</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Poll System - Core Feature -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-poll"></i> Live Poll</h3>
+                        </div>
+                        <div class="interactive-panel">
+                            <div class="poll-creator" id="pollCreator" style="display: none;">
+                                <h4>Create Quick Poll</h4>
+                                <input type="text" id="pollQuestion" placeholder="Enter your question..." maxlength="200">
+                                <div class="character-count">
+                                    <span id="questionCharCount">0</span>/200
+                                </div>
+                                <div class="poll-options" id="pollOptions">
+                                    <input type="text" class="poll-option" placeholder="Option A" maxlength="100">
+                                    <input type="text" class="poll-option" placeholder="Option B" maxlength="100">
+                                </div>
+                                <div class="poll-actions">
+                                    <button class="btn btn-primary" onclick="launchPoll()">
+                                        <i class="fas fa-rocket"></i> Launch Poll
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="cancelPoll()">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="activePoll" style="display: none;">
+                                <!-- Active poll will be dynamically loaded -->
+                            </div>
+                            
+                            <div id="noActivePoll">
+                                <div class="empty-state">
+                                    <i class="fas fa-poll"></i>
+                                    <h4>No Active Poll</h4>
+                                    <p>Create a poll to engage with your students</p>
+                                    <button class="create-poll-btn" onclick="createPoll()">
+                                        <i class="fas fa-plus"></i> Create Poll
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Feed - Essential -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+                        </div>
+                        <div class="activity-feed" id="activityFeed">
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Sarah Johnson</strong> marked attendance for CS101</p>
+                                    <span class="activity-time">2 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon info">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Assignment</strong> uploaded: Data Structures Lab 3</p>
+                                    <span class="activity-time">15 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon primary">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>3 new messages</strong> in CS102 discussion</p>
+                                    <span class="activity-time">1 hour ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Only Essential Floating Action - AI Chatbot -->
+    <div class="floating-actions">
+        <div class="fab primary" onclick="openChatBot()" title="AI Teaching Assistant">
+            <i class="fas fa-robot"></i>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>

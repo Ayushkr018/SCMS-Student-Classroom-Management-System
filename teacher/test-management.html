@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Management - SCMS Teacher Portal</title>
+    <link rel="stylesheet" href="test-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+  <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+                
+                
+            </nav>
+        </aside>
+
+        <header class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Test Management</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-info">
+                    <h1><i class="fas fa-clipboard-check"></i> Test Management</h1>
+                    <p>Create, manage and monitor tests with advanced anti-cheat features</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="createNewTest()">
+                        <i class="fas fa-plus"></i> Create Test
+                    </button>
+                    <button class="btn btn-info" onclick="openQuestionBank()">
+                        <i class="fas fa-database"></i> Question Bank
+                    </button>
+                    <button class="btn btn-success" onclick="viewLiveTests()">
+                        <i class="fas fa-eye"></i> Live Monitoring
+                    </button>
+                </div>
+            </div>
+
+            <div class="test-tabs">
+                <button class="tab-btn active" onclick="switchTab('overview')">
+                    <i class="fas fa-chart-pie"></i> Overview
+                </button>
+                <button class="tab-btn" onclick="switchTab('question-bank')">
+                    <i class="fas fa-database"></i> Question Bank
+                </button>
+                <button class="tab-btn" onclick="switchTab('test-creator')">
+                    <i class="fas fa-plus-circle"></i> Create Test
+                </button>
+                <button class="tab-btn" onclick="switchTab('live-monitoring')">
+                    <i class="fas fa-video"></i> Live Proctoring
+                </button>
+                <button class="tab-btn" onclick="switchTab('analytics')">
+                    <i class="fas fa-chart-line"></i> Test Analytics
+                </button>
+            </div>
+
+            <div class="tab-content">
+                
+                <div id="overview-tab" class="tab-pane active">
+                    <div class="stats-grid">
+                        <div class="stat-card total-tests">
+                            <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalTests">24</div>
+                                <div class="stat-label">Total Tests</div>
+                                <div class="stat-change">+3 this week</div>
+                            </div>
+                        </div>
+                        <div class="stat-card active-tests">
+                            <div class="stat-icon"><i class="fas fa-play-circle"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="activeTests">2</div>
+                                <div class="stat-label">Active Tests</div>
+                                <div class="stat-change">Live now</div>
+                            </div>
+                        </div>
+                        <div class="stat-card question-bank">
+                            <div class="stat-icon"><i class="fas fa-question-circle"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="totalQuestions">1,247</div>
+                                <div class="stat-label">Questions</div>
+                                <div class="stat-change">+45 this month</div>
+                            </div>
+                        </div>
+                        <div class="stat-card avg-score">
+                            <div class="stat-icon"><i class="fas fa-star"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="avgScore">78.5%</div>
+                                <div class="stat-label">Average Score</div>
+                                <div class="stat-change">+2.3% improvement</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Recent Tests</h3>
+                            <button class="btn btn-secondary" onclick="viewAllTests()">View All</button>
+                        </div>
+                        <div class="recent-tests" id="recentTestsList">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-rocket"></i> Quick Actions</h3>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <div class="action-item" onclick="quickCreateMCQ()">
+                                <i class="fas fa-check-circle"></i>
+                                <h4>Quick MCQ Test</h4>
+                                <p>Create a multiple choice test in minutes</p>
+                            </div>
+                            <div class="action-item" onclick="duplicateLastTest()">
+                                <i class="fas fa-copy"></i>
+                                <h4>Duplicate Test</h4>
+                                <p>Copy settings from previous test</p>
+                            </div>
+                            <div class="action-item" onclick="importQuestions()">
+                                <i class="fas fa-upload"></i>
+                                <h4>Import Questions</h4>
+                                <p>Bulk upload from CSV/Excel</p>
+                            </div>
+                            <div class="action-item" onclick="scheduleTest()">
+                                <i class="fas fa-calendar"></i>
+                                <h4>Schedule Test</h4>
+                                <p>Set up automated test delivery</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="question-bank-tab" class="tab-pane">
+                    <div class="question-bank-container">
+                        <div class="question-filters">
+                            <div class="filters-row">
+                                <div class="filter-group">
+                                    <label>Subject</label>
+                                    <select id="subjectFilter">
+                                        <option value="all">All Subjects</option>
+                                        <option value="cs">Computer Science</option>
+                                        <option value="math">Mathematics</option>
+                                        <option value="physics">Physics</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Difficulty</label>
+                                    <select id="difficultyFilter">
+                                        <option value="all">All Levels</option>
+                                        <option value="easy">Easy</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="hard">Hard</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Type</label>
+                                    <select id="typeFilter">
+                                        <option value="all">All Types</option>
+                                        <option value="mcq">Multiple Choice</option>
+                                        <option value="theory">Theory</option>
+                                        <option value="coding">Coding</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Search</label>
+                                    <input type="text" id="questionSearch" placeholder="Search questions...">
+                                </div>
+                            </div>
+                            <div class="filters-actions">
+                                <button class="btn btn-primary" onclick="addNewQuestion()">
+                                    <i class="fas fa-plus"></i> Add Question
+                                </button>
+                                <button class="btn btn-info" onclick="bulkImport()">
+                                    <i class="fas fa-upload"></i> Bulk Import
+                                </button>
+                                <button class="btn btn-secondary" onclick="exportQuestions()">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="questions-list" id="questionsList">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="test-creator-tab" class="tab-pane">
+                    <div class="test-creator-container">
+                        <div class="creator-sidebar">
+                            <div class="creator-steps">
+                                <div class="step active" data-step="1">
+                                    <div class="step-number">1</div>
+                                    <div class="step-info">
+                                        <h4>Basic Info</h4>
+                                        <p>Test details</p>
+                                    </div>
+                                </div>
+                                <div class="step" data-step="2">
+                                    <div class="step-number">2</div>
+                                    <div class="step-info">
+                                        <h4>Questions</h4>
+                                        <p>Add questions</p>
+                                    </div>
+                                </div>
+                                <div class="step" data-step="3">
+                                    <div class="step-number">3</div>
+                                    <div class="step-info">
+                                        <h4>Settings</h4>
+                                        <p>Configure test</p>
+                                    </div>
+                                </div>
+                                <div class="step" data-step="4">
+                                    <div class="step-number">4</div>
+                                    <div class="step-info">
+                                        <h4>Anti-Cheat</h4>
+                                        <p>Security settings</p>
+                                    </div>
+                                </div>
+                                <div class="step" data-step="5">
+                                    <div class="step-number">5</div>
+                                    <div class="step-info">
+                                        <h4>Review</h4>
+                                        <p>Final check</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="creator-main">
+                            <div class="creator-step active" id="step-1">
+                                <h3>Basic Test Information</h3>
+                                <form class="test-basic-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Test Title *</label>
+                                            <input type="text" id="testTitle" placeholder="Enter test title" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Subject *</label>
+                                            <select id="testSubject" required>
+                                                <option value="">Select Subject</option>
+                                                <option value="cs">Computer Science</option>
+                                                <option value="math">Mathematics</option>
+                                                <option value="physics">Physics</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Total Marks</label>
+                                            <input type="number" id="totalMarks" placeholder="100" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Duration (minutes)</label>
+                                            <input type="number" id="testDuration" placeholder="60" min="1">
+                                        </div>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Description</label>
+                                        <textarea id="testDescription" placeholder="Enter test description" rows="3"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Start Date & Time</label>
+                                            <input type="datetime-local" id="startDateTime">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>End Date & Time</label>
+                                            <input type="datetime-local" id="endDateTime">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="creator-step" id="step-2">
+                                <h3>Add Questions to Test</h3>
+                                <div class="question-selection">
+                                    <div class="selection-methods">
+                                        <button class="method-btn active" onclick="selectMethod('manual')">
+                                            <i class="fas fa-hand-pointer"></i>
+                                            Manual Selection
+                                        </button>
+                                        <button class="method-btn" onclick="selectMethod('auto')">
+                                            <i class="fas fa-magic"></i>
+                                            Auto Generate
+                                        </button>
+                                        <button class="method-btn" onclick="selectMethod('random')">
+                                            <i class="fas fa-random"></i>
+                                            Random Pick
+                                        </button>
+                                    </div>
+
+                                    <div class="manual-selection active" id="manual-selection">
+                                        <div class="question-browser">
+                                            <div class="browser-filters">
+                                                <select id="browserSubject">
+                                                    <option>All Subjects</option>
+                                                    <option>Computer Science</option>
+                                                    <option>Mathematics</option>
+                                                </select>
+                                                <select id="browserDifficulty">
+                                                    <option>All Difficulty</option>
+                                                    <option>Easy</option>
+                                                    <option>Medium</option>
+                                                    <option>Hard</option>
+                                                </select>
+                                                <input type="text" placeholder="Search questions...">
+                                            </div>
+                                            <div class="available-questions" id="availableQuestions">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="selected-questions">
+                                        <h4>Selected Questions (<span id="selectedCount">0</span>)</h4>
+                                        <div class="selected-list" id="selectedQuestionsList">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="creator-step" id="step-3">
+                                <h3>Test Configuration</h3>
+                                <div class="settings-grid">
+                                    <div class="settings-group">
+                                        <h4><i class="fas fa-cog"></i> General Settings</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="shuffleQuestions" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Shuffle Questions</h5>
+                                                <p>Randomize question order for each student</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="shuffleOptions">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Shuffle Answer Options</h5>
+                                                <p>Randomize MCQ options</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="showResults">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Show Results Immediately</h5>
+                                                <p>Display scores after submission</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="settings-group">
+                                        <h4><i class="fas fa-calculator"></i> Scoring Settings</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="negativeMarking">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Negative Marking</h5>
+                                                <p>Deduct marks for wrong answers</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item" id="negativeMarkingValue" style="display: none;">
+                                            <label>Negative Marks (%)</label>
+                                            <input type="number" id="negativePercent" value="25" min="0" max="100">
+                                        </div>
+                                        <div class="setting-item">
+                                            <label>Pass Percentage</label>
+                                            <input type="number" id="passPercentage" value="40" min="0" max="100">
+                                        </div>
+                                    </div>
+
+                                    <div class="settings-group">
+                                        <h4><i class="fas fa-clock"></i> Time Settings</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="timePerQuestion">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Time Limit Per Question</h5>
+                                                <p>Set individual question time limits</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="autoSubmit" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Auto Submit</h5>
+                                                <p>Automatically submit when time expires</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="creator-step" id="step-4">
+                                <h3>Anti-Cheat & Proctoring Settings</h3>
+                                <div class="anticheat-settings">
+                                    <div class="anticheat-group">
+                                        <h4><i class="fas fa-video"></i> Camera Monitoring</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="enableCamera">
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Enable Camera Monitoring</h5>
+                                                <p>Monitor students via webcam</p>
+                                            </div>
+                                        </div>
+                                        <div class="camera-settings" id="cameraSettings" style="display: none;">
+                                            <div class="setting-item">
+                                                <label class="switch">
+                                                    <input type="checkbox" id="livenessCheck">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <div class="setting-info">
+                                                    <h5>Liveness Detection</h5>
+                                                    <p>Ensure student is present and alive</p>
+                                                </div>
+                                            </div>
+                                            <div class="setting-item">
+                                                <label class="switch">
+                                                    <input type="checkbox" id="faceRecognition">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <div class="setting-info">
+                                                    <h5>Face Recognition</h5>
+                                                    <p>Verify student identity</p>
+                                                </div>
+                                            </div>
+                                            <div class="setting-item">
+                                                <label>Recording Frequency</label>
+                                                <select id="recordingFreq">
+                                                    <option value="continuous">Continuous</option>
+                                                    <option value="30">Every 30 seconds</option>
+                                                    <option value="60">Every minute</option>
+                                                    <option value="120">Every 2 minutes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="anticheat-group">
+                                        <h4><i class="fas fa-desktop"></i> Screen Monitoring</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="tabSwitchDetection" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Tab Switch Detection</h5>
+                                                <p>Alert when student switches tabs</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label>Max Tab Switches Allowed</label>
+                                            <input type="number" id="maxTabSwitches" value="3" min="0">
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="fullscreenMode" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Force Fullscreen</h5>
+                                                <p>Lock test in fullscreen mode</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="disableRightClick" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Disable Right Click</h5>
+                                                <p>Prevent context menu access</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="anticheat-group">
+                                        <h4><i class="fas fa-shield-alt"></i> Security Rules</h4>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="copyPaste" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Disable Copy/Paste</h5>
+                                                <p>Prevent copying content</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label class="switch">
+                                                <input type="checkbox" id="printScreen" checked>
+                                                <span class="slider"></span>
+                                            </label>
+                                            <div class="setting-info">
+                                                <h5>Disable Print Screen</h5>
+                                                <p>Prevent screenshots</p>
+                                            </div>
+                                        </div>
+                                        <div class="setting-item">
+                                            <label>Violation Action</label>
+                                            <select id="violationAction">
+                                                <option value="warn">Warning Only</option>
+                                                <option value="flag">Flag for Review</option>
+                                                <option value="submit">Auto Submit Test</option>
+                                                <option value="block">Block Test Access</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="creator-step" id="step-5">
+                                <h3>Review & Create Test</h3>
+                                <div class="test-preview">
+                                    <div class="preview-section">
+                                        <h4><i class="fas fa-info-circle"></i> Test Information</h4>
+                                        <div class="preview-details" id="testPreviewDetails">
+                                        </div>
+                                    </div>
+                                    <div class="preview-section">
+                                        <h4><i class="fas fa-question"></i> Questions Summary</h4>
+                                        <div class="questions-summary" id="questionsSummary">
+                                        </div>
+                                    </div>
+                                    <div class="preview-section">
+                                        <h4><i class="fas fa-shield-alt"></i> Security Settings</h4>
+                                        <div class="security-summary" id="securitySummary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="creator-navigation">
+                                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">
+                                    <i class="fas fa-arrow-left"></i> Previous
+                                </button>
+                                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                                    Next <i class="fas fa-arrow-right"></i>
+                                </button>
+                                <button class="btn btn-success" id="createBtn" onclick="createTest()" style="display: none;">
+                                    <i class="fas fa-check"></i> Create Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="live-monitoring-tab" class="tab-pane">
+                    <div class="monitoring-dashboard">
+                        <div class="monitoring-header">
+                            <h3><i class="fas fa-video"></i> Live Proctoring Dashboard</h3>
+                            <div class="monitoring-controls">
+                                <select id="activeTestSelect">
+                                    <option>Select Active Test</option>
+                                    <option value="test1">CS101 Midterm</option>
+                                    <option value="test2">Data Structures Quiz</option>
+                                </select>
+                                <button class="btn btn-info" onclick="refreshMonitoring()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="monitoring-stats">
+                            <div class="monitor-stat">
+                                <i class="fas fa-users"></i>
+                                <div class="stat-data">
+                                    <span class="stat-number">24</span>
+                                    <span class="stat-label">Active Students</span>
+                                </div>
+                            </div>
+                            <div class="monitor-stat">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="stat-data">
+                                    <span class="stat-number">3</span>
+                                    <span class="stat-label">Violations</span>
+                                </div>
+                            </div>
+                            <div class="monitor-stat">
+                                <i class="fas fa-clock"></i>
+                                <div class="stat-data">
+                                    <span class="stat-number">45:32</span>
+                                    <span class="stat-label">Time Remaining</span>
+                                </div>
+                            </div>
+                            <div class="monitor-stat">
+                                <i class="fas fa-percentage"></i>
+                                <div class="stat-data">
+                                    <span class="stat-number">67%</span>
+                                    <span class="stat-label">Avg Progress</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="student-monitoring-grid" id="studentGrid">
+                        </div>
+
+                        <div class="alerts-panel">
+                            <h4><i class="fas fa-bell"></i> Real-time Alerts</h4>
+                            <div class="alerts-list" id="alertsList">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analytics-tab" class="tab-pane">
+                    <div class="analytics-dashboard">
+                        <div class="analytics-header">
+                            <h3><i class="fas fa-chart-line"></i> Test Analytics</h3>
+                            <div class="analytics-controls">
+                                <select id="analyticsTest">
+                                    <option>Select Test</option>
+                                    <option value="test1">CS101 Midterm</option>
+                                    <option value="test2">Algorithm Quiz</option>
+                                </select>
+                                <button class="btn btn-info" onclick="exportAnalytics()">
+                                    <i class="fas fa-download"></i> Export Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <h4>Score Distribution</h4>
+                                <div class="chart-container">
+                                    <canvas id="scoreChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Question Difficulty Analysis</h4>
+                                <div class="chart-container">
+                                    <canvas id="difficultyChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Time Distribution</h4>
+                                <div class="chart-container">
+                                    <canvas id="timeChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Cheating Violations</h4>
+                                <div class="violations-summary">
+                                    <div class="violation-item">
+                                        <span class="violation-type">Tab Switches</span>
+                                        <span class="violation-count">12</span>
+                                    </div>
+                                    <div class="violation-item">
+                                        <span class="violation-type">Face Not Detected</span>
+                                        <span class="violation-count">3</span>
+                                    </div>
+                                    <div class="violation-item">
+                                        <span class="violation-type">Multiple Faces</span>
+                                        <span class="violation-count">1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detailed-analytics">
+                            <div class="analytics-card full-width">
+                                <h4>Student Performance Details</h4>
+                                <div class="performance-table">
+                                    <table id="performanceTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Student</th>
+                                                <th>Score</th>
+                                                <th>Time Taken</th>
+                                                <th>Violations</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="performanceTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Question</h3>
+                <button class="close-btn" onclick="closeModal('questionModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="question-form">
+                    <div class="form-group">
+                        <label>Question Type</label>
+                        <select id="questionType" onchange="toggleQuestionType()">
+                            <option value="mcq">Multiple Choice</option>
+                            <option value="theory">Theory/Essay</option>
+                            <option value="coding">Coding</option>
+                            <option value="fillblank">Fill in the Blank</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="questionSubject">
+                            <option value="cs">Computer Science</option>
+                            <option value="math">Mathematics</option>
+                            <option value="physics">Physics</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty Level</label>
+                        <select id="questionDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="questionText" placeholder="Enter your question here..." rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Add Media</label>
+                        <div class="media-upload">
+                            <input type="file" id="questionMedia" accept="image/*,video/*">
+                            <div class="media-preview" id="mediaPreview"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="mcqOptions" class="mcq-options">
+                        <label>Answer Options</label>
+                        <div class="options-list">
+                            <div class="option-item">
+                                <input type="radio" name="correctAnswer" value="0">
+                                <input type="text" placeholder="Option A" data-option="0">
+                                <button type="button" class="remove-option">×</button>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="correctAnswer" value="1">
+                                <input type="text" placeholder="Option B" data-option="1">
+                                <button type="button" class="remove-option">×</button>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="correctAnswer" value="2">
+                                <input type="text" placeholder="Option C" data-option="2">
+                                <button type="button" class="remove-option">×</button>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="correctAnswer" value="3">
+                                <input type="text" placeholder="Option D" data-option="3">
+                                <button type="button" class="remove-option">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addOption()">
+                            <i class="fas fa-plus"></i> Add Option
+                        </button>
+                    </div>
+
+                    <div id="theoryAnswer" class="theory-answer" style="display: none;">
+                        <label>Model Answer/Keywords</label>
+                        <textarea placeholder="Enter model answer or keywords for evaluation..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marks</label>
+                        <input type="number" id="questionMarks" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Explanation (Optional)</label>
+                        <textarea id="questionExplanation" placeholder="Explanation for the answer..." rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('questionModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveQuestion()">Save Question</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="notification-icon"></i>
+        <span class="notification-text"></span>
+    </div>
+
+    <script src="test-management.js"></script>
+</body>
+</html>
