@@ -399,7 +399,7 @@ body {
 .main-panel {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 35px;
 }
 
 .checkin-card {
@@ -1054,3 +1054,4 @@ body {
         padding: 12px;
     }
 }
+
