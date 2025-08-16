@@ -399,7 +399,7 @@ body {
 .main-panel {
     display: flex;
     flex-direction: column;
-    gap: 45px;
+    gap: 35px;
 }
 
 .checkin-card {
@@ -580,7 +580,7 @@ body {
 .attendance-status {
     padding: 25px;
     border-radius: 15px;
-    margin-bottom: 5px;
+    margin-bottom: 40px !important;
     text-align: center;
     font-weight: 600;
     font-size: 1.1em;
@@ -609,7 +609,7 @@ body {
     background: var(--bg-secondary);
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 35px;
+    margin-bottom: 40px !important;
     border: 1px solid var(--border-color);
 }
 
@@ -929,6 +929,14 @@ body {
     .notification.show {
         transform: translateY(0);
     }
+    
+    .class-info {
+        margin-bottom: 30px !important;
+    }
+    
+    .attendance-status {
+        margin-bottom: 30px !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1054,6 +1062,3 @@ body {
         padding: 12px;
     }
 }
-
-
-
