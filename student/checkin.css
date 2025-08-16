@@ -919,10 +919,11 @@ body {
     }
     
     .notification {
-        top: 15px;
-        right: 15px;
-        left: 15px;
+        top: calc(env(safe-area-inset-top, 0px) + 14px);
+        right: 12px;
+        left: 12px;
         transform: translateY(-100px);
+        z-index: 99999;
     }
     
     .notification.show {
