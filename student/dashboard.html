@@ -4,117 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - SCMS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="dashboard.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Mobile Header -->
-    <div class="mobile-header">
-        <div class="mobile-header-content">
-            <div class="mobile-logo">
-                🎓 <span>SCMS Student</span>
-            </div>
-            <div class="mobile-controls">
-                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
-                </button>
-                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
     <div class="dashboard">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>🎓 SCMS</h2>
+                <h2>SCMS</h2>
                 <p>Student Portal</p>
             </div>
             
-            <div class="user-info" id="userInfo">
-                <div class="user-avatar">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">AR</div>
                 <div class="user-details">
-                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-name" id="userName">Alex Rodriguez</div>
                     <div class="user-roll" id="userRoll">CS2023001</div>
                 </div>
             </div>
-            
-            <!-- Theme Toggle in Sidebar -->
+
             <div class="theme-toggle-sidebar" onclick="toggleTheme()">
                 <div class="theme-toggle-icon">
-                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <i id="themeIcon" class="fas fa-moon"></i>
                     <span id="themeLabel">Dark Mode</span>
                 </div>
                 <div class="theme-switch" id="themeSwitch">
                     <div class="theme-switch-handle"></div>
                 </div>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="active">
-                        <a href="dashboard.html">
-                            <i class="fas fa-tachometer-alt"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="checkin.html">
-                            <i class="fas fa-qrcode"></i>
-                            Check-in
-                        </a>
-                    </li>
-                    <li>
-                        <a href="interactive.html">
-                            <i class="fas fa-users"></i>
-                            Live Class
-                        </a>
-                    </li>
-                    <li>
-                        <a href="assignment.html">
-                            <i class="fas fa-tasks"></i>
-                            Assignments
-                        </a>
-                    </li>
-                    <li>
-                        <a href="grades.html">
-                            <i class="fas fa-chart-line"></i>
-                            Grades
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
-                        </a>
-                    </li>
+                    <li class="active"><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="grades.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                    <li><a href="interactive.html"><i class="fas fa-video"></i> Live Classes</a></li>
+                    <li><a href="checkin.html"><i class="fas fa-qrcode"></i> Check-in</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
         </div>
-        
+
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>SCMS Dashboard</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Header -->
             <div class="header">
-                <div>
+                <div class="header-info">
                     <h1>Welcome back, <span id="headerUserName">Student</span>! 📚</h1>
                     <p>Ready to learn something new today?</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-success" onclick="quickCheckIn()">
-                        <i class="fas fa-qrcode"></i>
-                        Quick Check-in
+                    <button class="btn btn-primary" onclick="quickCheckIn()">
+                        <i class="fas fa-qrcode"></i> Quick Check-in
                     </button>
-                    <button class="btn btn-primary" onclick="joinLiveClass()">
-                        <i class="fas fa-video"></i>
-                        Join Live Class
+                    <button class="btn btn-success" onclick="window.location.href='interactive.html'">
+                        <i class="fas fa-video"></i> Join Live Class
+                    </button>
+                    <button class="btn btn-warning" onclick="window.location.href='grades.html'">
+                        <i class="fas fa-chart-bar"></i> View Grades
                     </button>
                 </div>
             </div>
@@ -123,15 +91,18 @@
             <div class="stats-grid">
                 <div class="stat-card attendance">
                     <div class="stat-icon">
-                        <i class="fas fa-user-check"></i>
+                        <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
                         <div class="stat-number" id="attendanceRate">92%</div>
                         <div class="stat-label">Attendance Rate</div>
-                        <div class="stat-change positive">+3% this month</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +3% this month
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="stat-card assignments">
                     <div class="stat-icon">
                         <i class="fas fa-tasks"></i>
@@ -139,10 +110,13 @@
                     <div class="stat-info">
                         <div class="stat-number" id="pendingAssignments">3</div>
                         <div class="stat-label">Pending Tasks</div>
-                        <div class="stat-change negative">2 due soon</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-clock"></i>
+                            2 due soon
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="stat-card courses">
                     <div class="stat-icon">
                         <i class="fas fa-book"></i>
@@ -150,10 +124,13 @@
                     <div class="stat-info">
                         <div class="stat-number" id="enrolledCourses">5</div>
                         <div class="stat-label">Enrolled Courses</div>
-                        <div class="stat-change positive">All active</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check"></i>
+                            All active
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="stat-card performance">
                     <div class="stat-icon">
                         <i class="fas fa-trophy"></i>
@@ -161,133 +138,173 @@
                     <div class="stat-info">
                         <div class="stat-number" id="avgGrade">8.4</div>
                         <div class="stat-label">Average CGPA</div>
-                        <div class="stat-change positive">+0.2 improvement</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +0.2 improvement
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Dashboard Grid -->
+            <!-- Dashboard Grid -->
             <div class="dashboard-grid">
                 <!-- Main Panel -->
                 <div class="main-panel">
-                    <!-- Today's Schedule -->
+                    <!-- Today's Classes -->
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h3><i class="fas fa-calendar-day"></i> Today's Classes</h3>
-                            <span style="color: var(--accent-blue); font-weight: 600;">
-                                <i class="fas fa-clock"></i> 
+                            <div class="time-display">
+                                <i class="fas fa-clock"></i>
                                 <span id="currentTime">10:30 AM</span>
-                            </span>
+                            </div>
                         </div>
-                        <div class="class-schedule" id="classSchedule">
-                            <div class="schedule-item live" onclick="joinClass('cs101')">
+                        <div class="class-schedule">
+                            <!-- Enhanced Schedule Item 1 - LIVE CLASS -->
+                            <div class="schedule-item live" onclick="window.location.href='interactive.html'">
                                 <div class="schedule-info">
                                     <h4>CS101 - Data Structures</h4>
-                                    <div class="schedule-details">
-                                        <span><i class="fas fa-clock"></i> 10:00 - 11:30 AM</span>
-                                        <span><i class="fas fa-map-marker-alt"></i> Room 201</span>
-                                        <span><i class="fas fa-user"></i> Prof. Michael Chen</span>
+                                    <div class="schedule-meta-grid">
+                                        <div class="meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>10:00 - 11:30 AM</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Room 201</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Prof. Michael Chen</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-users"></i>
+                                            <span>35/45 Students</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="schedule-status">
-                                    <span class="status-badge status-live">LIVE NOW</span>
-                                    <span style="color: var(--accent-red); font-weight: 600;">Join Class</span>
+                                    <div class="status-badge status-live">
+                                        <i class="fas fa-circle"></i>
+                                        LIVE NOW
+                                    </div>
+                                    <button class="btn btn-primary btn-sm">Join Class</button>
                                 </div>
                             </div>
-                            
-                            <div class="schedule-item" onclick="scheduleReminder('cs102')">
+
+                            <!-- Enhanced Schedule Item 2 - UPCOMING -->
+                            <div class="schedule-item upcoming">
                                 <div class="schedule-info">
                                     <h4>CS102 - Algorithms</h4>
-                                    <div class="schedule-details">
-                                        <span><i class="fas fa-clock"></i> 2:00 - 3:30 PM</span>
-                                        <span><i class="fas fa-map-marker-alt"></i> Room 203</span>
-                                        <span><i class="fas fa-user"></i> Dr. Sarah Johnson</span>
+                                    <div class="schedule-meta-grid">
+                                        <div class="meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>2:00 - 3:30 PM</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Room 203</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Dr. Sarah Johnson</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-users"></i>
+                                            <span>42/50 Students</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="schedule-status">
-                                    <span class="status-badge status-upcoming">UPCOMING</span>
-                                    <span style="color: var(--accent-yellow);">In 3h 30m</span>
+                                    <div class="status-badge status-upcoming">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        UPCOMING
+                                    </div>
+                                    <div class="time-remaining">In 3h 30m</div>
                                 </div>
                             </div>
-                            
-                            <div class="schedule-item">
+
+                            <!-- Enhanced Schedule Item 3 - COMPLETED -->
+                            <div class="schedule-item completed">
                                 <div class="schedule-info">
                                     <h4>CS103 - Database Systems</h4>
-                                    <div class="schedule-details">
-                                        <span><i class="fas fa-clock"></i> 9:00 - 10:00 AM</span>
-                                        <span><i class="fas fa-map-marker-alt"></i> Room 205</span>
-                                        <span><i class="fas fa-user"></i> Prof. David Wilson</span>
+                                    <div class="schedule-meta-grid">
+                                        <div class="meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>9:00 - 10:00 AM</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Room 205</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-user"></i>
+                                            <span>Prof. David Wilson</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <i class="fas fa-check"></i>
+                                            <span>Attended</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="schedule-status">
-                                    <span class="status-badge status-completed">COMPLETED</span>
-                                    <span style="color: var(--accent-green);">Attended</span>
+                                    <div class="status-badge status-completed">
+                                        <i class="fas fa-check-circle"></i>
+                                        COMPLETED
+                                    </div>
+                                    <div class="attendance-mark">
+                                        <i class="fas fa-check"></i> Present
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Assignments & Tasks -->
+                    <!-- Pending Assignments -->
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h3><i class="fas fa-tasks"></i> Pending Assignments</h3>
-                            <button class="btn btn-primary" onclick="viewAllAssignments()">
-                                <i class="fas fa-list"></i>
-                                View All
-                            </button>
                         </div>
-                        <div class="assignments-list" id="assignmentsList">
+                        <div class="assignments-list">
                             <div class="assignment-item">
                                 <div class="assignment-info">
                                     <div class="assignment-title">Data Structures - Binary Trees Implementation</div>
                                     <div class="assignment-meta">
                                         <span><i class="fas fa-book"></i> CS101</span>
-                                        <span><i class="fas fa-user"></i> Prof. Chen</span>
-                                        <span><i class="fas fa-file-code"></i> Programming</span>
+                                        <span><i class="fas fa-user"></i> Prof. Michael Chen</span>
                                     </div>
                                 </div>
                                 <div class="assignment-actions">
-                                    <div class="due-date">Due: Tomorrow</div>
-                                    <button class="btn btn-warning" onclick="startAssignment('cs101_assignment1')">
-                                        <i class="fas fa-play"></i>
-                                        Start
-                                    </button>
+                                    <div class="due-date urgent">Due: Tomorrow</div>
+                                    <button class="btn btn-sm btn-primary">Start Work</button>
                                 </div>
                             </div>
-                            
+
                             <div class="assignment-item">
                                 <div class="assignment-info">
                                     <div class="assignment-title">Algorithm Analysis - Time Complexity Report</div>
                                     <div class="assignment-meta">
                                         <span><i class="fas fa-book"></i> CS102</span>
-                                        <span><i class="fas fa-user"></i> Dr. Johnson</span>
-                                        <span><i class="fas fa-file-alt"></i> Report</span>
+                                        <span><i class="fas fa-user"></i> Dr. Sarah Johnson</span>
                                     </div>
                                 </div>
                                 <div class="assignment-actions">
                                     <div class="due-date upcoming">Due: Jan 20</div>
-                                    <button class="btn btn-success" onclick="startAssignment('cs102_assignment1')">
-                                        <i class="fas fa-edit"></i>
-                                        Continue
-                                    </button>
+                                    <button class="btn btn-sm btn-warning">Continue</button>
                                 </div>
                             </div>
-                            
+
                             <div class="assignment-item">
                                 <div class="assignment-info">
                                     <div class="assignment-title">Database Design - ER Diagram Creation</div>
                                     <div class="assignment-meta">
                                         <span><i class="fas fa-book"></i> CS103</span>
-                                        <span><i class="fas fa-user"></i> Prof. Wilson</span>
-                                        <span><i class="fas fa-project-diagram"></i> Design</span>
+                                        <span><i class="fas fa-user"></i> Prof. David Wilson</span>
                                     </div>
                                 </div>
                                 <div class="assignment-actions">
                                     <div class="due-date safe">Due: Jan 25</div>
-                                    <button class="btn btn-primary" onclick="startAssignment('cs103_assignment1')">
-                                        <i class="fas fa-plus"></i>
-                                        Start
-                                    </button>
+                                    <button class="btn btn-sm btn-success">Start</button>
                                 </div>
                             </div>
                         </div>
@@ -295,24 +312,16 @@
                 </div>
 
                 <!-- Side Panel -->
-                <div>
+                <div class="side-panel">
                     <!-- Quick Check-in -->
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h3><i class="fas fa-qrcode"></i> Quick Check-in</h3>
-                            <button class="btn btn-success" onclick="openFullScanner()">
-                                <i class="fas fa-expand"></i>
-                                Full Screen
-                            </button>
                         </div>
                         <div class="check-in-section">
                             <div class="qr-scanner" onclick="startQRScan()">
-                                <div>
-                                    <i class="fas fa-qrcode"></i>
-                                    <p style="margin: 0; font-size: 0.9em; color: var(--accent-blue);">
-                                        Tap to scan QR code
-                                    </p>
-                                </div>
+                                <i class="fas fa-qrcode"></i>
+                                <div class="qr-scanner-text">Tap to scan QR code</div>
                                 <div class="scan-animation"></div>
                             </div>
                             <div class="attendance-status not-checked" id="attendanceStatus">
@@ -331,28 +340,28 @@
                             <div class="action-grid">
                                 <a href="checkin.html" class="action-btn">
                                     <i class="fas fa-qrcode"></i>
-                                    Attendance Check-in
+                                    <span>Attendance Check-in</span>
                                 </a>
                                 <a href="interactive.html" class="action-btn">
                                     <i class="fas fa-video"></i>
-                                    Join Live Class
+                                    <span>Join Live Class</span>
                                 </a>
                                 <a href="grades.html" class="action-btn">
-                                    <i class="fas fa-chart-line"></i>
-                                    View Grades
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>View Grades</span>
                                 </a>
-                                <div class="action-btn" onclick="downloadResources()">
-                                    <i class="fas fa-download"></i>
-                                    Resources
-                                </div>
-                                <a href="assignment.html" class="action-btn">
+                                <a href="#" class="action-btn">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>Resources</span>
+                                </a>
+                                <a href="#" class="action-btn">
                                     <i class="fas fa-upload"></i>
-                                    Submit Work
+                                    <span>Submit Work</span>
                                 </a>
-                                <div class="action-btn" onclick="contactTeacher()">
+                                <a href="#" class="action-btn">
                                     <i class="fas fa-envelope"></i>
-                                    Contact Teacher
-                                </div>
+                                    <span>Contact Teacher</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -361,15 +370,11 @@
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h3><i class="fas fa-bell"></i> Notifications</h3>
-                            <button class="btn btn-primary" onclick="markAllRead()">
-                                <i class="fas fa-check-double"></i>
-                                Mark All Read
-                            </button>
                         </div>
-                        <div class="notifications-panel" id="notificationsPanel">
+                        <div class="notifications-panel">
                             <div class="notification-item unread">
                                 <div class="notification-icon class">
-                                    <i class="fas fa-chalkboard"></i>
+                                    <i class="fas fa-video"></i>
                                 </div>
                                 <div class="notification-content">
                                     <div class="notification-title">CS101 Class Starting Soon</div>
@@ -377,8 +382,8 @@
                                     <div class="notification-time">2 minutes ago</div>
                                 </div>
                             </div>
-                            
-                            <div class="notification-item unread">
+
+                            <div class="notification-item">
                                 <div class="notification-icon assignment">
                                     <i class="fas fa-tasks"></i>
                                 </div>
@@ -388,7 +393,7 @@
                                     <div class="notification-time">1 hour ago</div>
                                 </div>
                             </div>
-                            
+
                             <div class="notification-item">
                                 <div class="notification-icon grade">
                                     <i class="fas fa-star"></i>
@@ -399,10 +404,10 @@
                                     <div class="notification-time">3 hours ago</div>
                                 </div>
                             </div>
-                            
+
                             <div class="notification-item">
                                 <div class="notification-icon announcement">
-                                    <i class="fas fa-bullhorn"></i>
+                                    <i class="fas fa-megaphone"></i>
                                 </div>
                                 <div class="notification-content">
                                     <div class="notification-title">Important Announcement</div>
@@ -415,11 +420,11 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Floating Check-in Button -->
-    <div class="floating-checkin" onclick="quickCheckIn()" title="Quick Check-in">
-        <i class="fas fa-qrcode"></i>
+        <!-- Floating Check-in Button -->
+        <div class="floating-checkin" onclick="quickCheckIn()">
+            <i class="fas fa-qrcode"></i>
+        </div>
     </div>
 
     <script src="dashboard.js"></script>
