@@ -808,6 +808,14 @@ body {
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
 }
 
+/* Gap Fix - Recent Check-ins Heading/Container */
+h3:contains("Recent Check-ins"),
+.recent-checkins-heading,
+.recent-checkins-container,
+[class*="recent"]:not(.recent-btn):not(.recent-icon) {
+    margin-top: 40px !important;
+}
+
 /* Mobile Responsive Design */
 @media (max-width: 1200px) {
     .checkin-grid {
@@ -941,6 +949,14 @@ body {
     .status-section {
         padding: 40px 20px 20px 20px;
     }
+    
+    /* Mobile Gap Fix */
+    h3:contains("Recent Check-ins"),
+    .recent-checkins-heading,
+    .recent-checkins-container,
+    [class*="recent"]:not(.recent-btn):not(.recent-icon) {
+        margin-top: 50px !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1072,5 +1088,30 @@ body {
     
     .attendance-status {
         margin-bottom: 40px !important;
+    }
+}
+
+/* Universal Gap Fix - Targets any "Recent Check-ins" element */
+*[class*="recent"] h3,
+*[class*="checkin"] h3,
+h3[data-title*="recent"],
+h3[title*="recent"],
+.card-header h3:contains("Recent"),
+.recent-section,
+.checkin-history,
+.history-section {
+    margin-top: 40px !important;
+}
+
+@media (max-width: 768px) {
+    *[class*="recent"] h3,
+    *[class*="checkin"] h3,
+    h3[data-title*="recent"],
+    h3[title*="recent"],
+    .card-header h3:contains("Recent"),
+    .recent-section,
+    .checkin-history,
+    .history-section {
+        margin-top: 50px !important;
     }
 }
