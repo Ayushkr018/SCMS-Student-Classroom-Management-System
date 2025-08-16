@@ -580,7 +580,7 @@ body {
 .attendance-status {
     padding: 25px;
     border-radius: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 5px;
     text-align: center;
     font-weight: 600;
     font-size: 1.1em;
@@ -609,7 +609,7 @@ body {
     background: var(--bg-secondary);
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     border: 1px solid var(--border-color);
 }
 
@@ -1054,5 +1054,6 @@ body {
         padding: 12px;
     }
 }
+
 
 
