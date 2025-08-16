@@ -453,6 +453,15 @@ body {
     overflow: hidden;
 }
 
+.scanner-controls{
+     display: flex; 
+    justify-content: center; 
+    flex-wrap: wrap; 
+    gap: 1rem; 
+    margin-top: 30px;
+    padding-bottom: 20px;
+}
+
 .qr-scanner:hover {
     border-color: var(--accent-blue-dark);
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.05));
@@ -523,9 +532,10 @@ body {
 
 .method-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 30px;
+    padding: 1rem;
 }
 
 .method-card {
@@ -548,6 +558,54 @@ body {
 .method-card.active {
     border-color: var(--accent-green);
     background: rgba(16, 185, 129, 0.05);
+}
+
+#btn-Qr-primary{
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
+    color: white;
+    display: inline-flex; 
+    align-items: center;
+    gap: 0.5rem; 
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#btn-fr-success {
+    background: linear-gradient(135deg, var(--accent-green), #059669);
+    color: white;
+    display: inline-flex; 
+    align-items: center;
+    gap: 0.5rem; 
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#btn-gl-warning{
+    background: linear-gradient(135deg, var(--accent-yellow), #d97706);
+    color: var(--text-primary);
+    display: inline-flex; 
+    align-items: center;
+    gap: 0.5rem; 
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#btn-me-danger{
+    background: linear-gradient(135deg, var(--accent-red), #dc2626);
+    color: white;
+    display: inline-flex; 
+    align-items: center;
+    gap: 0.5rem; 
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .method-icon {
@@ -693,11 +751,15 @@ body {
 }
 
 .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8em;
-    font-weight: 600;
-    text-transform: uppercase;
+    display: inline-block; /* Allows padding and width to be applied */
+    padding: 5px 12px; /* Vertical and horizontal space inside the badge */
+    border-radius: 999px; /* Creates the pill shape */
+    
+    font-size: 0.75rem; /* Small font size */
+    font-weight: bold; /* Bold text */
+    text-transform: uppercase; /* Makes text uppercase like PRESENT */
+    text-align: center; /* Centers the text inside the badge */
+    letter-spacing: 0.5px;
 }
 
 .status-present {
