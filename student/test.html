@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Test - SCMS</title>
+    <link rel="stylesheet" href="test.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="test-container" id="testContainer">
+        <!-- Security Header -->
+        <div class="security-header">
+            <div class="security-status">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Test Mode</span>
+            </div>
+            <div class="test-timer">
+                <i class="fas fa-clock"></i>
+                <span id="timeRemaining">30:00</span>
+            </div>
+        </div>
+
+        <!-- Camera Monitor -->
+        <div class="camera-monitor" id="cameraMonitor">
+            <video id="cameraStream" autoplay muted></video>
+            <div class="camera-status">
+                <i class="fas fa-video" id="cameraIcon"></i>
+                <span id="cameraStatus">Camera Active</span>
+            </div>
+        </div>
+
+        <!-- Test Content -->
+        <div class="test-content">
+            <div class="test-header">
+                <h1>CS101 - Mid-term Examination</h1>
+                <div class="test-info">
+                    <span><i class="fas fa-calendar"></i> August 16, 2025</span>
+                    <span><i class="fas fa-clock"></i> Duration: 30 minutes</span>
+                    <span><i class="fas fa-questions"></i> Total: 20 Questions</span>
+                </div>
+            </div>
+
+            <!-- Questions -->
+            <div class="questions-container" id="questionsContainer">
+                <!-- Questions will be loaded here -->
+            </div>
+
+            <!-- Submit Button -->
+            <div class="submit-section">
+                <button class="btn btn-primary" onclick="submitTest()">
+                    <i class="fas fa-paper-plane"></i> Submit Test
+                </button>
+            </div>
+        </div>
+
+        <!-- Warning Modals -->
+        <div class="warning-modal" id="warningModal">
+            <div class="warning-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Security Warning</h3>
+                <p id="warningMessage"></p>
+                <button onclick="acknowledgeWarning()">I Understand</button>
+            </div>
+        </div>
+
+        <!-- Violation Sidebar -->
+        <div class="violation-sidebar" id="violationSidebar">
+            <div class="violation-header">
+                <h4>Security Log</h4>
+                <button onclick="toggleViolationSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="violations-list" id="violationsList">
+                <!-- Violations will be logged here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Pre-test Setup Modal -->
+    <div class="setup-modal" id="setupModal">
+        <div class="setup-content">
+            <h2>Test Setup & Security Check</h2>
+
+            <div class="setup-steps">
+                <div class="setup-step">
+                    <div class="step-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="step-content">
+                        <h4>Camera Access</h4>
+                        <p>Allow camera access for proctoring</p>
+                        <button id="enableCamera" onclick="enableCamera()">Enable Camera</button>
+                    </div>
+                </div>
+
+                <div class="setup-step">
+                    <div class="step-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <div class="step-content">
+                        <h4>Screen Share</h4>
+                        <p>Share your screen for monitoring</p>
+                        <button id="enableScreenShare" onclick="enableScreenShare()">Share Screen</button>
+                    </div>
+                </div>
+
+                <div class="setup-step">
+                    <div class="step-icon">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="step-content">
+                        <h4>Fullscreen Mode</h4>
+                        <p>Test will run in secure fullscreen</p>
+                        <button id="enterFullscreen" onclick="enterSecureMode()">Enter Fullscreen</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-agreement">
+                <label>
+                    <input type="checkbox" id="agreeTerms">
+                    <span>I agree to the test terms and understand that my activities will be monitored</span>
+                </label>
+            </div>
+
+            <button class="btn btn-primary" id="startTest" onclick="startSecureTest()" disabled>
+                <i class="fas fa-play"></i> Start Secure Test
+            </button>
+        </div>
+    </div>
+
+    <script src="test.js"></script>
+    <script src="proctoring.js"></script>
+</body>
+
+</html>
