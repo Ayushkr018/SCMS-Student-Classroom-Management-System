@@ -341,7 +341,14 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
-
+.header-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-green);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
 .btn {
     padding: 10px 20px;
     border: none;
