@@ -579,6 +579,14 @@ body {
     border: 1px solid var(--border-color);
 }
 
+th, td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
 .table-header {
     background: var(--bg-secondary);
     padding: 20px;
