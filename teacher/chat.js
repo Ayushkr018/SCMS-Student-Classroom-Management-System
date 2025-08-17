@@ -1,9 +1,7 @@
+// chat.js - FIXED VERSION with working API calls
 
-
-// chat.js - HelpBot for teachers, focused on education/management assistance, Gemini API integration
-
-// ---- CONFIGURATION ----
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAJ6niwBWd5Y17_R85NkFqKXbJnOr7GHTw';
+const GEMINI_API_KEY = 'AIzaSyAJ6niwBWd5Y17_R85NkFqKXbJnOr7GHTw';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 const HELP_BOT_NAME = "KIA Assistant";
 const ALLOWED_TOPICS_HINT = "You can ask KIA about teaching, attendance, exams, time management, student engagement, digital classroom tools, or personal teaching productivity.";
 
@@ -22,20 +20,18 @@ window.openChatBot = function() {
 
 // ---- RENDER UI ----
 function renderHelpBotChat() {
-    // Remove if already present
     let existing = document.getElementById('helpbot-container');
     if (existing) existing.remove();
 
-    // Main container
     const container = document.createElement('div');
     container.id = 'helpbot-container';
     container.className = 'helpbot-container';
-
+    
     container.innerHTML = `
         <div class="helpbot-modal">
             <div class="helpbot-header">
                 <div class="helpbot-avatar"><i class="fas fa-robot"></i></div>
-                <div class="helpbot-title">KIA — Teaching & Management Assistant</div>
+                <div class="helpbot-title">${HELP_BOT_NAME} — Teaching & Management Assistant</div>
                 <button class="helpbot-close-btn" title="Close" onclick="closeHelpBot()"><i class="fas fa-times"></i></button>
             </div>
             <div class="helpbot-body" id="helpbot-messages"></div>
@@ -53,16 +49,13 @@ function renderHelpBotChat() {
     document.body.appendChild(container);
     document.body.style.overflow = 'hidden';
 
-    // Focus input on open
     setTimeout(() => {
         const input = document.getElementById('helpbot-input');
         if (input) input.focus();
     }, 150);
 
-    // Show initial message
     initialBotGreet();
 
-    // Submit handler
     const form = document.getElementById('helpbot-form');
     if (form) {
         form.onsubmit = async function(e) {
@@ -79,7 +72,6 @@ function renderHelpBotChat() {
         };
     }
 
-    // ESC closes
     document.addEventListener('keydown', closeOnEsc);
 }
 
@@ -125,137 +117,6 @@ function initialBotGreet() {
     }
 }
 
-// ---- GEMINI API LOGIC ----
-async function handleHelpBotQuery(userMsg) {
-    // Check if topic is allowed
-    if (!isAllowedTopic(userMsg)) {
-        appendToHelpBotChat('bot', `❗ Sorry, I can only help with questions related to teaching, attendance, management, digital classroom tools, or productivity. Please ask about these topics.`);
-        return;
-    }
-
-    // Set typing state
-    helpbotState.isTyping = true;
-    
-    // Disable send button
-    const sendBtn = document.getElementById('helpbot-send-btn');
-    if (sendBtn) {
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    }
-
-    // Show typing indicator
-    showTypingIndicator();
-
-    // Build conversation context
-    const systemPrompt = {
-        role: "system",
-        parts: [{
-            text: "You are KIA, a helpful teaching assistant AI. You only help with education-related topics like teaching methods, classroom management, attendance, exams, student engagement, digital tools for education, and academic productivity. Keep responses helpful, concise, and focused on educational/teaching contexts. If asked about non-educational topics, politely redirect to educational matters."
-        }]
-    };
-
-    const contextMsgs = [systemPrompt];
-    
-    // Add conversation history (last 8 messages for context)
-    const recentHistory = helpbotState.messages.slice(-8);
-    recentHistory.forEach(msg => {
-        contextMsgs.push({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }]
-        });
-    });
-
-    // Add current user message
-    contextMsgs.push({
-        role: "user",
-        parts: [{ text: userMsg }]
-    });
-
-    try {
-        console.log('Sending request to Gemini API...'); // Debug log
-        
-        const response = await fetch(GEMINI_API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                contents: contextMsgs.slice(1), // Remove system prompt as it's not supported in this format
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
-                    stopSequences: []
-                },
-                safetySettings: [
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
-                ]
-            })
-        });
-
-        console.log('Response status:', response.status); // Debug log
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API Error:', errorText);
-            throw new Error(`API error ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('API Response:', data); // Debug log
-
-        // Remove typing indicator
-        removeTypingIndicator();
-
-        let botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!botReply) {
-            botReply = "I'm sorry, I couldn't generate a response right now. Please try asking your question again.";
-        }
-
-        // Clean up the response
-        botReply = botReply.trim();
-        
-        // Add educational context if the response seems too generic
-        if (botReply.length < 50) {
-            botReply += "\n\nIs there a specific aspect of teaching or classroom management you'd like to explore further?";
-        }
-
-        appendToHelpBotChat('bot', botReply);
-        
-        // Update conversation history
-        helpbotState.messages.push({ role: "user", content: userMsg });
-        helpbotState.messages.push({ role: "assistant", content: botReply });
-
-    } catch (error) {
-        console.error('Gemini API Error:', error);
-        removeTypingIndicator();
-        
-        let errorMessage = "🚫 I'm having trouble connecting right now. Please check your internet connection and try again.";
-        
-        if (error.message.includes('API_KEY')) {
-            errorMessage = "🔑 API configuration issue. Please contact support.";
-        } else if (error.message.includes('quota')) {
-            errorMessage = "⚠️ Service temporarily unavailable. Please try again later.";
-        }
-        
-        appendToHelpBotChat('bot', errorMessage);
-    } finally {
-        // Reset typing state
-        helpbotState.isTyping = false;
-        
-        // Re-enable send button
-        if (sendBtn) {
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        }
-    }
-}
-
 function showTypingIndicator() {
     const typingHTML = `
         <div class="helpbot-typing-dots">
@@ -276,37 +137,127 @@ function removeTypingIndicator() {
 
 function isAllowedTopic(msg) {
     const educationKeywords = [
-        // Teaching & Education
         'teach', 'teaching', 'teacher', 'education', 'educate', 'educational',
         'learn', 'learning', 'lesson', 'curriculum', 'syllabus',
-        
-        // Classroom & Management
         'class', 'classroom', 'student', 'students', 'management', 'manage',
         'attendance', 'present', 'absent', 'roll call',
-        
-        // Assessment & Testing
         'exam', 'test', 'quiz', 'assessment', 'assignment', 'homework',
         'grade', 'grading', 'mark', 'marking', 'score', 'evaluation',
-        
-        // Tools & Technology
         'digital', 'online', 'technology', 'tool', 'software', 'app',
         'platform', 'lms', 'e-learning', 'virtual',
-        
-        // Productivity & Planning
         'schedule', 'timetable', 'plan', 'planning', 'organize', 'productivity',
         'time management', 'efficient', 'workflow',
-        
-        // Engagement & Methods
         'engage', 'engagement', 'motivate', 'participation', 'interactive',
         'method', 'strategy', 'approach', 'technique',
-        
-        // Academic
         'academic', 'school', 'college', 'university', 'faculty', 'course',
         'subject', 'topic', 'chapter', 'module'
     ];
     
     const msgLower = msg.toLowerCase();
     return educationKeywords.some(keyword => msgLower.includes(keyword));
+}
+
+// ---- GEMINI API LOGIC (FIXED) ----
+async function handleHelpBotQuery(userMsg) {
+    if (!isAllowedTopic(userMsg)) {
+        appendToHelpBotChat('bot', `❗ Sorry, I can only help with questions related to teaching, attendance, management, digital classroom tools, or productivity. Please ask about these topics.`);
+        return;
+    }
+
+    helpbotState.isTyping = true;
+    const sendBtn = document.getElementById('helpbot-send-btn');
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+
+    showTypingIndicator();
+
+    // ✅ FIXED: Use StudentAI's working approach
+    const conversationHistory = helpbotState.messages.slice(-3); // Last 3 messages only
+    const historyText = conversationHistory.map(h => `${h.role}: ${h.content}`).join('\n');
+    
+    const systemPrompt = `You are KIA, a helpful teaching assistant AI. You help with education topics like teaching methods, classroom management, attendance, exams, student engagement, and digital tools for education. Keep responses concise, practical, and focused on educational contexts.
+
+Recent conversation:
+${historyText}
+
+Current question: ${userMsg}`;
+
+    try {
+        // ✅ FIXED: Use same structure as working StudentAI
+        const response = await fetch(`${GEMINI_BASE_URL}?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: systemPrompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 300
+                }
+            })
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', errorText);
+            throw new Error(`API error ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('API Response:', data);
+
+        removeTypingIndicator();
+
+        // ✅ FIXED: Same response parsing as StudentAI
+        let botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!botReply) {
+            botReply = "I'm sorry, I couldn't generate a response right now. Please try asking your question again.";
+        }
+
+        botReply = botReply.trim();
+        
+        if (botReply.length < 50) {
+            botReply += "\n\nIs there a specific aspect of teaching or classroom management you'd like to explore further?";
+        }
+
+        appendToHelpBotChat('bot', botReply);
+        
+        helpbotState.messages.push({ role: "user", content: userMsg });
+        helpbotState.messages.push({ role: "assistant", content: botReply });
+
+    } catch (error) {
+        console.error('Gemini API Error:', error);
+        removeTypingIndicator();
+        
+        let errorMessage = "🚫 I'm having trouble connecting right now. Please check your internet connection and try again.";
+        
+        if (error.message.includes('API_KEY')) {
+            errorMessage = "🔑 API configuration issue. Please contact support.";
+        } else if (error.message.includes('quota')) {
+            errorMessage = "⚠️ Service temporarily unavailable. Please try again later.";
+        }
+        
+        appendToHelpBotChat('bot', errorMessage);
+    } finally {
+        helpbotState.isTyping = false;
+        
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        }
+    }
 }
 
 // ---- CLOSE / RESET ----
@@ -332,7 +283,7 @@ function resetHelpBot() {
     initialBotGreet();
 }
 
-// ---- STYLES INJECTION ----
+// ---- STYLES (SAME AS ORIGINAL) ----
 (function chatStylesInject() {
     if (document.getElementById('helpbot-style')) return;
 
@@ -645,10 +596,11 @@ function resetHelpBot() {
             padding: 14px 10px;
         }
         #helpbot-input {
-            font-size: 16px; /* Prevents zoom on iOS */
+            font-size: 16px; 
         }
     }
     `;
+
     document.head.appendChild(style);
 })();
 
