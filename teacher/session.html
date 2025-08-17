@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Session - SCMS Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="session.css">
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-logo">
+                🎓 <span>SCMS Live</span>
+            </div>
+            <div class="mobile-controls">
+                <button class="mobile-theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="mobileThemeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+            
+            <!-- Theme Toggle in Sidebar -->
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                  <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Session Header -->
+            <div class="session-header">
+                <div class="session-info">
+                    <h1>CS101 - Data Structures</h1>
+                    <div class="session-details">
+                        <span><i class="fas fa-clock"></i> Started: 10:05 AM</span>
+                        <span><i class="fas fa-users"></i> 35/45 Students</span>
+                        <span><i class="fas fa-map-marker-alt"></i> Room 201</span>
+                        <span><i class="fas fa-calendar"></i> January 15, 2024</span>
+                    </div>
+                </div>
+                <div class="session-controls">
+                    <div class="live-badge">
+                        <i class="fas fa-circle"></i>
+                        LIVE
+                    </div>
+                    <button class="btn btn-warning" onclick="pauseSession()">
+                        <i class="fas fa-pause"></i>
+                        Pause
+                    </button>
+                    <button class="btn btn-danger" onclick="endSession()">
+                        <i class="fas fa-stop"></i>
+                        End Session
+                    </button>
+                </div>
+            </div>
+
+            <!-- Session Timer -->
+            <div class="session-timer">
+                <i class="fas fa-stopwatch"></i>
+                <div class="timer-display" id="sessionTimer">00:25:43</div>
+            </div>
+
+            <!-- Main Session Grid -->
+            <div class="session-grid">
+                <!-- Main Session Area -->
+                <div class="main-session">
+                    <!-- Digital Whiteboard -->
+                    <div class="session-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-marker"></i> Digital Whiteboard</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-info" onclick="saveWhiteboard()">
+                                    <i class="fas fa-save"></i>
+                                    Save
+                                </button>
+                                <button class="btn btn-warning" onclick="clearWhiteboard()">
+                                    <i class="fas fa-eraser"></i>
+                                    Clear
+                                </button>
+                                <button class="btn btn-danger" onclick="undoLastAction()">
+                                    <i class="fas fa-undo"></i>
+                                    Undo
+                                </button>
+                            </div>
+                        </div>
+                        <div class="whiteboard-tools">
+                            <div class="tool-btn active" onclick="selectTool('pen')" id="penTool">
+                                <i class="fas fa-pen"></i> Pen
+                            </div>
+                            <div class="tool-btn" onclick="selectTool('eraser')" id="eraserTool">
+                                <i class="fas fa-eraser"></i> Eraser
+                            </div>
+                            <div class="tool-btn" onclick="selectTool('text')" id="textTool">
+                                <i class="fas fa-font"></i> Text
+                            </div>
+                            <div class="tool-btn" onclick="selectTool('rectangle')" id="rectangleTool">
+                                <i class="fas fa-square"></i> Rectangle
+                            </div>
+                            <div class="tool-btn" onclick="selectTool('circle')" id="circleTool">
+                                <i class="fas fa-circle"></i> Circle
+                            </div>
+                            <div class="tool-btn" onclick="selectTool('line')" id="lineTool">
+                                <i class="fas fa-minus"></i> Line
+                            </div>
+                            
+                            <div style="margin-left: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="color: var(--text-primary);">Color:</span>
+                                <div class="color-picker" style="background: #000; border: 3px solid var(--accent-green);" onclick="selectColor('#000')" data-color="#000"></div>
+                                <div class="color-picker" style="background: #dc3545;" onclick="selectColor('#dc3545')" data-color="#dc3545"></div>
+                                <div class="color-picker" style="background: #28a745;" onclick="selectColor('#28a745')" data-color="#28a745"></div>
+                                <div class="color-picker" style="background: #007bff;" onclick="selectColor('#007bff')" data-color="#007bff"></div>
+                                <div class="color-picker" style="background: #ffc107;" onclick="selectColor('#ffc107')" data-color="#ffc107"></div>
+                                <div class="color-picker" style="background: #6f42c1;" onclick="selectColor('#6f42c1')" data-color="#6f42c1"></div>
+                            </div>
+                            
+                            <div style="margin-left: 20px; display: flex; align-items: center; gap: 8px;">
+                                <label style="color: var(--text-primary);">Size: </label>
+                                <input type="range" id="brushSize" min="1" max="20" value="3" style="width: 80px;">
+                                <span id="sizeValue" style="color: var(--text-primary);">3px</span>
+                            </div>
+                        </div>
+                        <div class="whiteboard-area">
+                            <div class="canvas-container">
+                                <canvas id="drawingCanvas" width="800" height="400"></canvas>
+                                <input type="text" id="textInput" placeholder="Type your text here...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen Share -->
+                    <div class="session-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-desktop"></i> Screen Sharing</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" onclick="startScreenShare()" id="shareBtn">
+                                    <i class="fas fa-share-square"></i>
+                                    Start Sharing
+                                </button>
+                                <button class="btn btn-info" onclick="shareApplication()">
+                                    <i class="fas fa-window-maximize"></i>
+                                    Share App
+                                </button>
+                            </div>
+                        </div>
+                        <div class="screen-share" id="screenShareArea">
+                            <div style="text-align: center;">
+                                <i class="fas fa-desktop" style="font-size: 4em; margin-bottom: 20px; opacity: 0.5;"></i>
+                                <p>Screen sharing inactive</p>
+                                <small>Click "Start Sharing" to share your screen with students</small>
+                            </div>
+                        </div>
+                        <div class="screen-controls" id="screenControls" style="display: none;">
+                            <button class="btn btn-warning" onclick="pauseScreenShare()">
+                                <i class="fas fa-pause"></i>
+                                Pause
+                            </button>
+                            <button class="btn btn-danger" onclick="stopScreenShare()">
+                                <i class="fas fa-stop"></i>
+                                Stop
+                            </button>
+                            <button class="btn btn-info" onclick="togglePointer()">
+                                <i class="fas fa-mouse-pointer"></i>
+                                Pointer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="side-panel">
+                    <!-- Live Students -->
+                    <div class="session-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-users"></i> Live Students (35)</h3>
+                            <button class="btn btn-primary" onclick="refreshStudents()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="student-list" id="studentList">
+                            <!-- Students will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Live Chat -->
+                    <div class="session-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-comments"></i> Live Chat</h3>
+                            <button class="btn btn-warning" onclick="toggleChat()" id="chatToggle">
+                                <i class="fas fa-eye"></i>
+                                Hide
+                            </button>
+                        </div>
+                        <div class="chat-area" id="chatArea">
+                            <!-- Chat messages will appear here -->
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type a message to students..." 
+                                   onkeypress="handleChatEnter(event)">
+                            <button onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Poll -->
+                    <div class="session-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-poll"></i> Interactive Poll</h3>
+                            <button class="btn btn-primary" onclick="togglePollCreator()" id="pollToggle">
+                                <i class="fas fa-plus"></i>
+                                Create
+                            </button>
+                        </div>
+                        
+                        <div class="poll-creator" id="pollCreator" style="display: none;">
+                            <div class="poll-input">
+                                <textarea id="pollQuestion" placeholder="Enter your question..." rows="2"></textarea>
+                            </div>
+                            <div class="poll-options">
+                                <div class="poll-option">
+                                    <input type="text" placeholder="Option A" id="option1">
+                                    <i class="fas fa-times" onclick="removeOption(this)" style="cursor: pointer; color: var(--accent-red);"></i>
+                                </div>
+                                <div class="poll-option">
+                                    <input type="text" placeholder="Option B" id="option2">
+                                    <i class="fas fa-times" onclick="removeOption(this)" style="cursor: pointer; color: var(--accent-red);"></i>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" onclick="launchPoll()">
+                                    <i class="fas fa-rocket"></i>
+                                    Launch Poll
+                                </button>
+                                <button class="btn" onclick="addPollOption()" 
+                                        style="background: var(--text-secondary); color: white;">
+                                    <i class="fas fa-plus"></i>
+                                    Add Option
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="activePollArea">
+                            <div style="padding: 30px; text-align: center; color: var(--text-secondary);">
+                                <i class="fas fa-poll" style="font-size: 2.5em; margin-bottom: 15px; opacity: 0.5;"></i>
+                                <p>No active poll</p>
+                                <small>Create a poll to engage with your students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Tools -->
+    <div class="floating-tools">
+        <div class="fab record" onclick="toggleRecording()" title="Record Session">
+            <i class="fas fa-video" id="recordIcon"></i>
+        </div>
+        <div class="fab mute" onclick="toggleMute()" title="Mute Audio">
+            <i class="fas fa-microphone" id="muteIcon"></i>
+        </div>
+        <div class="fab screen" onclick="toggleFullscreen()" title="Fullscreen">
+            <i class="fas fa-expand" id="fullscreenIcon"></i>
+        </div>
+    </div>
+
+    <script src="session.js"></script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profiles - SCMS Teacher Portal</title>
+    <link rel="stylesheet" href="profiles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Same as existing pages -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-users"></i>
+                    <span>Student Profiles</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-info">
+                    <h1><i class="fas fa-users"></i> Student Profiles</h1>
+                    <p>Manage student information, track performance, and communicate with parents</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="addNewStudent()">
+                        <i class="fas fa-user-plus"></i> Add Student
+                    </button>
+                    <button class="btn btn-info" onclick="exportStudentData()">
+                        <i class="fas fa-file-export"></i> Export Data
+                    </button>
+                    <button class="btn btn-secondary" onclick="importStudentData()">
+                        <i class="fas fa-file-import"></i> Import CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Student Statistics -->
+            <div class="student-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalStudents">156</span>
+                    <span class="stat-label">Total Students</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="activeStudents">142</span>
+                    <span class="stat-label">Active Students</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="avgAttendance">87.5%</span>
+                    <span class="stat-label">Average Attendance</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="avgGrade">78.2%</span>
+                    <span class="stat-label">Average Grade</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="atRiskStudents">12</span>
+                    <span class="stat-label">At Risk</span>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-filter"></i> Filter Students</h3>
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="switchView('grid')" data-view="grid">
+                            <i class="fas fa-th"></i> Grid
+                        </button>
+                        <button class="view-btn" onclick="switchView('list')" data-view="list">
+                            <i class="fas fa-list"></i> List
+                        </button>
+                    </div>
+                </div>
+                <div class="student-filters">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label>Class</label>
+                            <select id="classFilter" onchange="filterStudents()">
+                                <option value="all">All Classes</option>
+                                <option value="cs-2a">BTech CS - 2A</option>
+                                <option value="cs-2b">BTech CS - 2B</option>
+                                <option value="it-3a">BTech IT - 3A</option>
+                                <option value="mca-1">MCA - 1st Year</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Performance</label>
+                            <select id="performanceFilter" onchange="filterStudents()">
+                                <option value="all">All Performance</option>
+                                <option value="excellent">Excellent (90%+)</option>
+                                <option value="good">Good (75-89%)</option>
+                                <option value="average">Average (60-74%)</option>
+                                <option value="poor">Below Average (<60%)</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Attendance</label>
+                            <select id="attendanceFilter" onchange="filterStudents()">
+                                <option value="all">All Attendance</option>
+                                <option value="high">High (90%+)</option>
+                                <option value="medium">Medium (75-89%)</option>
+                                <option value="low">Low (<75%)</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Search</label>
+                            <input type="text" id="studentSearch" placeholder="Search by name or roll number..." oninput="filterStudents()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Grid/List -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-graduation-cap"></i> Students</h3>
+                    <div class="card-actions">
+                        <select id="sortBy" onchange="sortStudents()">
+                            <option value="name">Sort by Name</option>
+                            <option value="rollno">Sort by Roll No</option>
+                            <option value="performance">Sort by Performance</option>
+                            <option value="attendance">Sort by Attendance</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="refreshStudents()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="students-container" id="studentsContainer">
+                    <!-- Dynamic content loaded via JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Student Profile Modal -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content student-modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">Student Profile</h3>
+                <button class="close-btn" onclick="closeStudentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="student-profile-container">
+                    <!-- Profile Header -->
+                    <div class="profile-header" id="profileHeader">
+                        <!-- Dynamic content -->
+                    </div>
+
+                    <!-- Profile Tabs -->
+                    <div class="profile-tabs">
+                        <button class="tab-btn active" onclick="switchProfileTab('overview')">
+                            <i class="fas fa-chart-pie"></i> Overview
+                        </button>
+                        <button class="tab-btn" onclick="switchProfileTab('performance')">
+                            <i class="fas fa-chart-line"></i> Performance
+                        </button>
+                        <button class="tab-btn" onclick="switchProfileTab('attendance')">
+                            <i class="fas fa-calendar-check"></i> Attendance
+                        </button>
+                        <button class="tab-btn" onclick="switchProfileTab('contact')">
+                            <i class="fas fa-address-book"></i> Contact Info
+                        </button>
+                        <button class="tab-btn" onclick="switchProfileTab('notes')">
+                            <i class="fas fa-sticky-note"></i> Notes
+                        </button>
+                    </div>
+
+                    <!-- Profile Content -->
+                    <div class="profile-content">
+                        <!-- Overview Tab -->
+                        <div id="overview-tab" class="profile-tab-content active">
+                            <div class="overview-stats" id="overviewStats">
+                                <!-- Dynamic stats -->
+                            </div>
+                            <div class="recent-activities" id="recentActivities">
+                                <!-- Dynamic activities -->
+                            </div>
+                        </div>
+
+                        <!-- Performance Tab -->
+                        <div id="performance-tab" class="profile-tab-content">
+                            <div class="performance-charts">
+                                <div class="chart-container">
+                                    <h4>Grade Trends</h4>
+                                    <canvas id="gradeChart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <h4>Subject Performance</h4>
+                                    <canvas id="subjectChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="assignments-history" id="assignmentsHistory">
+                                <!-- Dynamic assignment history -->
+                            </div>
+                        </div>
+
+                        <!-- Attendance Tab -->
+                        <div id="attendance-tab" class="profile-tab-content">
+                            <div class="attendance-overview" id="attendanceOverview">
+                                <!-- Dynamic attendance data -->
+                            </div>
+                            <div class="attendance-calendar" id="attendanceCalendar">
+                                <!-- Dynamic calendar -->
+                            </div>
+                        </div>
+
+                        <!-- Contact Info Tab -->
+                        <div id="contact-tab" class="profile-tab-content">
+                            <div class="contact-form" id="contactForm">
+                                <!-- Dynamic contact form -->
+                            </div>
+                            <div class="communication-history" id="communicationHistory">
+                                <!-- Communication logs -->
+                            </div>
+                        </div>
+
+                        <!-- Notes Tab -->
+                        <div id="notes-tab" class="profile-tab-content">
+                            <div class="notes-editor">
+                                <div class="notes-toolbar">
+                                    <button class="btn btn-primary" onclick="addNewNote()">
+                                        <i class="fas fa-plus"></i> Add Note
+                                    </button>
+                                    <button class="btn btn-warning" onclick="markImportant()">
+                                        <i class="fas fa-star"></i> Mark Important
+                                    </button>
+                                </div>
+                                <div class="notes-list" id="notesList">
+                                    <!-- Dynamic notes -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal" id="addStudentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="addStudentModalTitle">Add New Student</h3>
+                <button class="close-btn" onclick="closeAddStudentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="studentName" placeholder="Enter full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Roll Number *</label>
+                            <input type="text" id="studentRollNo" placeholder="Enter roll number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="studentEmail" placeholder="student@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="studentPhone" placeholder="Enter phone number">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Class *</label>
+                            <select id="studentClass" required>
+                                <option value="">Select Class</option>
+                                <option value="cs-2a">BTech CS - 2nd Year - Section A</option>
+                                <option value="cs-2b">BTech CS - 2nd Year - Section B</option>
+                                <option value="it-3a">BTech IT - 3rd Year - Section A</option>
+                                <option value="mca-1">MCA - 1st Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="studentDOB">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="studentAddress" rows="3" placeholder="Enter complete address"></textarea>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-users"></i> Parent/Guardian Information</h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Father's Name</label>
+                                <input type="text" id="fatherName" placeholder="Father's full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Mother's Name</label>
+                                <input type="text" id="motherName" placeholder="Mother's full name">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Father's Phone</label>
+                                <input type="tel" id="fatherPhone" placeholder="Father's phone number">
+                            </div>
+                            <div class="form-group">
+                                <label>Mother's Phone</label>
+                                <input type="tel" id="motherPhone" placeholder="Mother's phone number">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Father's Email</label>
+                                <input type="email" id="fatherEmail" placeholder="father@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Mother's Email</label>
+                                <input type="email" id="motherEmail" placeholder="mother@example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Photo</label>
+                        <input type="file" id="studentPhoto" accept="image/*">
+                        <small>Optional: Upload student's profile photo</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <textarea id="studentNotes" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddStudentModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStudent()">
+                    <i class="fas fa-save"></i> Save Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent Communication Modal -->
+    <div class="modal" id="communicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Message to Parents</h3>
+                <button class="close-btn" onclick="closeCommunicationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>To</label>
+                    <div class="recipient-list" id="recipientList">
+                        <!-- Dynamic recipient checkboxes -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Message Type</label>
+                    <select id="messageType">
+                        <option value="general">General Information</option>
+                        <option value="academic">Academic Update</option>
+                        <option value="behavioral">Behavioral Notice</option>
+                        <option value="attendance">Attendance Alert</option>
+                        <option value="achievement">Achievement Recognition</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="messageSubject" placeholder="Enter message subject">
+                </div>
+
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="messageContent" rows="6" placeholder="Type your message here..."></textarea>
+                </div>
+
+                <div class="message-templates">
+                    <h5>Quick Templates</h5>
+                    <div class="template-buttons">
+                        <button class="template-btn" onclick="insertTemplate('excellent')">
+                            <i class="fas fa-star"></i> Excellent Performance
+                        </button>
+                        <button class="template-btn" onclick="insertTemplate('improvement')">
+                            <i class="fas fa-chart-line"></i> Needs Improvement
+                        </button>
+                        <button class="template-btn" onclick="insertTemplate('attendance')">
+                            <i class="fas fa-calendar-times"></i> Attendance Concern
+                        </button>
+                        <button class="template-btn" onclick="insertTemplate('meeting')">
+                            <i class="fas fa-handshake"></i> Request Meeting
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCommunicationModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="notification-icon"></i>
+        <span class="notification-text"></span>
+    </div>
+
+    <script src="profiles.js"></script>
+</body>
+</html>

@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings & Preferences - SCMS Teacher Portal</title>
+    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Same as existing pages -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-info">
+                    <h1><i class="fas fa-cog"></i> Settings & Preferences</h1>
+                    <p>Customize your portal experience and manage account settings</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="resetSettings()">
+                        <i class="fas fa-undo"></i> Reset to Default
+                    </button>
+                    <button class="btn btn-info" onclick="exportSettings()">
+                        <i class="fas fa-download"></i> Export Settings
+                    </button>
+                    <button class="btn btn-primary" onclick="saveAllSettings()">
+                        <i class="fas fa-save"></i> Save All Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Categories -->
+            <div class="settings-navigation">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" onclick="switchSettingsTab('profile')" data-tab="profile">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('appearance')" data-tab="appearance">
+                        <i class="fas fa-palette"></i>
+                        <span>Appearance</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('notifications')" data-tab="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('privacy')" data-tab="privacy">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Privacy</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('system')" data-tab="system">
+                        <i class="fas fa-desktop"></i>
+                        <span>System</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('integrations')" data-tab="integrations">
+                        <i class="fas fa-plug"></i>
+                        <span>Integrations</span>
+                    </button>
+                    <button class="settings-tab" onclick="switchSettingsTab('backup')" data-tab="backup">
+                        <i class="fas fa-database"></i>
+                        <span>Backup</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="settings-content">
+                <!-- Profile Settings -->
+                <div id="profile-settings" class="settings-panel active">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-user"></i> Personal Information</h3>
+                            <p>Update your personal details and contact information</p>
+                        </div>
+                        
+                        <div class="profile-photo-section">
+                            <div class="current-photo">
+                                <div class="photo-placeholder" id="profilePhotoDisplay">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="photo-actions">
+                                <input type="file" id="profilePhotoInput" accept="image/*" onchange="handleProfilePhoto(this)" hidden>
+                                <button class="btn btn-primary" onclick="document.getElementById('profilePhotoInput').click()">
+                                    <i class="fas fa-camera"></i> Change Photo
+                                </button>
+                                <button class="btn btn-secondary" onclick="removeProfilePhoto()">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name *</label>
+                                <input type="text" id="fullName" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Employee ID</label>
+                                <input type="text" id="employeeId" placeholder="Your employee ID" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address *</label>
+                                <input type="email" id="emailAddress" placeholder="your.email@scms.edu" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="phoneNumber" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <select id="department">
+                                    <option value="computer-science">Computer Science</option>
+                                    <option value="information-technology">Information Technology</option>
+                                    <option value="electronics">Electronics & Communication</option>
+                                    <option value="mechanical">Mechanical Engineering</option>
+                                    <option value="management">Management Studies</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Designation</label>
+                                <select id="designation">
+                                    <option value="assistant-professor">Assistant Professor</option>
+                                    <option value="associate-professor">Associate Professor</option>
+                                    <option value="professor">Professor</option>
+                                    <option value="hod">Head of Department</option>
+                                    <option value="dean">Dean</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Office Location</label>
+                                <input type="text" id="officeLocation" placeholder="Building, Room Number">
+                            </div>
+                            <div class="form-group">
+                                <label>Office Hours</label>
+                                <input type="text" id="officeHours" placeholder="Mon-Fri 10:00 AM - 4:00 PM">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bio / About</label>
+                            <textarea id="userBio" rows="4" placeholder="Tell us about yourself, your expertise, and interests..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="resetProfileForm()">Reset</button>
+                            <button class="btn btn-primary" onclick="saveProfile()">
+                                <i class="fas fa-save"></i> Save Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-key"></i> Account Security</h3>
+                            <p>Manage your password and security settings</p>
+                        </div>
+
+                        <div class="security-overview">
+                            <div class="security-status">
+                                <div class="security-indicator strong">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <div class="security-info">
+                                        <h4>Account Security: Strong</h4>
+                                        <p>Your account is well protected</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="security-stats">
+                                <div class="security-stat">
+                                    <span class="stat-value">Last login</span>
+                                    <span class="stat-label" id="lastLoginTime">2 hours ago</span>
+                                </div>
+                                <div class="security-stat">
+                                    <span class="stat-value">Password changed</span>
+                                    <span class="stat-label">30 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="security-actions">
+                            <button class="btn btn-warning" onclick="changePassword()">
+                                <i class="fas fa-lock"></i> Change Password
+                            </button>
+                            <button class="btn btn-info" onclick="enable2FA()">
+                                <i class="fas fa-mobile-alt"></i> Enable 2FA
+                            </button>
+                            <button class="btn btn-secondary" onclick="viewLoginHistory()">
+                                <i class="fas fa-history"></i> Login History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance Settings -->
+                <div id="appearance-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-palette"></i> Theme & Display</h3>
+                            <p>Customize the look and feel of your portal</p>
+                        </div>
+
+                        <div class="theme-selector">
+                            <div class="theme-option" onclick="setTheme('light')">
+                                <div class="theme-preview light-theme">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-sidebar"></div>
+                                    <div class="theme-content"></div>
+                                </div>
+                                <div class="theme-info">
+                                    <h4>Light Mode</h4>
+                                    <p>Clean and bright interface</p>
+                                </div>
+                                <div class="theme-selector-radio">
+                                    <input type="radio" name="theme" value="light" id="themeLight">
+                                    <label for="themeLight"></label>
+                                </div>
+                            </div>
+
+                            <div class="theme-option" onclick="setTheme('dark')">
+                                <div class="theme-preview dark-theme">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-sidebar"></div>
+                                    <div class="theme-content"></div>
+                                </div>
+                                <div class="theme-info">
+                                    <h4>Dark Mode</h4>
+                                    <p>Easy on the eyes, perfect for night use</p>
+                                </div>
+                                <div class="theme-selector-radio">
+                                    <input type="radio" name="theme" value="dark" id="themeDark">
+                                    <label for="themeDark"></label>
+                                </div>
+                            </div>
+
+                            <div class="theme-option" onclick="setTheme('auto')">
+                                <div class="theme-preview auto-theme">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-sidebar"></div>
+                                    <div class="theme-content"></div>
+                                </div>
+                                <div class="theme-info">
+                                    <h4>Auto Mode</h4>
+                                    <p>Follows your system preference</p>
+                                </div>
+                                <div class="theme-selector-radio">
+                                    <input type="radio" name="theme" value="auto" id="themeAuto">
+                                    <label for="themeAuto"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="appearance-options">
+                            <div class="option-group">
+                                <h4>Display Preferences</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Font Size</label>
+                                        <p>Adjust text size for better readability</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="fontSize">
+                                            <option value="small">Small</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="large">Large</option>
+                                            <option value="extra-large">Extra Large</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Sidebar Position</label>
+                                        <p>Choose sidebar position</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="sidebarPosition">
+                                            <option value="left" selected>Left Side</option>
+                                            <option value="right">Right Side</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Compact Mode</label>
+                                        <p>Reduce spacing for more content</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="compactMode">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Animations</label>
+                                        <p>Enable smooth transitions and effects</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="enableAnimations" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h4>Layout Options</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Dashboard Layout</label>
+                                        <p>Choose your preferred dashboard style</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="dashboardLayout">
+                                            <option value="grid" selected>Grid Layout</option>
+                                            <option value="list">List Layout</option>
+                                            <option value="cards">Card Layout</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Show Breadcrumbs</label>
+                                        <p>Display navigation breadcrumbs</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="showBreadcrumbs" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-paint-brush"></i> Color Customization</h3>
+                            <p>Personalize your color scheme</p>
+                        </div>
+
+                        <div class="color-customization">
+                            <div class="color-group">
+                                <h4>Accent Colors</h4>
+                                <div class="color-options">
+                                    <div class="color-option" data-color="green" onclick="setAccentColor('green')">
+                                        <div class="color-preview green"></div>
+                                        <span>Green</span>
+                                    </div>
+                                    <div class="color-option" data-color="blue" onclick="setAccentColor('blue')">
+                                        <div class="color-preview blue"></div>
+                                        <span>Blue</span>
+                                    </div>
+                                    <div class="color-option" data-color="purple" onclick="setAccentColor('purple')">
+                                        <div class="color-preview purple"></div>
+                                        <span>Purple</span>
+                                    </div>
+                                    <div class="color-option" data-color="orange" onclick="setAccentColor('orange')">
+                                        <div class="color-preview orange"></div>
+                                        <span>Orange</span>
+                                    </div>
+                                    <div class="color-option" data-color="red" onclick="setAccentColor('red')">
+                                        <div class="color-preview red"></div>
+                                        <span>Red</span>
+                                    </div>
+                                    <div class="color-option" data-color="teal" onclick="setAccentColor('teal')">
+                                        <div class="color-preview teal"></div>
+                                        <span>Teal</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="color-preview-panel">
+                                <h4>Preview</h4>
+                                <div class="preview-elements">
+                                    <button class="btn btn-primary preview-btn">Primary Button</button>
+                                    <div class="preview-card">
+                                        <div class="preview-card-header">Card Header</div>
+                                        <div class="preview-card-content">Sample content with accent colors</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div id="notifications-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-bell"></i> Notification Preferences</h3>
+                            <p>Control what notifications you receive and how</p>
+                        </div>
+
+                        <div class="notification-categories">
+                            <div class="notification-category">
+                                <div class="category-header">
+                                    <h4><i class="fas fa-graduation-cap"></i> Academic Notifications</h4>
+                                    <label class="switch">
+                                        <input type="checkbox" id="academicNotifications" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="category-options">
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>Assignment submissions</span>
+                                            <small>Get notified when students submit assignments</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>Test completions</span>
+                                            <small>Notifications about test submissions and completions</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>Attendance reminders</span>
+                                            <small>Daily attendance marking reminders</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="notification-category">
+                                <div class="category-header">
+                                    <h4><i class="fas fa-users"></i> Student Updates</h4>
+                                    <label class="switch">
+                                        <input type="checkbox" id="studentUpdates" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="category-options">
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>New enrollments</span>
+                                            <small>When students join your classes</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>Performance alerts</span>
+                                            <small>Low performance or attendance warnings</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="notification-category">
+                                <div class="category-header">
+                                    <h4><i class="fas fa-cogs"></i> System Notifications</h4>
+                                    <label class="switch">
+                                        <input type="checkbox" id="systemNotifications" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="category-options">
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>System updates</span>
+                                            <small>New features and system maintenance</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox"> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="notification-option">
+                                        <div class="option-info">
+                                            <span>Security alerts</span>
+                                            <small>Login attempts and security warnings</small>
+                                        </div>
+                                        <div class="option-channels">
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-envelope"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-bell"></i>
+                                            </label>
+                                            <label class="channel-option">
+                                                <input type="checkbox" checked> <i class="fas fa-mobile-alt"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-schedule">
+                            <h4>Notification Schedule</h4>
+                            <div class="schedule-options">
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Quiet Hours</label>
+                                        <p>No notifications during these hours</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="quietHours">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="time-range" id="quietHoursRange" style="display: none;">
+                                    <input type="time" id="quietStart" value="22:00">
+                                    <span>to</span>
+                                    <input type="time" id="quietEnd" value="08:00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div id="privacy-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-shield-alt"></i> Privacy & Security</h3>
+                            <p>Control your privacy and data sharing preferences</p>
+                        </div>
+
+                        <div class="privacy-options">
+                            <div class="privacy-group">
+                                <h4>Profile Visibility</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Show profile to students</label>
+                                        <p>Students can view your basic profile information</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="profileToStudents" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Show profile to colleagues</label>
+                                        <p>Other teachers can view your full profile</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="profileToColleagues" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Show contact information</label>
+                                        <p>Display phone and email in your profile</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="contactVisibility">
+                                            <option value="none">Hidden</option>
+                                            <option value="colleagues">Colleagues Only</option>
+                                            <option value="all" selected>Everyone</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="privacy-group">
+                                <h4>Data & Analytics</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Usage Analytics</label>
+                                        <p>Help improve the platform by sharing usage data</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="usageAnalytics" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Performance Tracking</label>
+                                        <p>Track teaching performance metrics</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="performanceTracking" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Activity History</label>
+                                        <p>Keep detailed logs of your activities</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="activityHistory">
+                                            <option value="7">7 days</option>
+                                            <option value="30" selected>30 days</option>
+                                            <option value="90">90 days</option>
+                                            <option value="365">1 year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="privacy-group">
+                                <h4>Communication</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Allow student messages</label>
+                                        <p>Students can send you direct messages</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="studentMessages" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Parent communication</label>
+                                        <p>Parents can contact you directly</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="parentCommunication" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-management">
+                            <h4>Data Management</h4>
+                            <div class="data-actions">
+                                <button class="btn btn-info" onclick="downloadData()">
+                                    <i class="fas fa-download"></i> Download My Data
+                                </button>
+                                <button class="btn btn-warning" onclick="clearActivityHistory()">
+                                    <i class="fas fa-broom"></i> Clear Activity History
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteAccount()">
+                                    <i class="fas fa-user-times"></i> Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div id="system-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-desktop"></i> System Preferences</h3>
+                            <p>Configure system behavior and performance settings</p>
+                        </div>
+
+                        <div class="system-options">
+                            <div class="option-group">
+                                <h4>Performance</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Auto-save frequency</label>
+                                        <p>How often to automatically save your work</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="autoSaveFrequency">
+                                            <option value="30">Every 30 seconds</option>
+                                            <option value="60" selected>Every minute</option>
+                                            <option value="300">Every 5 minutes</option>
+                                            <option value="0">Disabled</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Cache size</label>
+                                        <p>Amount of data to store locally for faster access</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="cacheSize">
+                                            <option value="50">50 MB</option>
+                                            <option value="100" selected>100 MB</option>
+                                            <option value="200">200 MB</option>
+                                            <option value="500">500 MB</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Image quality</label>
+                                        <p>Default quality for uploaded images</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="imageQuality">
+                                            <option value="low">Low (Faster)</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="high">High (Better Quality)</option>
+                                            <option value="original">Original</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h4>Regional Settings</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Language</label>
+                                        <p>Display language for the interface</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="language">
+                                            <option value="en" selected>English</option>
+                                            <option value="hi">हिन्दी (Hindi)</option>
+                                            <option value="te">తెలుగు (Telugu)</option>
+                                            <option value="ta">தமிழ் (Tamil)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Time Zone</label>
+                                        <p>Your local time zone</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="timeZone">
+                                            <option value="IST" selected>Indian Standard Time (IST)</option>
+                                            <option value="EST">Eastern Standard Time (EST)</option>
+                                            <option value="PST">Pacific Standard Time (PST)</option>
+                                            <option value="GMT">Greenwich Mean Time (GMT)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Date Format</label>
+                                        <p>How dates are displayed</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="dateFormat">
+                                            <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                                            <option value="dd-mmm-yyyy">DD-MMM-YYYY</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Time Format</label>
+                                        <p>12-hour or 24-hour format</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="timeFormat">
+                                            <option value="12" selected>12-hour (AM/PM)</option>
+                                            <option value="24">24-hour</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h4>Accessibility</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>High Contrast Mode</label>
+                                        <p>Increase contrast for better visibility</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="highContrast">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Reduce Motion</label>
+                                        <p>Minimize animations and transitions</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="reduceMotion">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Screen Reader Support</label>
+                                        <p>Enhanced support for screen readers</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="screenReader">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integration Settings -->
+                <div id="integrations-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-plug"></i> Connected Services</h3>
+                            <p>Manage integrations with external services</p>
+                        </div>
+
+                        <div class="integrations-grid">
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon google">
+                                        <i class="fab fa-google"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>Google Workspace</h4>
+                                        <p>Sync with Google Drive, Calendar, and Gmail</p>
+                                        <div class="integration-status connected">
+                                            <i class="fas fa-check-circle"></i> Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-secondary" onclick="configureIntegration('google')">
+                                        <i class="fas fa-cog"></i> Configure
+                                    </button>
+                                    <button class="btn btn-danger" onclick="disconnectIntegration('google')">
+                                        Disconnect
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon microsoft">
+                                        <i class="fab fa-microsoft"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>Microsoft 365</h4>
+                                        <p>Integration with Teams, OneDrive, and Outlook</p>
+                                        <div class="integration-status disconnected">
+                                            <i class="fas fa-times-circle"></i> Not Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-primary" onclick="connectIntegration('microsoft')">
+                                        <i class="fas fa-plug"></i> Connect
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon zoom">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>Zoom</h4>
+                                        <p>Schedule and manage video conferences</p>
+                                        <div class="integration-status connected">
+                                            <i class="fas fa-check-circle"></i> Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-secondary" onclick="configureIntegration('zoom')">
+                                        <i class="fas fa-cog"></i> Configure
+                                    </button>
+                                    <button class="btn btn-danger" onclick="disconnectIntegration('zoom')">
+                                        Disconnect
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon dropbox">
+                                        <i class="fab fa-dropbox"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>Dropbox</h4>
+                                        <p>Cloud storage for course materials</p>
+                                        <div class="integration-status disconnected">
+                                            <i class="fas fa-times-circle"></i> Not Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-primary" onclick="connectIntegration('dropbox')">
+                                        <i class="fas fa-plug"></i> Connect
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon slack">
+                                        <i class="fab fa-slack"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>Slack</h4>
+                                        <p>Team communication and notifications</p>
+                                        <div class="integration-status disconnected">
+                                            <i class="fas fa-times-circle"></i> Not Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-primary" onclick="connectIntegration('slack')">
+                                        <i class="fas fa-plug"></i> Connect
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="integration-card">
+                                <div class="integration-info">
+                                    <div class="integration-icon github">
+                                        <i class="fab fa-github"></i>
+                                    </div>
+                                    <div class="integration-details">
+                                        <h4>GitHub</h4>
+                                        <p>Code repository and assignment management</p>
+                                        <div class="integration-status connected">
+                                            <i class="fas fa-check-circle"></i> Connected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="integration-actions">
+                                    <button class="btn btn-secondary" onclick="configureIntegration('github')">
+                                        <i class="fas fa-cog"></i> Configure
+                                    </button>
+                                    <button class="btn btn-danger" onclick="disconnectIntegration('github')">
+                                        Disconnect
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="api-settings">
+                            <h4>API Settings</h4>
+                            <div class="api-info">
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>API Access</label>
+                                        <p>Enable API access for third-party applications</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="apiAccess">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="api-keys" id="apiKeysSection" style="display: none;">
+                                    <div class="api-key-item">
+                                        <label>API Key</label>
+                                        <div class="api-key-display">
+                                            <input type="password" id="apiKey" value="scms_api_key_123456789" readonly>
+                                            <button class="btn btn-secondary" onclick="toggleApiKeyVisibility()">
+                                                <i class="fas fa-eye" id="apiKeyToggle"></i>
+                                            </button>
+                                            <button class="btn btn-info" onclick="regenerateApiKey()">
+                                                <i class="fas fa-sync"></i> Regenerate
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Settings -->
+                <div id="backup-settings" class="settings-panel">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-database"></i> Data Backup & Export</h3>
+                            <p>Manage your data backups and exports</p>
+                        </div>
+
+                        <div class="backup-overview">
+                            <div class="backup-status">
+                                <div class="backup-info">
+                                    <h4>Backup Status</h4>
+                                    <div class="last-backup">
+                                        <span class="backup-indicator success">
+                                            <i class="fas fa-check-circle"></i>
+                                            Last backup: Today at 3:00 AM
+                                        </span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="createBackup()">
+                                    <i class="fas fa-download"></i> Backup Now
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="backup-settings-options">
+                            <div class="option-group">
+                                <h4>Automatic Backup</h4>
+                                
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Enable Auto Backup</label>
+                                        <p>Automatically backup your data</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <label class="switch">
+                                            <input type="checkbox" id="autoBackup" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Backup Frequency</label>
+                                        <p>How often to create backups</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="backupFrequency">
+                                            <option value="daily" selected>Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="option-item">
+                                    <div class="option-info">
+                                        <label>Retention Period</label>
+                                        <p>How long to keep backup files</p>
+                                    </div>
+                                    <div class="option-control">
+                                        <select id="retentionPeriod">
+                                            <option value="30" selected>30 days</option>
+                                            <option value="90">90 days</option>
+                                            <option value="180">6 months</option>
+                                            <option value="365">1 year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h4>Backup Content</h4>
+                                
+                                <div class="backup-items">
+                                    <div class="backup-item">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="backupProfile" checked>
+                                            <span class="checkmark"></span>
+                                            <div class="item-info">
+                                                <span>Profile Information</span>
+                                                <small>Personal details and settings</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="backup-item">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="backupCourses" checked>
+                                            <span class="checkmark"></span>
+                                            <div class="item-info">
+                                                <span>Course Content</span>
+                                                <small>All uploaded materials and resources</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="backup-item">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="backupGrades" checked>
+                                            <span class="checkmark"></span>
+                                            <div class="item-info">
+                                                <span>Grades & Assessments</span>
+                                                <small>Student grades and test results</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="backup-item">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="backupAttendance" checked>
+                                            <span class="checkmark"></span>
+                                            <div class="item-info">
+                                                <span>Attendance Records</span>
+                                                <small>All attendance data and reports</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="backup-item">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="backupMessages" checked>
+                                            <span class="checkmark"></span>
+                                            <div class="item-info">
+                                                <span>Messages & Communications</span>
+                                                <small>Notification history and messages</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-options">
+                            <h4>Export Data</h4>
+                            <div class="export-formats">
+                                <button class="btn btn-info" onclick="exportData('json')">
+                                    <i class="fas fa-file-code"></i> Export as JSON
+                                </button>
+                                <button class="btn btn-info" onclick="exportData('csv')">
+                                    <i class="fas fa-file-csv"></i> Export as CSV
+                                </button>
+                                <button class="btn btn-info" onclick="exportData('pdf')">
+                                    <i class="fas fa-file-pdf"></i> Export as PDF
+                                </button>
+                                <button class="btn btn-info" onclick="exportData('zip')">
+                                    <i class="fas fa-file-archive"></i> Download Complete Archive
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="backup-history">
+                            <h4>Recent Backups</h4>
+                            <div class="backup-list" id="backupHistory">
+                                <!-- Dynamic backup history -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="close-btn" onclick="closePasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <div class="password-input">
+                            <input type="password" id="currentPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="password-input">
+                            <input type="password" id="newPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <span class="strength-text">Enter password</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <div class="password-input">
+                            <input type="password" id="confirmPassword" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="password-requirements">
+                        <h5>Password Requirements:</h5>
+                        <ul>
+                            <li id="req-length">At least 8 characters</li>
+                            <li id="req-upper">One uppercase letter</li>
+                            <li id="req-lower">One lowercase letter</li>
+                            <li id="req-number">One number</li>
+                            <li id="req-special">One special character</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updatePassword()">
+                    <i class="fas fa-save"></i> Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Setup Modal -->
+    <div class="modal" id="twoFactorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enable Two-Factor Authentication</h3>
+                <button class="close-btn" onclick="close2FAModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="twofa-steps">
+                    <div class="step active" id="step1">
+                        <h4>Step 1: Install Authenticator App</h4>
+                        <p>Download and install an authenticator app on your phone:</p>
+                        <div class="app-recommendations">
+                            <div class="app-option">
+                                <i class="fab fa-google"></i>
+                                <span>Google Authenticator</span>
+                            </div>
+                            <div class="app-option">
+                                <i class="fab fa-microsoft"></i>
+                                <span>Microsoft Authenticator</span>
+                            </div>
+                            <div class="app-option">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Authy</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="nextStep(2)">Next Step</button>
+                    </div>
+                    
+                    <div class="step" id="step2">
+                        <h4>Step 2: Scan QR Code</h4>
+                        <p>Scan this QR code with your authenticator app:</p>
+                        <div class="qr-code">
+                            <div class="qr-placeholder">
+                                <i class="fas fa-qrcode"></i>
+                                <p>QR Code would appear here</p>
+                            </div>
+                        </div>
+                        <p>Or manually enter this key: <code>JBSWY3DPEHPK3PXP</code></p>
+                        <button class="btn btn-primary" onclick="nextStep(3)">Next Step</button>
+                    </div>
+                    
+                    <div class="step" id="step3">
+                        <h4>Step 3: Verify Setup</h4>
+                        <p>Enter the 6-digit code from your authenticator app:</p>
+                        <div class="verification-input">
+                            <input type="text" id="verificationCode" placeholder="000000" maxlength="6">
+                        </div>
+                        <div class="backup-codes" style="display: none;" id="backupCodes">
+                            <h5>Backup Codes</h5>
+                            <p>Save these codes in a safe place. You can use them to access your account if you lose your phone:</p>
+                            <div class="codes-list">
+                                <div class="backup-code">1234-5678</div>
+                                <div class="backup-code">2345-6789</div>
+                                <div class="backup-code">3456-7890</div>
+                                <div class="backup-code">4567-8901</div>
+                                <div class="backup-code">5678-9012</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="verify2FA()">Verify & Enable 2FA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="notification-icon"></i>
+        <span class="notification-text"></span>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>

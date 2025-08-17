@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Center - SCMS Teacher Portal</title>
+    <link rel="stylesheet" href="notifications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Rich Text Editor -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Same as existing pages -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-info">
+                    <h1><i class="fas fa-bell"></i> Notifications Center</h1>
+                    <p>Send announcements, manage communication, and track engagement</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="createAnnouncement()">
+                        <i class="fas fa-plus"></i> New Announcement
+                    </button>
+                    <button class="btn btn-info" onclick="bulkMessage()">
+                        <i class="fas fa-broadcast-tower"></i> Bulk Message
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewAnalytics()">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification Statistics -->
+            <div class="notification-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalNotifications">156</span>
+                    <span class="stat-label">Total Sent</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="todayNotifications">12</span>
+                    <span class="stat-label">Today</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="openRate">87.5%</span>
+                    <span class="stat-label">Open Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="responseRate">54.2%</span>
+                    <span class="stat-label">Response Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="activeRecipients">1,247</span>
+                    <span class="stat-label">Active Recipients</span>
+                </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-rocket"></i> Quick Actions</h3>
+                </div>
+                <div class="quick-actions-grid">
+                    <div class="quick-action-card" onclick="sendUrgentAlert()">
+                        <div class="action-icon urgent">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Urgent Alert</h4>
+                            <p>Send immediate notification to all</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-card" onclick="sendClassReminder()">
+                        <div class="action-icon reminder">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Class Reminder</h4>
+                            <p>Quick reminder for upcoming class</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-card" onclick="sendAssignmentDue()">
+                        <div class="action-icon assignment">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Assignment Due</h4>
+                            <p>Notify about assignment deadlines</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-card" onclick="sendExamNotice()">
+                        <div class="action-icon exam">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Exam Notice</h4>
+                            <p>Important exam announcements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Management -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Recent Notifications</h3>
+                    <div class="notification-filters">
+                        <select id="statusFilter" onchange="filterNotifications()">
+                            <option value="all">All Status</option>
+                            <option value="sent">Sent</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                        <select id="typeFilter" onchange="filterNotifications()">
+                            <option value="all">All Types</option>
+                            <option value="announcement">Announcement</option>
+                            <option value="reminder">Reminder</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="general">General</option>
+                        </select>
+                        <input type="text" id="notificationSearch" placeholder="Search notifications..." oninput="filterNotifications()">
+                    </div>
+                </div>
+                <div class="notifications-list" id="notificationsList">
+                    <!-- Dynamic content loaded via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Communication Templates -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-alt"></i> Message Templates</h3>
+                    <button class="btn btn-primary" onclick="createTemplate()">
+                        <i class="fas fa-plus"></i> New Template
+                    </button>
+                </div>
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Dynamic content loaded via JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Announcement Modal -->
+    <div class="modal" id="announcementModal">
+        <div class="modal-content announcement-modal-content">
+            <div class="modal-header">
+                <h3 id="announcementModalTitle">Create New Announcement</h3>
+                <button class="close-btn" onclick="closeAnnouncementModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="announcementForm">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Announcement Title *</label>
+                                <input type="text" id="announcementTitle" placeholder="Enter announcement title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority Level</label>
+                                <select id="priorityLevel">
+                                    <option value="low">Low Priority</option>
+                                    <option value="normal" selected>Normal Priority</option>
+                                    <option value="high">High Priority</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="announcementCategory">
+                                    <option value="general">General Announcement</option>
+                                    <option value="academic">Academic Notice</option>
+                                    <option value="exam">Exam Related</option>
+                                    <option value="assignment">Assignment</option>
+                                    <option value="event">Event/Activity</option>
+                                    <option value="holiday">Holiday Notice</option>
+                                    <option value="emergency">Emergency</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="datetime-local" id="expiryDate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Editor -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-edit"></i> Message Content</h4>
+                        
+                        <div class="editor-toolbar">
+                            <button type="button" class="template-btn" onclick="loadTemplate('welcome')">
+                                <i class="fas fa-hand-wave"></i> Welcome
+                            </button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('reminder')">
+                                <i class="fas fa-bell"></i> Reminder
+                            </button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('urgent')">
+                                <i class="fas fa-exclamation"></i> Urgent
+                            </button>
+                            <button type="button" class="template-btn" onclick="loadTemplate('exam')">
+                                <i class="fas fa-graduation-cap"></i> Exam
+                            </button>
+                        </div>
+
+                        <div id="messageEditor" class="message-editor">
+                            <!-- Quill editor will be initialized here -->
+                        </div>
+                        
+                        <div class="editor-stats">
+                            <span id="characterCount">0 characters</span>
+                            <span id="wordCount">0 words</span>
+                            <span id="readingTime">~0 min read</span>
+                        </div>
+                    </div>
+
+                    <!-- Recipients Selection -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-users"></i> Recipients</h4>
+                        
+                        <div class="recipient-tabs">
+                            <button type="button" class="recipient-tab active" onclick="switchRecipientTab('students')">
+                                <i class="fas fa-user-graduate"></i> Students
+                            </button>
+                            <button type="button" class="recipient-tab" onclick="switchRecipientTab('parents')">
+                                <i class="fas fa-users"></i> Parents
+                            </button>
+                            <button type="button" class="recipient-tab" onclick="switchRecipientTab('teachers')">
+                                <i class="fas fa-chalkboard-teacher"></i> Teachers
+                            </button>
+                            <button type="button" class="recipient-tab" onclick="switchRecipientTab('custom')">
+                                <i class="fas fa-user-friends"></i> Custom
+                            </button>
+                        </div>
+
+                        <div class="recipient-content">
+                            <!-- Students Tab -->
+                            <div id="students-tab" class="recipient-tab-content active">
+                                <div class="class-selection">
+                                    <div class="select-all-controls">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="selectAllClasses" onchange="toggleAllClasses()">
+                                            <span class="checkmark"></span>
+                                            Select All Classes
+                                        </label>
+                                    </div>
+                                    <div class="classes-grid">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="class-checkbox" value="cs-2a">
+                                            <span class="checkmark"></span>
+                                            BTech CS - 2A (45 students)
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="class-checkbox" value="cs-2b">
+                                            <span class="checkmark"></span>
+                                            BTech CS - 2B (42 students)
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="class-checkbox" value="it-3a">
+                                            <span class="checkmark"></span>
+                                            BTech IT - 3A (38 students)
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="class-checkbox" value="mca-1">
+                                            <span class="checkmark"></span>
+                                            MCA - 1st Year (35 students)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parents Tab -->
+                            <div id="parents-tab" class="recipient-tab-content">
+                                <div class="parent-selection">
+                                    <div class="select-all-controls">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="selectAllParents" onchange="toggleAllParents()">
+                                            <span class="checkmark"></span>
+                                            Select All Parents
+                                        </label>
+                                    </div>
+                                    <div class="parent-options">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="parent-checkbox" value="fathers">
+                                            <span class="checkmark"></span>
+                                            All Fathers
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="parent-checkbox" value="mothers">
+                                            <span class="checkmark"></span>
+                                            All Mothers
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="parent-checkbox" value="guardians">
+                                            <span class="checkmark"></span>
+                                            All Guardians
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Teachers Tab -->
+                            <div id="teachers-tab" class="recipient-tab-content">
+                                <div class="teacher-selection">
+                                    <div class="select-all-controls">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="selectAllTeachers" onchange="toggleAllTeachers()">
+                                            <span class="checkmark"></span>
+                                            Select All Teachers
+                                        </label>
+                                    </div>
+                                    <div class="department-options">
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="teacher-checkbox" value="computer-science">
+                                            <span class="checkmark"></span>
+                                            Computer Science Department
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="teacher-checkbox" value="information-technology">
+                                            <span class="checkmark"></span>
+                                            Information Technology Department
+                                        </label>
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" class="teacher-checkbox" value="management">
+                                            <span class="checkmark"></span>
+                                            Management Department
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Custom Tab -->
+                            <div id="custom-tab" class="recipient-tab-content">
+                                <div class="custom-recipients">
+                                    <div class="recipient-input">
+                                        <label>Add Recipients (Email addresses, separated by commas)</label>
+                                        <textarea id="customRecipients" rows="4" placeholder="example1@email.com, example2@email.com, ..."></textarea>
+                                    </div>
+                                    <div class="recipient-upload">
+                                        <label>Or Upload CSV File</label>
+                                        <input type="file" id="recipientFile" accept=".csv" onchange="handleRecipientFile(this)">
+                                        <small>CSV format: email, name, type</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recipient-summary">
+                            <span id="recipientCount">0 recipients selected</span>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Options -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-paper-plane"></i> Delivery Options</h4>
+                        
+                        <div class="delivery-channels">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="sendEmail" checked>
+                                <span class="checkmark"></span>
+                                <i class="fas fa-envelope"></i> Email Notification
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="sendSMS">
+                                <span class="checkmark"></span>
+                                <i class="fas fa-sms"></i> SMS Alert
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="sendInApp" checked>
+                                <span class="checkmark"></span>
+                                <i class="fas fa-bell"></i> In-App Notification
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="sendPush">
+                                <span class="checkmark"></span>
+                                <i class="fas fa-mobile-alt"></i> Push Notification
+                            </label>
+                        </div>
+
+                        <div class="schedule-options">
+                            <div class="form-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="scheduleDelivery" onchange="toggleSchedule()">
+                                    <span class="checkmark"></span>
+                                    Schedule Delivery
+                                </label>
+                            </div>
+                            <div id="scheduleControls" class="schedule-controls" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Delivery Date & Time</label>
+                                        <input type="datetime-local" id="scheduleDateTime">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Time Zone</label>
+                                        <select id="timeZone">
+                                            <option value="IST">IST (UTC+5:30)</option>
+                                            <option value="EST">EST (UTC-5:00)</option>
+                                            <option value="GMT">GMT (UTC+0:00)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="advanced-options">
+                            <h5>Advanced Options</h5>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="trackOpens" checked>
+                                <span class="checkmark"></span>
+                                Track email opens
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="trackClicks" checked>
+                                <span class="checkmark"></span>
+                                Track link clicks
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="allowReplies">
+                                <span class="checkmark"></span>
+                                Allow replies
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="requireConfirmation">
+                                <span class="checkmark"></span>
+                                Require read confirmation
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-paperclip"></i> Attachments</h4>
+                        
+                        <div class="attachment-area">
+                            <div class="drop-zone" id="attachmentDropZone">
+                                <div class="drop-zone-content">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & drop files here or click to browse</p>
+                                    <input type="file" id="attachmentInput" multiple accept="*/*" onchange="handleAttachments(this.files)">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('attachmentInput').click()">
+                                        <i class="fas fa-folder-open"></i> Browse Files
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="attachments-list" id="attachmentsList">
+                                <!-- Dynamic attachment list -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                </button>
+                <button type="button" class="btn btn-warning" onclick="previewAnnouncement()">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <button type="button" class="btn btn-primary" onclick="sendAnnouncement()">
+                    <i class="fas fa-paper-plane"></i> Send Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Message Modal -->
+    <div class="modal" id="bulkMessageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Bulk Message Sender</h3>
+                <button class="close-btn" onclick="closeBulkMessageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="bulk-message-tabs">
+                    <button class="bulk-tab active" onclick="switchBulkTab('quick')">
+                        <i class="fas fa-bolt"></i> Quick Message
+                    </button>
+                    <button class="bulk-tab" onclick="switchBulkTab('advanced')">
+                        <i class="fas fa-cogs"></i> Advanced
+                    </button>
+                </div>
+
+                <div class="bulk-tab-content">
+                    <!-- Quick Message Tab -->
+                    <div id="quick-tab" class="bulk-content active">
+                        <div class="quick-message-types">
+                            <div class="message-type-card" onclick="selectMessageType('class-reminder')">
+                                <i class="fas fa-calendar-check"></i>
+                                <h4>Class Reminder</h4>
+                                <p>Remind students about upcoming class</p>
+                            </div>
+                            <div class="message-type-card" onclick="selectMessageType('assignment-due')">
+                                <i class="fas fa-tasks"></i>
+                                <h4>Assignment Due</h4>
+                                <p>Assignment deadline notification</p>
+                            </div>
+                            <div class="message-type-card" onclick="selectMessageType('exam-notice')">
+                                <i class="fas fa-graduation-cap"></i>
+                                <h4>Exam Notice</h4>
+                                <p>Exam schedule and instructions</p>
+                            </div>
+                            <div class="message-type-card" onclick="selectMessageType('general-info')">
+                                <i class="fas fa-info-circle"></i>
+                                <h4>General Info</h4>
+                                <p>General information announcement</p>
+                            </div>
+                        </div>
+
+                        <div class="quick-message-form" id="quickMessageForm" style="display: none;">
+                            <h4 id="selectedMessageType">Message Type</h4>
+                            <div class="form-group">
+                                <label>Message Title</label>
+                                <input type="text" id="quickMessageTitle" placeholder="Enter message title">
+                            </div>
+                            <div class="form-group">
+                                <label>Message Content</label>
+                                <textarea id="quickMessageContent" rows="4" placeholder="Enter your message..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Send To</label>
+                                <select id="quickRecipients" multiple>
+                                    <option value="cs-2a">BTech CS - 2A</option>
+                                    <option value="cs-2b">BTech CS - 2B</option>
+                                    <option value="it-3a">BTech IT - 3A</option>
+                                    <option value="mca-1">MCA - 1st Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Tab -->
+                    <div id="advanced-tab" class="bulk-content">
+                        <div class="advanced-bulk-options">
+                            <div class="form-group">
+                                <label>Message Template</label>
+                                <select id="bulkTemplate" onchange="loadBulkTemplate()">
+                                    <option value="">Select a template</option>
+                                    <option value="welcome">Welcome Message</option>
+                                    <option value="reminder">Reminder Template</option>
+                                    <option value="urgent">Urgent Alert</option>
+                                    <option value="exam">Exam Notice</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Personalization</label>
+                                <div class="personalization-tags">
+                                    <button type="button" class="tag-btn" onclick="insertTag('{name}')">Name</button>
+                                    <button type="button" class="tag-btn" onclick="insertTag('{class}')">Class</button>
+                                    <button type="button" class="tag-btn" onclick="insertTag('{rollno}')">Roll No</button>
+                                    <button type="button" class="tag-btn" onclick="insertTag('{parent}')">Parent</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Batch Size</label>
+                                <select id="batchSize">
+                                    <option value="50">50 messages per batch</option>
+                                    <option value="100">100 messages per batch</option>
+                                    <option value="200">200 messages per batch</option>
+                                    <option value="all">Send all at once</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeBulkMessageModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendBulkMessage()">
+                    <i class="fas fa-paper-plane"></i> Send Messages
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Modal -->
+    <div class="modal" id="analyticsModal">
+        <div class="modal-content analytics-modal-content">
+            <div class="modal-header">
+                <h3>Notification Analytics</h3>
+                <button class="close-btn" onclick="closeAnalyticsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-tabs">
+                    <button class="analytics-tab active" onclick="switchAnalyticsTab('overview')">
+                        <i class="fas fa-chart-pie"></i> Overview
+                    </button>
+                    <button class="analytics-tab" onclick="switchAnalyticsTab('engagement')">
+                        <i class="fas fa-heart"></i> Engagement
+                    </button>
+                    <button class="analytics-tab" onclick="switchAnalyticsTab('delivery')">
+                        <i class="fas fa-paper-plane"></i> Delivery
+                    </button>
+                    <button class="analytics-tab" onclick="switchAnalyticsTab('trends')">
+                        <i class="fas fa-chart-line"></i> Trends
+                    </button>
+                </div>
+
+                <div class="analytics-content">
+                    <!-- Overview Tab -->
+                    <div id="overview-analytics" class="analytics-tab-content active">
+                        <div class="analytics-overview-grid">
+                            <div class="analytics-card">
+                                <h4>Total Notifications</h4>
+                                <div class="analytics-number">1,247</div>
+                                <div class="analytics-change positive">+12% this month</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Average Open Rate</h4>
+                                <div class="analytics-number">87.5%</div>
+                                <div class="analytics-change positive">+5.2% this month</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Response Rate</h4>
+                                <div class="analytics-number">54.2%</div>
+                                <div class="analytics-change negative">-2.1% this month</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Active Recipients</h4>
+                                <div class="analytics-number">2,156</div>
+                                <div class="analytics-change positive">+8.7% this month</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Engagement Tab -->
+                    <div id="engagement-analytics" class="analytics-tab-content">
+                        <div class="engagement-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Email Opens</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 87%;"></div>
+                                </div>
+                                <span class="metric-value">87%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Link Clicks</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 65%;"></div>
+                                </div>
+                                <span class="metric-value">65%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Replies</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 34%;"></div>
+                                </div>
+                                <span class="metric-value">34%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Forwards</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" style="width: 12%;"></div>
+                                </div>
+                                <span class="metric-value">12%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Tab -->
+                    <div id="delivery-analytics" class="analytics-tab-content">
+                        <div class="delivery-stats">
+                            <div class="delivery-status">
+                                <div class="status-item delivered">
+                                    <div class="status-icon"><i class="fas fa-check"></i></div>
+                                    <div class="status-info">
+                                        <span class="status-count">1,892</span>
+                                        <span class="status-label">Delivered</span>
+                                    </div>
+                                </div>
+                                <div class="status-item failed">
+                                    <div class="status-icon"><i class="fas fa-times"></i></div>
+                                    <div class="status-info">
+                                        <span class="status-count">23</span>
+                                        <span class="status-label">Failed</span>
+                                    </div>
+                                </div>
+                                <div class="status-item pending">
+                                    <div class="status-icon"><i class="fas fa-clock"></i></div>
+                                    <div class="status-info">
+                                        <span class="status-count">45</span>
+                                        <span class="status-label">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trends Tab -->
+                    <div id="trends-analytics" class="analytics-tab-content">
+                        <div class="trends-placeholder">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--accent-blue); margin-bottom: 20px;"></i>
+                            <h3>Notification Trends</h3>
+                            <p>Interactive charts showing notification trends would be displayed here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content preview-modal-content">
+            <div class="modal-header">
+                <h3>Notification Preview</h3>
+                <div class="preview-controls">
+                    <select id="previewDevice">
+                        <option value="email">Email View</option>
+                        <option value="mobile">Mobile View</option>
+                        <option value="desktop">Desktop View</option>
+                    </select>
+                    <button class="close-btn" onclick="closePreviewModal()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="preview-container" id="previewContainer">
+                    <!-- Dynamic preview content -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePreviewModal()">Close</button>
+                <button type="button" class="btn btn-primary" onclick="approveAndSend()">
+                    <i class="fas fa-paper-plane"></i> Approve & Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Creation Modal -->
+    <div class="modal" id="templateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Message Template</h3>
+                <button class="close-btn" onclick="closeTemplateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="templateForm">
+                    <div class="form-group">
+                        <label>Template Name *</label>
+                        <input type="text" id="templateName" placeholder="Enter template name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Template Category</label>
+                        <select id="templateCategory">
+                            <option value="announcement">Announcement</option>
+                            <option value="reminder">Reminder</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Template Subject</label>
+                        <input type="text" id="templateSubject" placeholder="Enter template subject">
+                    </div>
+                    <div class="form-group">
+                        <label>Template Content *</label>
+                        <div id="templateEditor" class="template-editor">
+                            <!-- Quill editor for template -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="templateDescription" rows="3" placeholder="Brief description of when to use this template"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveTemplate()">
+                    <i class="fas fa-save"></i> Save Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="notification-icon"></i>
+        <span class="notification-text"></span>
+    </div>
+
+    <!-- Send Progress Modal -->
+    <div class="modal" id="sendProgressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sending Notifications</h3>
+            </div>
+            <div class="modal-body">
+                <div class="progress-info">
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span class="progress-number" id="sentCount">0</span>
+                            <span class="progress-label">Sent</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-number" id="failedCount">0</span>
+                            <span class="progress-label">Failed</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-number" id="totalCount">0</span>
+                            <span class="progress-label">Total</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="sendProgress" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-percentage" id="progressPercentage">0%</div>
+                    </div>
+                    <div class="progress-status" id="progressStatus">Preparing to send...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="notifications.js"></script>
+</body>
+</html>
