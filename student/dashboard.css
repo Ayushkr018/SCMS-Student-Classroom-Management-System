@@ -83,6 +83,7 @@ html {
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-secondary);
+    color: var(--text-primary);
     line-height: 1.6;
     transition: all 0.3s ease;
     overflow-x: hidden;
@@ -176,6 +177,147 @@ body {
 .user-roll {
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+/* 🔥 STREAK SECTION IN SIDEBAR - NEW! */
+.streak-section {
+    margin: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.1));
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.streak-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 15px;
+    padding: 2px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    z-index: -1;
+    animation: streakGlow 3s ease infinite;
+}
+
+@keyframes streakGlow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.streak-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.streak-fire-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    animation: streakPulse 2s infinite;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes streakPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.streak-info {
+    flex: 1;
+}
+
+.streak-number {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 5px;
+    animation: streakFlicker 3s infinite;
+}
+
+@keyframes streakFlicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.streak-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.streak-message {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-red);
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 20px;
+}
+
+.streak-progress {
+    margin-bottom: 10px;
+}
+
+.streak-progress-bar {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.streak-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 3px;
+    transition: width 1s ease;
+    position: relative;
+}
+
+.streak-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.streak-progress-text {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
 }
 
 /* Theme Toggle in Sidebar */
@@ -416,13 +558,13 @@ body {
     50% { background-position: 100% 50%; }
 }
 
-.header h1 {
+.header-content h1 {
     color: var(--text-primary);
     font-size: 1.5rem;
     margin-bottom: 5px;
 }
 
-.header p {
+.header-content p {
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
@@ -442,6 +584,103 @@ body {
     flex-wrap: wrap;
     width: 100%;
     justify-content: center;
+}
+
+/* 🔥 STREAK BANNER - NEW! */
+.streak-banner {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.1));
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.streak-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow), var(--accent-red));
+    background-size: 200% 100%;
+    animation: streakBannerShift 3s infinite;
+}
+
+@keyframes streakBannerShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.streak-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.streak-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.streak-flame {
+    font-size: 3rem;
+    animation: streakFlame 2s infinite;
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+}
+
+@keyframes streakFlame {
+    0%, 100% { transform: rotate(-5deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.1); }
+}
+
+.streak-banner-text h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 5px;
+}
+
+.streak-banner-text p {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.streak-banner-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.mini-progress-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 3px;
+    transition: width 1s ease;
+}
+
+.streak-target {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
 }
 
 /* BUTTONS - Touch Friendly */
@@ -482,6 +721,19 @@ body {
 .btn-danger {
     background: linear-gradient(135deg, var(--accent-red), #dc2626);
     color: white;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    min-height: 36px;
 }
 
 .btn:hover {
@@ -606,6 +858,147 @@ body {
 .dashboard-card:hover {
     box-shadow: 0 8px 30px var(--shadow-medium);
     transform: translateY(-2px);
+}
+
+/* 🔥 STREAK INSIGHTS CARD - NEW! */
+.streak-insights-card {
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(245, 158, 11, 0.05));
+    position: relative;
+}
+
+.streak-insights-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 15px 15px 0 0;
+}
+
+.streak-insights {
+    padding: 20px;
+}
+
+.streak-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.streak-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.streak-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow-light);
+}
+
+.streak-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.streak-stat-icon.current {
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    animation: streakStatPulse 2s infinite;
+}
+
+.streak-stat-icon.best {
+    background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+}
+
+.streak-stat-icon.total {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+}
+
+@keyframes streakStatPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+.streak-stat-number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.streak-stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.streak-achievements {
+    margin-bottom: 20px;
+}
+
+.streak-achievements h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+}
+
+.achievement-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.achievement-item.locked {
+    opacity: 0.6;
+}
+
+.achievement-icon {
+    color: var(--accent-yellow);
+    font-size: 1.2rem;
+}
+
+.achievement-item.locked .achievement-icon {
+    color: var(--text-tertiary);
+}
+
+.streak-motivation {
+    text-align: center;
+}
+
+.motivation-quote {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-red);
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 .card-header {
@@ -1045,6 +1438,145 @@ body {
     font-size: 0.7rem;
 }
 
+/* 🔥 STREAK CELEBRATION MODAL - NEW! */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 20000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    background: var(--bg-primary);
+    border-radius: 20px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px var(--shadow-heavy);
+    border: 1px solid var(--border-color);
+    animation: modalSlideIn 0.5s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.celebration-modal {
+    text-align: center;
+    border: 3px solid;
+    border-image: linear-gradient(135deg, var(--accent-red), var(--accent-yellow)) 1;
+}
+
+.celebration-content {
+    padding: 40px 30px;
+}
+
+.celebration-animation {
+    position: relative;
+    margin-bottom: 30px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.celebration-fire {
+    font-size: 4rem;
+    animation: celebrationBounce 1s infinite;
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8));
+}
+
+@keyframes celebrationBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.1); }
+}
+
+.celebration-sparks {
+    position: absolute;
+    font-size: 2rem;
+    animation: celebrationSpark 2s infinite;
+    opacity: 0.8;
+}
+
+@keyframes celebrationSpark {
+    0%, 100% { transform: rotate(0deg) scale(0.8); opacity: 0.8; }
+    25% { transform: rotate(90deg) scale(1.2); opacity: 1; }
+    50% { transform: rotate(180deg) scale(0.9); opacity: 0.6; }
+    75% { transform: rotate(270deg) scale(1.1); opacity: 1; }
+}
+
+.celebration-content h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 15px;
+}
+
+.celebration-content p {
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.celebration-progress {
+    margin-bottom: 25px;
+}
+
+.celebration-bar {
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.celebration-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-red), var(--accent-yellow));
+    border-radius: 4px;
+    transition: width 2s ease;
+    position: relative;
+}
+
+.celebration-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: celebrationShimmer 2s infinite;
+}
+
+@keyframes celebrationShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
 /* FLOATING ACTIONS */
 .floating-actions {
     position: fixed;
@@ -1403,6 +1935,14 @@ body {
         flex: none;
     }
     
+    .streak-banner-content {
+        flex-direction: row;
+    }
+    
+    .streak-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
     .schedule-item {
         flex-direction: row;
         align-items: center;
@@ -1536,7 +2076,7 @@ body {
         padding: 25px 30px;
     }
     
-    .header h1 {
+    .header-content h1 {
         font-size: 2rem;
     }
     
@@ -1549,6 +2089,14 @@ body {
         flex: none;
         font-size: 0.9rem;
         padding: 10px 20px;
+    }
+    
+    .streak-banner-content {
+        flex-direction: row;
+    }
+    
+    .streak-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
     
     .schedule-item {
@@ -1771,7 +2319,9 @@ body {
     .floating-checkin,
     .floating-actions,
     #chatBotWindow,
-    .notification {
+    .notification,
+    .streak-section,
+    .streak-banner {
         display: none !important;
     }
     
@@ -1867,6 +2417,16 @@ body {
 
     #chatBody {
         height: 250px;
+    }
+    
+    .streak-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .streak-banner-content {
+        flex-direction: column;
+        text-align: center;
     }
 }
 
