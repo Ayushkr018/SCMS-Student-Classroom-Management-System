@@ -1,4 +1,4 @@
-// chat.js - FIXED VERSION with working API calls
+// chat.js - FIXED VERSION with working API calls (TEACHER VERSION)
 
 const GEMINI_API_KEY = 'AIzaSyAJ6niwBWd5Y17_R85NkFqKXbJnOr7GHTw';
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -30,7 +30,7 @@ function renderHelpBotChat() {
     container.innerHTML = `
         <div class="helpbot-modal">
             <div class="helpbot-header">
-                <div class="helpbot-avatar"><i class="fas fa-robot"></i></div>
+                <div class="helpbot-avatar"><i class="fas fa-chalkboard-teacher"></i></div>
                 <div class="helpbot-title">${HELP_BOT_NAME} — Teaching & Management Assistant</div>
                 <button class="helpbot-close-btn" title="Close" onclick="closeHelpBot()"><i class="fas fa-times"></i></button>
             </div>
@@ -92,7 +92,7 @@ function appendToHelpBotChat(role, message, opts = {}) {
         msgNode.id = 'helpbot-typing-msg';
     }
 
-    const avatarIcon = role === 'user' ? 'fa-user' : 'fa-robot';
+    const avatarIcon = role === 'user' ? 'fa-user' : 'fa-chalkboard-teacher';
     
     msgNode.innerHTML = `
         <div class="helpbot-msg-avatar">
@@ -135,6 +135,32 @@ function removeTypingIndicator() {
     }
 }
 
+// ---- Greeting Check (NEW) ----
+function isGreeting(msg) {
+    const greetWords = [
+        'hello', 'hi', 'hey', 'greetings', 'namaste', 'good morning', 
+        'good afternoon', 'good evening', 'good night', 'hola', 'howdy',
+        'whats up', "what's up", 'sup', 'yo', 'hii', 'heyyy'
+    ];
+    const msgLower = msg.trim().toLowerCase();
+    return greetWords.some(greet => 
+        msgLower === greet || 
+        msgLower.startsWith(greet + ' ') || 
+        msgLower.startsWith(greet + '!')
+    );
+}
+
+// ---- Basic Conversation Check (NEW) ----
+function isBasicConversation(msg) {
+    const basicWords = [
+        'how are you', 'how r u', 'whats your name', "what's your name",
+        'who are you', 'who r u', 'are you ok', 'fine', 'good', 'nice',
+        'thank you', 'thanks', 'bye', 'goodbye', 'see you', 'ok', 'okay'
+    ];
+    const msgLower = msg.trim().toLowerCase();
+    return basicWords.some(word => msgLower.includes(word));
+}
+
 function isAllowedTopic(msg) {
     const educationKeywords = [
         'teach', 'teaching', 'teacher', 'education', 'educate', 'educational',
@@ -150,17 +176,45 @@ function isAllowedTopic(msg) {
         'engage', 'engagement', 'motivate', 'participation', 'interactive',
         'method', 'strategy', 'approach', 'technique',
         'academic', 'school', 'college', 'university', 'faculty', 'course',
-        'subject', 'topic', 'chapter', 'module'
+        'subject', 'topic', 'chapter', 'module', 'help'
     ];
     
     const msgLower = msg.toLowerCase();
     return educationKeywords.some(keyword => msgLower.includes(keyword));
 }
 
-// ---- GEMINI API LOGIC (FIXED) ----
+// ---- GEMINI API LOGIC (UPDATED) ----
 async function handleHelpBotQuery(userMsg) {
+    // Handle greetings naturally
+    if (isGreeting(userMsg)) {
+        const greetResponses = [
+            `👋 Hello! I'm KIA, your teaching assistant. I can help with classroom management, teaching methods, student engagement, attendance tracking, and educational technology. What can I assist you with today?`,
+            `Hi there! 😊 I'm here to support your teaching journey. Ask me about lesson planning, student management, digital tools, or any teaching challenges you're facing!`,
+            `Hey! 🎓 Ready to enhance your teaching? I can help with classroom strategies, productivity tips, assessment methods, or educational technology solutions!`
+        ];
+        const randomGreet = greetResponses[Math.floor(Math.random() * greetResponses.length)];
+        appendToHelpBotChat('bot', randomGreet);
+        helpbotState.messages.push({ role: "user", content: userMsg });
+        helpbotState.messages.push({ role: "assistant", content: randomGreet });
+        return;
+    }
+
+    // Handle basic conversation politely
+    if (isBasicConversation(userMsg)) {
+        const conversationResponses = [
+            `I'm doing great, thanks for asking! 😊 I'm here to help with your teaching needs. What classroom or educational challenge can I assist you with today?`,
+            `Thanks! I'm KIA, your teaching support assistant. Let's focus on your educational goals - any teaching methods, student management, or classroom technology you need help with?`,
+            `I appreciate that! Now, how can I support your teaching? Ask me about lesson planning, student engagement, assessment strategies, or educational tools!`
+        ];
+        const randomConv = conversationResponses[Math.floor(Math.random() * conversationResponses.length)];
+        appendToHelpBotChat('bot', randomConv);
+        helpbotState.messages.push({ role: "user", content: userMsg });
+        helpbotState.messages.push({ role: "assistant", content: randomConv });
+        return;
+    }
+
     if (!isAllowedTopic(userMsg)) {
-        appendToHelpBotChat('bot', `❗ Sorry, I can only help with questions related to teaching, attendance, management, digital classroom tools, or productivity. Please ask about these topics.`);
+        appendToHelpBotChat('bot', `❗ Sorry, I can only help with questions related to teaching, attendance, classroom management, digital educational tools, or teaching productivity. Please ask about these topics! 🎓`);
         return;
     }
 
@@ -177,7 +231,7 @@ async function handleHelpBotQuery(userMsg) {
     const conversationHistory = helpbotState.messages.slice(-3); // Last 3 messages only
     const historyText = conversationHistory.map(h => `${h.role}: ${h.content}`).join('\n');
     
-    const systemPrompt = `You are KIA, a helpful teaching assistant AI. You help with education topics like teaching methods, classroom management, attendance, exams, student engagement, and digital tools for education. Keep responses concise, practical, and focused on educational contexts.
+    const systemPrompt = `You are KIA, a helpful teaching assistant AI. You help with education topics like teaching methods, classroom management, attendance, exams, student engagement, and digital tools for education. Keep responses concise, practical, and focused on educational contexts. Be encouraging and supportive for teachers.
 
 Recent conversation:
 ${historyText}
@@ -223,7 +277,7 @@ Current question: ${userMsg}`;
         let botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!botReply) {
-            botReply = "I'm sorry, I couldn't generate a response right now. Please try asking your question again.";
+            botReply = "I'm sorry, I couldn't generate a response right now. Please try asking your teaching question again.";
         }
 
         botReply = botReply.trim();
@@ -350,7 +404,7 @@ function resetHelpBot() {
         display: flex; 
         align-items: center; 
         justify-content: center;
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         animation: robotPulse 2s infinite;
     }
     
