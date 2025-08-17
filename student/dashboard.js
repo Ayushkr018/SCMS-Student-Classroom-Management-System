@@ -64,19 +64,103 @@ function closeMobileSidebar() {
     document.body.style.overflow = 'auto';
 }
 
+// Chatbot Management
+let isChatBotOpen = false;
+
+function openChatBot() {
+    const chatBotWindow = document.getElementById('chatBotWindow');
+    if (chatBotWindow) {
+        chatBotWindow.style.display = 'block';
+        isChatBotOpen = true;
+        
+        // Focus on input
+        setTimeout(() => {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) chatInput.focus();
+        }, 300);
+        
+        showNotification('🤖 AI Assistant activated!', 'info');
+    }
+}
+
+function closeChatBot() {
+    const chatBotWindow = document.getElementById('chatBotWindow');
+    if (chatBotWindow) {
+        chatBotWindow.style.display = 'none';
+        isChatBotOpen = false;
+    }
+}
+
+function handleChatKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendChatMessage();
+    }
+}
+
+function sendChatMessage() {
+    // This function will be handled by chat.js
+    // Just ensuring the interface is ready
+    console.log('Chat message sending - handled by chat.js');
+}
+
 // Dashboard State
 let isQRScanning = false;
 let isCheckedIn = false;
 let currentTime = new Date();
 
+// Real-time Date & Time Updates
+function updateLiveDateTime() {
+    try {
+        const now = new Date();
+        
+        // Full datetime string
+        const dateTimeString = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }) + ' - ' + now.toLocaleTimeString('en-US', { 
+            hour12: true, 
+            hour: 'numeric', 
+            minute: '2-digit' 
+        });
+        
+        // Time only string
+        const timeOnlyString = now.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        
+        // Update elements
+        const liveDateTime = document.getElementById('liveDateTime');
+        const currentTime = document.getElementById('currentTime');
+        
+        if (liveDateTime) liveDateTime.textContent = dateTimeString;
+        if (currentTime) currentTime.textContent = timeOnlyString;
+        
+    } catch (error) {
+        console.error('❌ Error updating live time:', error);
+    }
+}
+
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     loadCurrentUser();
-    updateClock();
+    updateLiveDateTime();
     animateStats();
     loadAttendanceStatus();
     startRealTimeUpdates();
+    
+    // Start real-time clock updates
+    setInterval(updateLiveDateTime, 1000);
+    
+    // Initialize chatbot window as hidden
+    const chatBotWindow = document.getElementById('chatBotWindow');
+    if (chatBotWindow) {
+        chatBotWindow.style.display = 'none';
+    }
     
     // Close mobile sidebar when resizing to desktop
     window.addEventListener('resize', function() {
@@ -113,7 +197,7 @@ function loadCurrentUser() {
 
     document.getElementById('userName').textContent = user.name;
     document.getElementById('userRoll').textContent = user.rollNumber || 'CS2023001';
-    document.getElementById('headerUserName').textContent = user.name.split(' ')[0]; // First name only
+    document.getElementById('headerUserName').textContent = user.name.split(' ')[0];
 }
 
 function logout() {
@@ -126,22 +210,7 @@ function logout() {
     }
 }
 
-function updateClock() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-    });
-    
-    document.getElementById('currentTime').textContent = timeString;
-    
-    // Update every minute
-    setTimeout(updateClock, 60000);
-}
-
 function animateStats() {
-    // Animate stat numbers with counting effect
     animateNumber(document.getElementById('attendanceRate'), 0, 92, 2000, 0, '%');
     animateNumber(document.getElementById('pendingAssignments'), 0, 3, 1500);
     animateNumber(document.getElementById('enrolledCourses'), 0, 5, 1800);
@@ -203,8 +272,8 @@ function startQRScan() {
     
     scanner.innerHTML = `
         <div>
-            <i class="fas fa-camera" style="font-size: 2.5em; color: var(--accent-green);"></i>
-            <p style="margin: 0; font-size: 0.9em; color: var(--accent-green);">
+            <i class="fas fa-camera" style="font-size: 2.5rem; color: var(--accent-green);"></i>
+            <p class="qr-scanner-text">
                 Scanning for QR code...
             </p>
         </div>
@@ -213,18 +282,16 @@ function startQRScan() {
     
     showNotification('📷 QR Scanner activated!', 'info');
     
-    // Simulate scan completion after 3 seconds
     setTimeout(() => {
         if (Math.random() > 0.3) {
-            // Successful scan
             isCheckedIn = true;
             localStorage.setItem('scms_student_attendance_today', JSON.stringify(true));
             
             scanner.classList.remove('scanning');
             scanner.innerHTML = `
                 <div>
-                    <i class="fas fa-check-circle" style="font-size: 2.5em; color: var(--accent-green);"></i>
-                    <p style="margin: 0; font-size: 0.9em; color: var(--accent-green);">
+                    <i class="fas fa-check-circle" style="font-size: 2.5rem; color: var(--accent-green);"></i>
+                    <p class="qr-scanner-text">
                         Successfully checked in!
                     </p>
                 </div>
@@ -233,17 +300,15 @@ function startQRScan() {
             loadAttendanceStatus();
             showNotification('✅ Successfully checked in for CS101!', 'success');
             
-            // Reset scanner after 2 seconds
             setTimeout(() => {
                 resetQRScanner();
             }, 2000);
         } else {
-            // Failed scan
             scanner.classList.remove('scanning');
             scanner.innerHTML = `
                 <div>
-                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5em; color: var(--accent-red);"></i>
-                    <p style="margin: 0; font-size: 0.9em; color: var(--accent-red);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: var(--accent-red);"></i>
+                    <p class="qr-scanner-text">
                         No QR code detected
                     </p>
                 </div>
@@ -251,7 +316,6 @@ function startQRScan() {
             
             showNotification('❌ No QR code found. Try again.', 'error');
             
-            // Reset scanner after 2 seconds
             setTimeout(() => {
                 resetQRScanner();
             }, 2000);
@@ -267,7 +331,7 @@ function resetQRScanner() {
     scanner.innerHTML = `
         <div>
             <i class="fas fa-qrcode"></i>
-            <p style="margin: 0; font-size: 0.9em; color: var(--accent-blue);">
+            <p class="qr-scanner-text">
                 Tap to scan QR code
             </p>
         </div>
@@ -353,25 +417,19 @@ function markAllRead() {
 }
 
 function startRealTimeUpdates() {
-    // Update time display every minute
-    setInterval(updateClock, 60000);
-    
-    // Simulate new notifications
     setTimeout(() => {
         addNewNotification();
-    }, 30000); // After 30 seconds
+    }, 30000);
     
-    // Simulate grade updates
     setTimeout(() => {
         updateGrade();
-    }, 45000); // After 45 seconds
+    }, 45000);
     
-    // Simulate assignment reminders
     setInterval(() => {
         if (Math.random() > 0.8) {
             showAssignmentReminder();
         }
-    }, 60000); // Every minute
+    }, 60000);
 }
 
 function addNewNotification() {
@@ -397,16 +455,15 @@ function addNewNotification() {
 function updateGrade() {
     showNotification('🌟 New grade available: Database Quiz - 9.2/10', 'success');
     
-    // Update the grade stat
     const avgGradeElement = document.getElementById('avgGrade');
     animateNumber(avgGradeElement, 8.4, 8.5, 1000, 1);
 }
 
 function showAssignmentReminder() {
     const reminders = [
-        '📝 Reminder: Binary Trees assignment due tomorrow!',
+       '📝 Reminder: Binary Trees assignment due tomorrow!',
         '⏰ Don\'t forget: Algorithm Analysis report due in 2 days',
-        '📋 Upcoming: Database ER diagram submission next week'
+        '📋 Upcoming: Database ER diagram submission next week',
     ];
     
     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
@@ -441,12 +498,21 @@ function showNotification(message, type) {
 document.addEventListener('click', function(e) {
     const sidebar = document.getElementById('sidebar');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const chatBotWindow = document.getElementById('chatBotWindow');
     
+    // Close sidebar
     if (window.innerWidth <= 768 && 
         sidebar.classList.contains('active') && 
         !sidebar.contains(e.target) && 
         !mobileMenuBtn.contains(e.target)) {
         closeMobileSidebar();
+    }
+    
+    // Close chatbot if clicking outside
+    if (isChatBotOpen && chatBotWindow && 
+        !chatBotWindow.contains(e.target) && 
+        !e.target.closest('.fab')) {
+        closeChatBot();
     }
 });
 
@@ -479,9 +545,24 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         viewAllAssignments();
     }
+    
+    // Alt + B for chatbot
+    if (e.altKey && e.key === 'b') {
+        e.preventDefault();
+        if (isChatBotOpen) {
+            closeChatBot();
+        } else {
+            openChatBot();
+        }
+    }
+    
+    // Escape to close chatbot
+    if (e.key === 'Escape' && isChatBotOpen) {
+        closeChatBot();
+    }
 });
 
-// Service Worker for offline functionality (basic)
+// Service Worker for offline functionality
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
