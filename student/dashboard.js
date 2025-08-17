@@ -103,6 +103,247 @@ function sendChatMessage() {
     console.log('Chat message sending - handled by chat.js');
 }
 
+// 🔥 STREAK MANAGEMENT - NEW!
+let streakState = {
+    currentStreak: parseInt(localStorage.getItem('scms-streak-current')) || 7,
+    bestStreak: parseInt(localStorage.getItem('scms-streak-best')) || 15,
+    totalDays: parseInt(localStorage.getItem('scms-streak-total')) || 42,
+    lastActivity: localStorage.getItem('scms-streak-last-activity') || null,
+    milestoneTarget: 10
+};
+
+function initializeStreak() {
+    updateStreakUI();
+    checkDailyStreak();
+    animateStreakElements();
+}
+
+function updateStreakUI() {
+    // Update sidebar streak section
+    const streakElements = {
+        streakDays: document.getElementById('streakDays'),
+        streakMessage: document.getElementById('streakMessage'),
+        streakProgressFill: document.getElementById('streakProgressFill'),
+        
+        // Banner elements
+        bannerStreakDays: document.getElementById('bannerStreakDays'),
+        bannerMotivationText: document.getElementById('bannerMotivationText'),
+        bannerProgressFill: document.getElementById('bannerProgressFill'),
+        
+        // Insights card elements
+        currentStreak: document.getElementById('currentStreak'),
+        bestStreak: document.getElementById('bestStreak'),
+        totalDays: document.getElementById('totalDays'),
+        motivationQuote: document.getElementById('motivationQuote')
+    };
+    
+    // Update all streak numbers
+    if (streakElements.streakDays) streakElements.streakDays.textContent = streakState.currentStreak;
+    if (streakElements.bannerStreakDays) streakElements.bannerStreakDays.textContent = streakState.currentStreak;
+    if (streakElements.currentStreak) streakElements.currentStreak.textContent = streakState.currentStreak;
+    if (streakElements.bestStreak) streakElements.bestStreak.textContent = streakState.bestStreak;
+    if (streakElements.totalDays) streakElements.totalDays.textContent = streakState.totalDays;
+    
+    // Update motivational messages
+    const motivationMessages = getMotivationMessage(streakState.currentStreak);
+    if (streakElements.streakMessage) streakElements.streakMessage.textContent = motivationMessages.short;
+    if (streakElements.bannerMotivationText) streakElements.bannerMotivationText.textContent = motivationMessages.banner;
+    if (streakElements.motivationQuote) streakElements.motivationQuote.textContent = getRandomQuote();
+    
+    // Update progress bars
+    const progressPercentage = Math.min((streakState.currentStreak / streakState.milestoneTarget) * 100, 100);
+    if (streakElements.streakProgressFill) streakElements.streakProgressFill.style.width = `${progressPercentage}%`;
+    if (streakElements.bannerProgressFill) streakElements.bannerProgressFill.style.width = `${progressPercentage}%`;
+}
+
+function getMotivationMessage(streak) {
+    const messages = {
+        1: { short: "🌟 Great start!", banner: "You've started your learning journey!" },
+        3: { short: "🔥 Building momentum!", banner: "3 days strong! Keep the fire burning!" },
+        7: { short: "🔥 You're on fire! Keep it up!", banner: "One week streak! You're unstoppable!" },
+        10: { short: "🏆 Perfect 10! Amazing!", banner: "Perfect 10! You're a learning champion!" },
+        15: { short: "🚀 Incredible dedication!", banner: "Half a month of consistent learning!" },
+        30: { short: "⭐ Legendary streak!", banner: "30 days! You're a learning legend!" }
+    };
+    
+    // Find the highest applicable message
+    const applicableStreaks = Object.keys(messages).map(Number).filter(s => s <= streak).sort((a, b) => b - a);
+    const messageKey = applicableStreaks[0] || 1;
+    
+    return messages[messageKey];
+}
+
+function getRandomQuote() {
+    const quotes = [
+        "Success is the sum of small efforts repeated day in and day out.",
+        "The expert in anything was once a beginner.",
+        "Learning never exhausts the mind.",
+        "Education is the passport to the future.",
+        "The beautiful thing about learning is that no one can take it away from you.",
+        "Invest in yourself. Your career is the engine of your wealth.",
+        "The more you learn, the more you earn.",
+        "Knowledge is power, but enthusiasm pulls the switch."
+    ];
+    
+    return quotes[Math.floor(Math.random() * quotes.length)];
+}
+
+function checkDailyStreak() {
+    const today = new Date().toDateString();
+    const lastActivity = streakState.lastActivity;
+    
+    if (lastActivity !== today) {
+        // Check if it's been more than a day
+        if (lastActivity) {
+            const lastDate = new Date(lastActivity);
+            const todayDate = new Date(today);
+            const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff > 1) {
+                // Streak broken
+                streakState.currentStreak = 0;
+                showNotification('💔 Streak broken! But every expert was once a beginner. Start again!', 'warning');
+                saveStreakData();
+            }
+        }
+    }
+}
+
+function extendStreak() {
+    const today = new Date().toDateString();
+    if (streakState.lastActivity === today) {
+        showNotification('✅ You\'ve already completed today\'s goal!', 'info');
+        return;
+    }
+    
+    // Extend streak
+    streakState.currentStreak++;
+    streakState.totalDays++;
+    streakState.lastActivity = today;
+    
+    // Update best streak
+    if (streakState.currentStreak > streakState.bestStreak) {
+        streakState.bestStreak = streakState.currentStreak;
+        showNotification('🏆 New personal best streak!', 'success');
+    }
+    
+    // Save data
+    saveStreakData();
+    updateStreakUI();
+    
+    // Check for milestones
+    checkStreakMilestones();
+    
+    // Show celebration
+    showStreakCelebration();
+}
+
+function checkStreakMilestones() {
+    const milestones = [3, 5, 7, 10, 15, 21, 30, 50, 100];
+    
+    if (milestones.includes(streakState.currentStreak)) {
+        showMilestoneAchievement(streakState.currentStreak);
+        
+        // Update next milestone target
+        const nextMilestone = milestones.find(m => m > streakState.currentStreak);
+        if (nextMilestone) {
+            streakState.milestoneTarget = nextMilestone;
+        }
+    }
+}
+
+function showMilestoneAchievement(days) {
+    const achievements = {
+        3: { title: "3-Day Warrior", message: "Three days of consistent learning!" },
+        5: { title: "Persistent Learner", message: "Five days of dedication!" },
+        7: { title: "Week Champion", message: "One full week of learning!" },
+        10: { title: "Perfect 10", message: "Ten days of unstoppable progress!" },
+        15: { title: "Fortnight Master", message: "Fifteen days of excellence!" },
+        21: { title: "Habit Former", message: "Three weeks of consistent learning!" },
+        30: { title: "Monthly Legend", message: "Thirty days of dedication!" },
+        50: { title: "Learning Elite", message: "Fifty days of mastery!" },
+        100: { title: "Century Master", message: "One hundred days of excellence!" }
+    };
+    
+    const achievement = achievements[days];
+    if (achievement) {
+        showNotification(`🏅 Achievement Unlocked: ${achievement.title}!`, 'success');
+        
+        // Add achievement animation
+        setTimeout(() => {
+            showNotification(`🎉 ${achievement.message}`, 'info');
+        }, 2000);
+    }
+}
+
+function showStreakCelebration() {
+    const modal = document.getElementById('streakCelebrationModal');
+    if (!modal) return;
+    
+    // Update celebration content
+    const celebrationDays = document.getElementById('celebrationDays');
+    const celebrationFill = document.getElementById('celebrationFill');
+    const celebrationNext = document.getElementById('celebrationNext');
+    
+    if (celebrationDays) celebrationDays.textContent = streakState.currentStreak;
+    
+    if (celebrationFill) {
+        const progressPercentage = Math.min((streakState.currentStreak / streakState.milestoneTarget) * 100, 100);
+        celebrationFill.style.width = `${progressPercentage}%`;
+    }
+    
+    if (celebrationNext) {
+        const remaining = streakState.milestoneTarget - streakState.currentStreak;
+        if (remaining > 0) {
+            celebrationNext.textContent = `${remaining} more days to reach ${streakState.milestoneTarget}!`;
+        } else {
+            celebrationNext.textContent = 'You\'ve reached your milestone! Setting new goals...';
+        }
+    }
+    
+    // Show modal
+    modal.classList.add('show');
+    
+    // Add celebration sounds/vibration (if supported)
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+    }
+}
+
+function closeCelebrationModal() {
+    const modal = document.getElementById('streakCelebrationModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+function viewStreakHistory() {
+    showNotification('📊 Streak history feature coming soon!', 'info');
+    // TODO: Implement detailed streak history view
+}
+
+function saveStreakData() {
+    localStorage.setItem('scms-streak-current', streakState.currentStreak.toString());
+    localStorage.setItem('scms-streak-best', streakState.bestStreak.toString());
+    localStorage.setItem('scms-streak-total', streakState.totalDays.toString());
+    localStorage.setItem('scms-streak-last-activity', streakState.lastActivity);
+}
+
+function animateStreakElements() {
+    // Add pulsing animation to fire icons
+    const fireIcons = document.querySelectorAll('.streak-fire-icon, .streak-flame');
+    fireIcons.forEach(icon => {
+        icon.style.animation = 'streakPulse 2s infinite';
+    });
+    
+    // Add shimmer to progress bars
+    const progressBars = document.querySelectorAll('.streak-progress-fill, .mini-progress-fill');
+    progressBars.forEach(bar => {
+        bar.style.position = 'relative';
+        bar.style.overflow = 'hidden';
+    });
+}
+
 // Dashboard State
 let isQRScanning = false;
 let isCheckedIn = false;
@@ -151,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLiveDateTime();
     animateStats();
     loadAttendanceStatus();
+    initializeStreak(); // Initialize streak features
     startRealTimeUpdates();
     
     // Start real-time clock updates
@@ -218,6 +460,8 @@ function animateStats() {
 }
 
 function animateNumber(element, start, end, duration, decimals = 0, suffix = '') {
+    if (!element) return;
+    
     const startTime = performance.now();
     
     function update(currentTime) {
@@ -299,6 +543,11 @@ function startQRScan() {
             
             loadAttendanceStatus();
             showNotification('✅ Successfully checked in for CS101!', 'success');
+            
+            // Extend streak on successful check-in
+            setTimeout(() => {
+                extendStreak();
+            }, 1000);
             
             setTimeout(() => {
                 resetQRScanner();
@@ -430,6 +679,26 @@ function startRealTimeUpdates() {
             showAssignmentReminder();
         }
     }, 60000);
+    
+    // Daily streak reminder
+    setInterval(() => {
+        checkDailyStreakReminder();
+    }, 3600000); // Check every hour
+}
+
+function checkDailyStreakReminder() {
+    const today = new Date().toDateString();
+    const lastActivity = streakState.lastActivity;
+    
+    if (lastActivity !== today) {
+        const now = new Date();
+        const hour = now.getHours();
+        
+        // Show reminder in evening (6-10 PM)
+        if (hour >= 18 && hour <= 22) {
+            showNotification('🔥 Don\'t break your streak! Complete today\'s learning goal!', 'warning');
+        }
+    }
 }
 
 function addNewNotification() {
@@ -461,7 +730,7 @@ function updateGrade() {
 
 function showAssignmentReminder() {
     const reminders = [
-       '📝 Reminder: Binary Trees assignment due tomorrow!',
+        '📝 Reminder: Binary Trees assignment due tomorrow!',
         '⏰ Don\'t forget: Algorithm Analysis report due in 2 days',
         '📋 Upcoming: Database ER diagram submission next week',
     ];
@@ -499,6 +768,7 @@ document.addEventListener('click', function(e) {
     const sidebar = document.getElementById('sidebar');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const chatBotWindow = document.getElementById('chatBotWindow');
+    const streakModal = document.getElementById('streakCelebrationModal');
     
     // Close sidebar
     if (window.innerWidth <= 768 && 
@@ -513,6 +783,12 @@ document.addEventListener('click', function(e) {
         !chatBotWindow.contains(e.target) && 
         !e.target.closest('.fab')) {
         closeChatBot();
+    }
+    
+    // Close streak modal if clicking outside
+    if (streakModal && streakModal.classList.contains('show') && 
+        !streakModal.querySelector('.modal').contains(e.target)) {
+        closeCelebrationModal();
     }
 });
 
@@ -556,9 +832,22 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
-    // Escape to close chatbot
-    if (e.key === 'Escape' && isChatBotOpen) {
-        closeChatBot();
+    // Alt + S for streak
+    if (e.altKey && e.key === 's') {
+        e.preventDefault();
+        extendStreak();
+    }
+    
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        if (isChatBotOpen) {
+            closeChatBot();
+        }
+        
+        const streakModal = document.getElementById('streakCelebrationModal');
+        if (streakModal && streakModal.classList.contains('show')) {
+            closeCelebrationModal();
+        }
     }
 });
 
@@ -583,3 +872,8 @@ window.addEventListener('online', function() {
 window.addEventListener('offline', function() {
     showNotification('🔌 You are offline. Some features may be limited.', 'warning');
 });
+
+// 🔥 Export functions for global access
+window.extendStreak = extendStreak;
+window.viewStreakHistory = viewStreakHistory;
+window.closeCelebrationModal = closeCelebrationModal;
