@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Room - Virtual Learning Environment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="room.css">
+</head>
+<body>
+    <div class="room-container">
+        <header class="room-header">
+            <div class="room-info">
+                <div class="room-title-section">
+                    <h1 id="roomTitle">Calculus Study Group</h1>
+                    <span class="room-subject" id="roomSubject">Mathematics</span>
+                </div>
+                <div class="room-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-play-circle"></i>
+                        <span class="stat-label">Study Session Active</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span class="stat-label">Active Members: <span id="activeMembers">4</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-label">Session Time: <span id="sessionTime">45 minutes</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-user-friends"></i>
+                        <span class="stat-label"><span id="participantsCount">4/8</span> Members</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span class="stat-label"><span id="roomTimer">1h 23m left</span></span>
+                    </div>
+                    <div class="stat-item status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="stat-label" id="roomStatus">Active</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="theme-toggle-header" onclick="toggleTheme()">
+                    <div class="theme-toggle-icon">
+                        <i id="themeIcon" class="fas fa-moon"></i>
+                        <span id="themeLabel">Dark Mode</span>
+                    </div>
+                    <div class="theme-switch" id="themeSwitch">
+                        <div class="theme-switch-handle"></div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="openSettings()">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
+                <button class="btn btn-danger" onclick="leaveRoom()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Leave Room
+                </button>
+            </div>
+        </header>
+
+        <main class="room-main">
+            <div class="whiteboard-section">
+                <div class="whiteboard-header">
+                    <h4><i class="fas fa-draw-polygon"></i> Collaborative Whiteboard</h4>
+                    <div class="whiteboard-controls">
+                        <button class="tool-btn active" id="penTool" data-tool="pen" onclick="selectTool('pen')" title="Pen">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="tool-btn" id="eraserTool" data-tool="eraser" onclick="selectTool('eraser')" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button class="tool-btn" id="textTool" data-tool="text" onclick="selectTool('text')" title="Text">
+                            <i class="fas fa-font"></i>
+                        </button>
+                        <div class="color-picker">
+                            <input type="color" id="colorPicker" value="#2563eb" onchange="changeColor()">
+                        </div>
+                        <button class="tool-btn" onclick="clearWhiteboard()" title="Clear All">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="tool-btn" onclick="saveWhiteboard()" title="Save">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="tool-btn" onclick="toggleFullscreenWhiteboard()" title="Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                <canvas id="whiteboard" width="1000" height="600"></canvas>
+            </div>
+
+            <aside class="room-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" id="chatTab" onclick="showTab('chat')">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                        <span class="notification-badge" id="chatBadge">2</span>
+                    </button>
+                    <button class="tab-btn" id="participantsTab" onclick="showTab('participants')">
+                        <i class="fas fa-users"></i>
+                        <span>Members</span>
+                    </button>
+                    <button class="tab-btn" id="aiTab" onclick="showTab('ai')">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistant</span>
+                    </button>
+                </div>
+
+                <div class="tab-content">
+                    <div class="tab-panel active" id="chatPanel">
+                        <div class="chat-area" id="chatArea">
+                            <div class="chat-message">
+                                <div class="message-header">
+                                    <div class="message-avatar teacher">T</div>
+                                    <div class="message-name">Study Moderator</div>
+                                    <div class="message-time">2:30 PM</div>
+                                </div>
+                                <div class="message-text">Welcome everyone! Let's start with integration problems.</div>
+                            </div>
+                            <div class="chat-message">
+                                <div class="message-header">
+                                    <div class="message-avatar">S</div>
+                                    <div class="message-name">Sarah</div>
+                                    <div class="message-time">2:31 PM</div>
+                                </div>
+                                <div class="message-text">Ready! I have some questions about u-substitution.</div>
+                            </div>
+                            <div class="chat-message">
+                                <div class="message-header">
+                                    <div class="message-avatar">M</div>
+                                    <div class="message-name">Mike</div>
+                                    <div class="message-time">2:32 PM</div>
+                                </div>
+                                <div class="message-text">Can we work on problem #5 from the textbook?</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleChatEnter(event)">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="participantsPanel">
+                        <div class="participants-header">
+                            <h4>Room Members (4/8)</h4>
+                            <button class="btn btn-sm btn-secondary" onclick="refreshParticipants()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="participants-list" id="participantsList">
+                            <div class="participant-item me">
+                                <div class="participant-profile">
+                                    <div class="participant-avatar me">A</div>
+                                    <div class="participant-details">
+                                        <div class="participant-name">Alex Rodriguez (You)</div>
+                                        <div class="participant-role">Member • Online</div>
+                                    </div>
+                                </div>
+                                <div class="participant-status">
+                                    <div class="status-icon online"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="participants-actions">
+                            <button class="btn btn-primary btn-sm" onclick="inviteMembers()">
+                                <i class="fas fa-user-plus"></i>
+                                Invite Members
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="aiPanel">
+                        <div class="ai-header">
+                            <h4><i class="fas fa-robot"></i> AI Study Assistant</h4>
+                            <div class="ai-status online">
+                                <span class="status-dot"></span>
+                                Ready
+                            </div>
+                        </div>
+                        <div class="ai-suggestions">
+                            <h5>Quick Actions:</h5>
+                            <div class="suggestion-buttons">
+                                <button class="suggestion-btn" onclick="generateRoadmap()">
+                                    <i class="fas fa-route"></i>
+                                    Generate Study Roadmap
+                                </button>
+                                <button class="suggestion-btn" onclick="explainConcept()">
+                                    <i class="fas fa-lightbulb"></i>
+                                    Explain Concept
+                                </button>
+                                <button class="suggestion-btn" onclick="createQuiz()">
+                                    <i class="fas fa-question-circle"></i>
+                                    Create Practice Quiz
+                                </button>
+                                <button class="suggestion-btn" onclick="summarizeSession()">
+                                    <i class="fas fa-file-alt"></i>
+                                    Session Summary
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ai-chat-area" id="aiChatArea">
+                            <div class="ai-message">
+                                <div class="message-avatar ai">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-text">Hello! I'm your AI study assistant. I can help you create roadmaps, explain concepts, and generate practice questions. What would you like to study today?</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ai-input-area">
+                            <input type="text" id="aiInput" placeholder="Ask me anything about your studies..." onkeypress="handleAIEnter(event)">
+                            <button class="btn btn-primary" onclick="sendAIMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <footer class="room-footer">
+            <div class="room-controls">
+                <div class="control-group">
+                    <button class="control-btn" id="micBtn" onclick="toggleMic()" title="Toggle Microphone">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="control-btn" id="cameraBtn" onclick="toggleCamera()" title="Toggle Camera">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="control-btn" id="screenBtn" onclick="toggleScreen()" title="Share Screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button class="control-btn" id="handBtn" onclick="raiseHand()" title="Raise Hand">
+                        <i class="fas fa-hand-paper"></i>
+                    </button>
+                    <button class="control-btn" id="whiteboardBtn" onclick="toggleWhiteboard()" title="Toggle Whiteboard">
+                        <i class="fas fa-draw-polygon"></i>
+                    </button>
+                    <button class="control-btn" onclick="takeScreenshot()" title="Take Screenshot">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button class="control-btn secondary" onclick="openSettings()" title="Room Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="control-btn danger" onclick="leaveRoom()" title="Leave Room">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Room Settings</h3>
+                <button class="modal-close" onclick="closeSettings()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <h4>Display Settings</h4>
+                    <label>
+                        <input type="checkbox" id="showWhiteboard" checked>
+                        Show Whiteboard
+                    </label>
+                    <label>
+                        <input type="checkbox" id="showChat" checked>
+                        Show Chat Panel
+                    </label>
+                    <label>
+                        <input type="checkbox" id="enableNotifications" checked>
+                        Enable Notifications
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <h4>Study Preferences</h4>
+                    <label>
+                        Focus Timer:
+                        <select id="focusTimer">
+                            <option value="25">25 minutes</option>
+                            <option value="45" selected>45 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="90">1.5 hours</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-actions">
+        <button class="fab" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+        <button class="fab secondary" onclick="showHelp()" title="Help & Shortcuts">
+            <i class="fas fa-question"></i>
+        </button>
+    </div>
+
+    <script src="room.js"></script>
+    <script src="chat.js"></script>
+    <script src="whiteboard.js"></script>
+    <script src="ai-assistant.js"></script>
+</body>
+</html>
