@@ -97,7 +97,7 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
         address: 'Model Town, Delhi - 110009',
         employeeId: 'ECE001',
         department: 'ECE',
-        designation: 'Associate Professor',
+        designation: 'Professor',
         experience: '12',
         qualification: 'Ph.D',
         salary: '75000',
@@ -137,7 +137,7 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
         address: 'Satellite, Ahmedabad - 380015',
         employeeId: 'MECH001',
         department: 'MECH',
-        designation: 'Assistant Professor',
+        designation: 'Professor',
         experience: '8',
         qualification: 'M.Tech',
         salary: '55000',
@@ -177,7 +177,7 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
         address: 'Banjara Hills, Hyderabad - 500034',
         employeeId: 'IT001',
         department: 'IT',
-        designation: 'Associate Professor',
+        designation: 'Professor',
         experience: '10',
         qualification: 'Ph.D',
         salary: '70000',
@@ -197,7 +197,7 @@ let FACULTY_DATA = JSON.parse(localStorage.getItem('scms_faculty_data')) || [
         address: 'Koregaon Park, Pune - 411001',
         employeeId: 'CSE002',
         department: 'CSE',
-        designation: 'Assistant Professor',
+        designation: 'Professor',
         experience: '6',
         qualification: 'M.Tech',
         salary: '50000',
@@ -1553,3 +1553,4 @@ document.addEventListener('click', function(e) {
         e.target.remove();
     }
 });
+
