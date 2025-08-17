@@ -567,6 +567,12 @@ body {
     overflow: hidden;
 }
 
+.feedback-container.card-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));    
+    gap: 1.5rem;     
+    padding: 1.5rem;
+}
 .section-header {
     background: var(--bg-secondary);
     padding: 20px 25px;
@@ -575,7 +581,7 @@ body {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 1.5rem;
 }
 
 .section-header h3 {
