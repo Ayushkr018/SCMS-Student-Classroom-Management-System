@@ -600,6 +600,15 @@ body {
     border: 1px solid var(--border-color);
 }
 
+.students-section th,
+.students-section td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary); /* Apply primary text color */
+}
+
 .table-header {
     background: var(--bg-secondary);
     padding: 20px;
