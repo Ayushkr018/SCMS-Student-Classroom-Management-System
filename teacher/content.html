@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content - SCMS Teacher Portal</title>
+    <link rel="stylesheet" href="content.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Same as existing pages -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 SCMS</h2>
+                <p>Teacher Portal</p>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-dept" id="userDept">Computer Science</div>
+                </div>
+            </div>
+
+            <div class="theme-toggle-sidebar" onclick="toggleTheme()">
+                <div class="theme-toggle-icon">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                    <span id="themeLabel">Dark Mode</span>
+                </div>
+                <div class="theme-switch" id="themeSwitch">
+                    <div class="theme-switch-handle"></div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="session.html">
+                            <i class="fas fa-video"></i>
+                            Live Session
+                        </a>
+                    </li>
+                    <li>
+                        <a href="attendance.html">
+                            <i class="fas fa-user-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="test-management.html">
+                            <i class="fas fa-clipboard-check"></i>
+                            Test Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="assignment.html">
+                            <i class="fas fa-tasks"></i>
+                            Assignments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profiles.html">
+                            <i class="fas fa-users"></i>
+                            Student Profiles
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="content.html">
+                            <i class="fas fa-book"></i>
+                            Course Content
+                        </a>
+                    </li>
+                     <li>
+                        <a href="resources.html">
+                            <i class="fas fa-tools"></i>
+                            Resources
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                            <span class="nav-badge" id="navNotificationBadge">3</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings.html">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">
+                    <i class="fas fa-book"></i>
+                    <span>Course Content</span>
+                </div>
+                <div class="mobile-controls">
+                    <button class="mobile-theme-toggle" onclick="toggleTheme()">
+                        <i id="mobileThemeIcon" class="fas fa-moon"></i>
+                    </button>
+                    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-info">
+                    <h1><i class="fas fa-book"></i> Course Content Management</h1>
+                    <p>Upload, organize and share course materials with your students</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openUploadModal()">
+                        <i class="fas fa-upload"></i> Upload Content
+                    </button>
+                    <button class="btn btn-info" onclick="createNewFolder()">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                    <button class="btn btn-secondary" onclick="manageSyllabus()">
+                        <i class="fas fa-list-alt"></i> Syllabus
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Statistics -->
+            <div class="content-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalFiles">247</span>
+                    <span class="stat-label">Total Files</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalSize">2.8 GB</span>
+                    <span class="stat-label">Storage Used</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="videosCount">45</span>
+                    <span class="stat-label">Videos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="documentsCount">156</span>
+                    <span class="stat-label">Documents</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalViews">1,284</span>
+                    <span class="stat-label">Total Views</span>
+                </div>
+            </div>
+
+            <!-- Content Navigation -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="content-nav-header">
+                        <h3><i class="fas fa-folder-open"></i> Content Library</h3>
+                        <div class="breadcrumb" id="breadcrumb">
+                            <span class="breadcrumb-item active" onclick="navigateToFolder('root')">
+                                <i class="fas fa-home"></i> Home
+                            </span>
+                        </div>
+                    </div>
+                    <div class="content-controls">
+                        <div class="view-options">
+                            <button class="view-btn active" onclick="switchContentView('grid')" data-view="grid">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn" onclick="switchContentView('list')" data-view="list">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                        <div class="sort-options">
+                            <select id="sortBy" onchange="sortContent()">
+                                <option value="name">Sort by Name</option>
+                                <option value="date">Sort by Date</option>
+                                <option value="size">Sort by Size</option>
+                                <option value="type">Sort by Type</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="refreshContent()">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Content Filters -->
+                <div class="content-filters">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterByType('all')">
+                            <i class="fas fa-globe"></i> All Files
+                        </button>
+                        <button class="filter-tab" onclick="filterByType('video')">
+                            <i class="fas fa-play"></i> Videos
+                        </button>
+                        <button class="filter-tab" onclick="filterByType('document')">
+                            <i class="fas fa-file-alt"></i> Documents
+                        </button>
+                        <button class="filter-tab" onclick="filterByType('image')">
+                            <i class="fas fa-image"></i> Images
+                        </button>
+                        <button class="filter-tab" onclick="filterByType('audio')">
+                            <i class="fas fa-music"></i> Audio
+                        </button>
+                        <button class="filter-tab" onclick="filterByType('archive')">
+                            <i class="fas fa-file-archive"></i> Archives
+                        </button>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="contentSearch" placeholder="Search files and folders..." oninput="searchContent()">
+                    </div>
+                </div>
+
+                <!-- Content Display Area -->
+                <div class="content-display" id="contentDisplay">
+                    <!-- Dynamic content loaded via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Quick Access Panel -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-star"></i> Quick Access</h3>
+                </div>
+                <div class="quick-access-grid">
+                    <div class="quick-access-item" onclick="showRecentFiles()">
+                        <div class="quick-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="quick-info">
+                            <h4>Recent Files</h4>
+                            <p>View recently uploaded content</p>
+                        </div>
+                    </div>
+                    <div class="quick-access-item" onclick="showPopularContent()">
+                        <div class="quick-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="quick-info">
+                            <h4>Popular Content</h4>
+                            <p>Most viewed by students</p>
+                        </div>
+                    </div>
+                    <div class="quick-access-item" onclick="showSharedContent()">
+                        <div class="quick-icon">
+                            <i class="fas fa-share"></i>
+                        </div>
+                        <div class="quick-info">
+                            <h4>Shared with Me</h4>
+                            <p>Content shared by colleagues</p>
+                        </div>
+                    </div>
+                    <div class="quick-access-item" onclick="showFavorites()">
+                        <div class="quick-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="quick-info">
+                            <h4>Favorites</h4>
+                            <p>Your bookmarked content</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content upload-modal-content">
+            <div class="modal-header">
+                <h3>Upload Course Content</h3>
+                <button class="close-btn" onclick="closeUploadModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragleave="dragLeaveHandler(event);">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4>Drag & Drop Files Here</h4>
+                        <p>or click to browse and select files</p>
+                        <input type="file" id="fileInput" multiple accept="*/*" onchange="handleFileSelect(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Options -->
+                <div class="upload-options">
+                    <div class="form-group">
+                        <label>Upload to Folder</label>
+                        <select id="targetFolder">
+                            <option value="root">Root Directory</option>
+                            <option value="lectures">Lectures</option>
+                            <option value="assignments">Assignments</option>
+                            <option value="resources">Resources</option>
+                            <option value="videos">Videos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Visibility</label>
+                        <select id="fileVisibility">
+                            <option value="students">Visible to Students</option>
+                            <option value="private">Private (Only Me)</option>
+                            <option value="teachers">Teachers Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="fileDescription" rows="3" placeholder="Add a description for this content..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Upload Queue -->
+                <div class="upload-queue" id="uploadQueue" style="display: none;">
+                    <h4>Upload Queue</h4>
+                    <div class="queue-list" id="queueList">
+                        <!-- Dynamic upload items -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" id="startUploadBtn" onclick="startUpload()" disabled>
+                    <i class="fas fa-upload"></i> Start Upload
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Viewer Modal -->
+    <div class="modal" id="fileViewerModal">
+        <div class="modal-content file-viewer-content">
+            <div class="modal-header">
+                <h3 id="viewerTitle">File Viewer</h3>
+                <div class="viewer-controls">
+                    <button class="btn btn-secondary" onclick="downloadFile()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button class="btn btn-info" onclick="shareFile()">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                    <button class="close-btn" onclick="closeFileViewer()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="file-viewer-container" id="fileViewerContainer">
+                    <!-- Dynamic content based on file type -->
+                </div>
+                
+                <!-- File Info Panel -->
+                <div class="file-info-panel" id="fileInfoPanel">
+                    <h4>File Information</h4>
+                    <div class="file-info-grid" id="fileInfoGrid">
+                        <!-- Dynamic file information -->
+                    </div>
+                    
+                    <!-- File Analytics -->
+                    <div class="file-analytics" id="fileAnalytics">
+                        <h5>Analytics</h5>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-value" id="fileViews">0</span>
+                                <span class="stat-label">Views</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-value" id="fileDownloads">0</span>
+                                <span class="stat-label">Downloads</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-value" id="lastViewed">Never</span>
+                                <span class="stat-label">Last Viewed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="file-comments" id="fileComments">
+                        <h5>Comments & Feedback</h5>
+                        <div class="comment-form">
+                            <textarea id="newComment" placeholder="Add a comment..." rows="2"></textarea>
+                            <button class="btn btn-primary" onclick="addComment()">
+                                <i class="fas fa-comment"></i> Add Comment
+                            </button>
+                        </div>
+                        <div class="comments-list" id="commentsList">
+                            <!-- Dynamic comments -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Syllabus Management Modal -->
+    <div class="modal" id="syllabusModal">
+        <div class="modal-content syllabus-modal-content">
+            <div class="modal-header">
+                <h3>Syllabus Management</h3>
+                <button class="close-btn" onclick="closeSyllabusModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Syllabus Tabs -->
+                <div class="syllabus-tabs">
+                    <button class="tab-btn active" onclick="switchSyllabusTab('overview')">
+                        <i class="fas fa-eye"></i> Overview
+                    </button>
+                    <button class="tab-btn" onclick="switchSyllabusTab('chapters')">
+                        <i class="fas fa-book-open"></i> Chapters
+                    </button>
+                    <button class="tab-btn" onclick="switchSyllabusTab('schedule')">
+                        <i class="fas fa-calendar"></i> Schedule
+                    </button>
+                    <button class="tab-btn" onclick="switchSyllabusTab('progress')">
+                        <i class="fas fa-chart-line"></i> Progress
+                    </button>
+                </div>
+
+                <!-- Syllabus Content -->
+                <div class="syllabus-content">
+                    <!-- Overview Tab -->
+                    <div id="syllabus-overview" class="syllabus-tab-content active">
+                        <div class="syllabus-overview-grid">
+                            <div class="syllabus-card">
+                                <h4>Course Information</h4>
+                                <div class="course-info" id="courseInfo">
+                                    <!-- Dynamic course information -->
+                                </div>
+                            </div>
+                            <div class="syllabus-card">
+                                <h4>Progress Summary</h4>
+                                <div class="progress-summary" id="progressSummary">
+                                    <!-- Dynamic progress information -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chapters Tab -->
+                    <div id="syllabus-chapters" class="syllabus-tab-content">
+                        <div class="chapters-manager">
+                            <div class="chapters-toolbar">
+                                <button class="btn btn-primary" onclick="addNewChapter()">
+                                    <i class="fas fa-plus"></i> Add Chapter
+                                </button>
+                                <button class="btn btn-secondary" onclick="reorderChapters()">
+                                    <i class="fas fa-sort"></i> Reorder
+                                </button>
+                            </div>
+                            <div class="chapters-list" id="chaptersList">
+                                <!-- Dynamic chapters list -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Tab -->
+                    <div id="syllabus-schedule" class="syllabus-tab-content">
+                        <div class="schedule-manager">
+                            <div class="schedule-calendar" id="scheduleCalendar">
+                                <!-- Dynamic schedule calendar -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Tab -->
+                    <div id="syllabus-progress" class="syllabus-tab-content">
+                        <div class="progress-tracker">
+                            <div class="progress-charts" id="progressCharts">
+                                <!-- Dynamic progress charts -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div class="modal" id="videoPlayerModal">
+        <div class="modal-content video-player-content">
+            <div class="modal-header">
+                <h3 id="videoTitle">Video Player</h3>
+                <div class="video-controls">
+                    <button class="btn btn-secondary" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i> Fullscreen
+                    </button>
+                    <button class="btn btn-info" onclick="showVideoInfo()">
+                        <i class="fas fa-info"></i> Info
+                    </button>
+                    <button class="close-btn" onclick="closeVideoPlayer()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="video-player-container">
+                    <video id="videoPlayer" controls preload="metadata" poster="">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    
+                    <!-- Video Overlay Controls -->
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="video-progress-bar">
+                            <div class="progress-track">
+                                <div class="progress-buffer"></div>
+                                <div class="progress-played"></div>
+                                <div class="progress-handle"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="video-control-bar">
+                            <div class="control-group-left">
+                                <button class="video-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="video-btn" onclick="seekBackward()">
+                                    <i class="fas fa-backward"></i>
+                                </button>
+                                <button class="video-btn" onclick="seekForward()">
+                                    <i class="fas fa-forward"></i>
+                                </button>
+                                <div class="volume-control">
+                                    <button class="video-btn" onclick="toggleMute()">
+                                        <i class="fas fa-volume-up" id="volumeIcon"></i>
+                                    </button>
+                                    <input type="range" class="volume-slider" min="0" max="100" value="100" onchange="changeVolume(this.value)">
+                                </div>
+                                <div class="time-display">
+                                    <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group-right">
+                                <button class="video-btn" onclick="changePlaybackSpeed()">
+                                    <span id="speedLabel">1x</span>
+                                </button>
+                                <button class="video-btn" onclick="toggleCaptions()">
+                                    <i class="fas fa-closed-captioning"></i>
+                                </button>
+                                <button class="video-btn" onclick="openPictureInPicture()">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="video-btn" onclick="toggleVideoFullscreen()">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Info Panel -->
+                <div class="video-info-panel" id="videoInfoPanel" style="display: none;">
+                    <div class="video-details">
+                        <h4>Video Details</h4>
+                        <div class="video-meta" id="videoMeta">
+                            <!-- Dynamic video metadata -->
+                        </div>
+                    </div>
+                    
+                    <!-- Video Notes -->
+                    <div class="video-notes">
+                        <h4>Notes & Timestamps</h4>
+                        <div class="notes-list" id="videoNotes">
+                            <!-- Dynamic video notes -->
+                        </div>
+                        <div class="add-note">
+                            <input type="text" id="noteText" placeholder="Add a note at current time...">
+                            <button class="btn btn-primary" onclick="addVideoNote()">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Content</h3>
+                <button class="close-btn" onclick="closeShareModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="share-options">
+                    <h4>Share with Students</h4>
+                    <div class="share-classes">
+                        <div class="class-option">
+                            <input type="checkbox" id="share-cs2a" checked>
+                            <label for="share-cs2a">BTech CS - 2A (45 students)</label>
+                        </div>
+                        <div class="class-option">
+                            <input type="checkbox" id="share-cs2b">
+                            <label for="share-cs2b">BTech CS - 2B (42 students)</label>
+                        </div>
+                        <div class="class-option">
+                            <input type="checkbox" id="share-it3a">
+                            <label for="share-it3a">BTech IT - 3A (38 students)</label>
+                        </div>
+                    </div>
+
+                    <h4>Share with Colleagues</h4>
+                    <div class="colleague-search">
+                        <input type="text" placeholder="Search colleagues..." id="colleagueSearch">
+                        <div class="colleagues-list" id="colleaguesList">
+                            <!-- Dynamic colleagues list -->
+                        </div>
+                    </div>
+
+                    <h4>Public Link</h4>
+                    <div class="public-link">
+                        <input type="text" id="publicLink" readonly value="https://scms.edu/content/shared/abc123">
+                        <button class="btn btn-secondary" onclick="copyLink()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+
+                    <div class="share-settings">
+                        <div class="setting-item">
+                            <label class="switch">
+                                <input type="checkbox" id="allowDownload" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="setting-info">
+                                <h5>Allow Download</h5>
+                                <p>Students can download this content</p>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label class="switch">
+                                <input type="checkbox" id="trackViews" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="setting-info">
+                                <h5>Track Views</h5>
+                                <p>Monitor who views this content</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeShareModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="shareContent()">
+                    <i class="fas fa-share"></i> Share Content
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="notification-icon"></i>
+        <span class="notification-text"></span>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" onclick="openFile()">
+            <i class="fas fa-eye"></i> Open
+        </div>
+        <div class="context-item" onclick="downloadFile()">
+            <i class="fas fa-download"></i> Download
+        </div>
+        <div class="context-item" onclick="shareFile()">
+            <i class="fas fa-share"></i> Share
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" onclick="renameFile()">
+            <i class="fas fa-edit"></i> Rename
+        </div>
+        <div class="context-item" onclick="moveFile()">
+            <i class="fas fa-cut"></i> Move
+        </div>
+        <div class="context-item" onclick="copyFile()">
+            <i class="fas fa-copy"></i> Copy
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item danger" onclick="deleteFile()">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+    </div>
+
+    <script src="content.js"></script>
+</body>
+</html>
