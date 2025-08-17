@@ -43,6 +43,30 @@
                     <div class="user-roll" id="userRoll">CS2023001</div>
                 </div>
             </div>
+
+            <!-- 🔥 STUDY STREAK SECTION - NEW! -->
+            <div class="streak-section" id="streakSection">
+                <div class="streak-header">
+                    <div class="streak-fire-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="streak-info">
+                        <div class="streak-number" id="streakDays">7</div>
+                        <div class="streak-label">Day Streak</div>
+                    </div>
+                </div>
+                <div class="streak-message" id="streakMessage">
+                    🔥 You're on fire! Keep it up!
+                </div>
+                <div class="streak-progress">
+                    <div class="streak-progress-bar">
+                        <div class="streak-progress-fill" id="streakProgressFill" style="width: 70%;"></div>
+                    </div>
+                    <div class="streak-progress-text">
+                        <span>Next milestone: 10 days</span>
+                    </div>
+                </div>
+            </div>
             
             <div class="theme-toggle-sidebar" onclick="toggleTheme()">
                 <div class="theme-toggle-icon">
@@ -86,10 +110,10 @@
                             Grades
                         </a>
                     </li>
-                     <li>
-                        <a href="test.html">
-                            <i class="fas fa-clipboard-list"></i>
-                            Test Assesment
+                    <li>
+                        <a href="study-buddy.html">
+                            <i class="fas fa-users"></i>
+                            Study Buddy
                         </a>
                     </li>
                     <li>
@@ -121,6 +145,27 @@
                         <i class="fas fa-video"></i>
                         Join Live Class
                     </button>
+                </div>
+            </div>
+
+            <!-- 🔥 STREAK BANNER - Motivational Top Banner -->
+            <div class="streak-banner" id="streakBanner">
+                <div class="streak-banner-content">
+                    <div class="streak-banner-left">
+                        <div class="streak-flame">🔥</div>
+                        <div class="streak-banner-text">
+                            <h3><span id="bannerStreakDays">7</span> Day Study Streak!</h3>
+                            <p id="bannerMotivationText">You're unstoppable! Keep going to reach 10 days!</p>
+                        </div>
+                    </div>
+                    <div class="streak-banner-right">
+                        <div class="streak-banner-progress">
+                            <div class="mini-progress-bar">
+                                <div class="mini-progress-fill" id="bannerProgressFill" style="width: 70%;"></div>
+                            </div>
+                            <span class="streak-target">Target: 10 days</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -320,6 +365,70 @@
                         </div>
                     </div>
 
+                    <!-- 🔥 STREAK INSIGHTS CARD - NEW! -->
+                    <div class="dashboard-card streak-insights-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-fire"></i> Streak Insights</h3>
+                            <button class="btn btn-sm btn-primary" onclick="viewStreakHistory()">
+                                <i class="fas fa-history"></i>
+                                History
+                            </button>
+                        </div>
+                        <div class="streak-insights">
+                            <div class="streak-stats-grid">
+                                <div class="streak-stat">
+                                    <div class="streak-stat-icon current">
+                                        <i class="fas fa-fire"></i>
+                                    </div>
+                                    <div class="streak-stat-info">
+                                        <div class="streak-stat-number" id="currentStreak">7</div>
+                                        <div class="streak-stat-label">Current</div>
+                                    </div>
+                                </div>
+                                <div class="streak-stat">
+                                    <div class="streak-stat-icon best">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div class="streak-stat-info">
+                                        <div class="streak-stat-number" id="bestStreak">15</div>
+                                        <div class="streak-stat-label">Best</div>
+                                    </div>
+                                </div>
+                                <div class="streak-stat">
+                                    <div class="streak-stat-icon total">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="streak-stat-info">
+                                        <div class="streak-stat-number" id="totalDays">42</div>
+                                        <div class="streak-stat-label">Total</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="streak-achievements">
+                                <h4>🏆 Recent Achievements</h4>
+                                <div class="achievement-item">
+                                    <i class="fas fa-medal achievement-icon"></i>
+                                    <span>Week Warrior - 7 day streak!</span>
+                                </div>
+                                <div class="achievement-item locked">
+                                    <i class="fas fa-lock achievement-icon"></i>
+                                    <span>Perfect 10 - Complete 10 days (3 to go!)</span>
+                                </div>
+                            </div>
+
+                            <div class="streak-motivation">
+                                <div class="motivation-quote" id="motivationQuote">
+                                    "Success is the sum of small efforts repeated day in and day out."
+                                </div>
+                                <button class="btn btn-gradient" onclick="extendStreak()">
+                                    <i class="fas fa-plus"></i>
+                                    Complete Today's Goal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
@@ -441,9 +550,31 @@
         </div>
     </div>
 
+    <!-- 🔥 STREAK CELEBRATION MODAL - NEW! -->
+    <div class="modal-overlay" id="streakCelebrationModal">
+        <div class="modal celebration-modal">
+            <div class="celebration-content">
+                <div class="celebration-animation">
+                    <div class="celebration-fire">🔥</div>
+                    <div class="celebration-sparks">✨</div>
+                </div>
+                <h2>Streak Extended!</h2>
+                <p>Congratulations! You've maintained your <strong><span id="celebrationDays">7</span> day streak</strong>!</p>
+                <div class="celebration-progress">
+                    <div class="celebration-bar">
+                        <div class="celebration-fill" id="celebrationFill"></div>
+                    </div>
+                    <span id="celebrationNext">3 more days to reach 10!</span>
+                </div>
+                <button class="btn btn-gradient" onclick="closeCelebrationModal()">
+                    <i class="fas fa-rocket"></i>
+                    Keep Going!
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="dashboard.js"></script>
     <script src="chat.js"></script>
 </body>
 </html>
-
-
