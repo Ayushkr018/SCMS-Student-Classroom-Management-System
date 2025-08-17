@@ -134,6 +134,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// Real-time Date & Time function
+function updateLiveDateTime() {
+    const now = new Date();
+    const dateTimeString = now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }) + ' - ' + now.toLocaleTimeString('en-US', { 
+        hour12: true, 
+        hour: 'numeric', 
+        minute: '2-digit',
+        
+    });
+    
+    // Update element
+    const liveDateTime = document.getElementById('liveDateTime');
+    if (liveDateTime) liveDateTime.textContent = dateTimeString;
+}
+
+// Start real-time updates
+setInterval(updateLiveDateTime, 1000);
+updateLiveDateTime(); // Initial call
 
 function loadCurrentUser() {
     const currentUser = localStorage.getItem('scms_current_user');
