@@ -1,13 +1,30 @@
 @import "tailwindcss";
 
+/* This is the key. It enables the dark: prefix to work when the .dark class is present. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Extending Colors */
-  --color-accent-blue-light: #3b82f6;
-  --color-accent-blue-DEFAULT: #2563eb; /* The DEFAULT key becomes part of the variable name */
-  --color-accent-blue-dark: #1d4ed8;
-
-  /* Extending Fonts */
+  /* We only need variables for things that are truly custom and static */
   --font-family-inter: 'Inter', sans-serif;
+  --gradient-blue: linear-gradient(135deg, theme(colors.blue.500), theme(colors.blue.700));
+  --gradient-blue-dark: linear-gradient(135deg, theme(colors.blue.400), theme(colors.blue.600));
+
+  /* Static Role Colors */
+  --color-role-admin: #ef4444;
+  --color-role-teacher: #10b981;
+  --color-role-student: #2563eb;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-family-inter);
+    @apply bg-white text-slate-800;
+    @apply dark:bg-slate-900 dark:text-slate-50;
+    @apply transition-colors duration-300;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }

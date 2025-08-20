@@ -1,63 +1,48 @@
+import React from 'react';
 import { FaSearch, FaRocket, FaChalkboardTeacher, FaUserGraduate, FaUserShield, FaCog, FaQuestionCircle } from 'react-icons/fa';
 
-const HelpCategory = ({ icon, title, links }) => (
-    <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-xl dark:hover:shadow-black/20 hover:border-blue-500">
-        <div className="w-14 h-14 mb-6 flex items-center justify-center rounded-xl bg-gradient-to-br from-accent-blue-light to-accent-blue-dark text-white text-2xl">
-            {icon}
-        </div>
-        <h3 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">{title}</h3>
-        <ul className="space-y-2">
-            {links.map(link => (
-                <li key={link.text}>
-                    <a href={link.href} className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-accent-blue-light transition-colors duration-200">{link.text}</a>
-                </li>
-            ))}
-        </ul>
-    </div>
-);
+const helpCategories = [
+    { icon: <FaRocket />, title: "Getting Started", links: ["Initial Setup Guide", "Login & Account Management", "Platform Navigation", "Understanding User Roles"] },
+    { icon: <FaChalkboardTeacher />, title: "For Teachers", links: ["Managing Classes", "Attendance Tracking", "Creating Assignments", "Grading System"] },
+    { icon: <FaUserGraduate />, title: "For Students", links: ["Digital Check-in Process", "Assignment Submissions", "Viewing Grades", "Class Schedule"] },
+    { icon: <FaUserShield />, title: "For Administrators", links: ["User Management", "System Analytics", "Security Settings", "Generating Reports"] },
+    { icon: <FaCog />, title: "Technical Support", links: ["Troubleshooting Guide", "Mobile App Issues", "Browser Compatibility", "Performance Optimization"] },
+    { icon: <FaQuestionCircle />, title: "FAQ", links: ["Pricing & Plans", "Data Privacy & Security", "Third-party Integrations", "System Updates"] },
+];
 
-
-const Help = () => {
-    const categories = [
-        { icon: <FaRocket />, title: 'Getting Started', links: [{text: 'Initial Setup Guide', href: '#'}, {text: 'Login & Account Management', href: '#'}, {text: 'Platform Navigation', href: '#'}, {text: 'Understanding User Roles', href: '#'}] },
-        { icon: <FaChalkboardTeacher />, title: 'For Teachers', links: [{text: 'Managing Classes', href: '#'}, {text: 'Attendance Tracking', href: '#'}, {text: 'Creating Assignments', href: '#'}, {text: 'Grading System', href: '#'}] },
-        { icon: <FaUserGraduate />, title: 'For Students', links: [{text: 'Digital Check-in Process', href: '#'}, {text: 'Assignment Submissions', href: '#'}, {text: 'Viewing Grades', href: '#'}, {text: 'Class Schedule', href: '#'}] },
-        { icon: <FaUserShield />, title: 'For Administrators', links: [{text: 'User Management', href: '#'}, {text: 'System Analytics', href: '#'}, {text: 'Security Settings', href: '#'}, {text: 'Generating Reports', href: '#'}] },
-        { icon: <FaCog />, title: 'Technical Support', links: [{text: 'Troubleshooting Guide', href: '#'}, {text: 'Mobile App Issues', href: '#'}, {text: 'Browser Compatibility', href: '#'}, {text: 'Performance Optimization', href: '#'}] },
-        { icon: <FaQuestionCircle />, title: 'FAQ', links: [{text: 'Pricing & Plans', href: '#'}, {text: 'Data Privacy & Security', href: '#'}, {text: 'Third-party Integrations', href: '#'}, {text: 'System Updates', href: '#'}] },
-    ];
-
-  return (
-    <section id="help" className="py-20 sm:py-24 lg:py-32 bg-slate-50 dark:bg-slate-800/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Help Center
-          </h2>
-          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Find answers to common questions and get the support you need
-          </p>
-        </div>
-
-        <div className="max-w-2xl mx-auto mb-16">
-            <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <FaSearch className="text-slate-400" />
+const Help = () => (
+    <section id="help" className="bg-slate-50 dark:bg-slate-800 py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16 max-w-2xl mx-auto">
+                <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-4">Help Center</h2>
+                <p className="text-lg text-slate-600 dark:text-slate-300">Find answers to common questions and get the support you need</p>
+            </div>
+            <div className="max-w-2xl mx-auto mb-16">
+                <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20">
+                    <FaSearch className="text-slate-400 text-lg" />
+                    <input type="text" placeholder="Search for help topics, tutorials, or FAQs..." className="flex-1 border-none bg-transparent text-base text-slate-900 dark:text-white outline-none placeholder:text-slate-400" />
+                    <button className="bg-blue-600 text-white border-none px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all duration-300 hover:bg-blue-700 dark:hover:bg-blue-600">Search</button>
                 </div>
-                <input
-                    type="text"
-                    placeholder="Search for help topics, tutorials, or FAQs..."
-                    className="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors duration-300"
-                />
+            </div>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {helpCategories.map((cat) => (
+                    <div key={cat.title} className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/50 dark:hover:border-blue-500/50">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600 flex items-center justify-center text-xl text-white mb-6 shadow-lg shadow-blue-500/20">
+                            {cat.icon}
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{cat.title}</h3>
+                        <ul className="space-y-2">
+                            {cat.links.map(link => (
+                                <li key={link}>
+                                    <a href="#" className="text-slate-600 dark:text-slate-400 transition-colors duration-300 text-sm hover:text-blue-600 dark:hover:text-blue-400">{link}</a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
         </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map(category => <HelpCategory key={category.title} {...category} />)}
-        </div>
-      </div>
     </section>
-  );
-};
+);
 
 export default Help;

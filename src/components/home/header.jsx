@@ -1,105 +1,122 @@
-import { useState } from 'react';
-import { FaGraduationCap, FaMoon, FaSun, FaBars, FaTimes, FaSignInAlt, FaUserPlus, FaToggleOff, FaToggleOn } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaGraduationCap, FaMoon, FaSun, FaBars, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 
-const Header = ({ toggleTheme, theme, openLoginModal, openSignupModal }) => {
-  const [isMobileNavOpen, setMobileNavOpen] = useState(false);
+const Header = ({ onLoginClick, onSignupClick }) => {
+    const [theme, setTheme] = useState(null);
+    const [isMobileNavOpen, setMobileNavOpen] = useState(false);
+    
+    useEffect(() => {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+    }, []);
 
-  const toggleMobileNav = () => {
-    setMobileNavOpen(!isMobileNavOpen);
-  };
+    useEffect(() => {
+        if (theme === null) return;
+        const root = document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+    }, [theme]);
 
-  const closeMobileNav = () => {
-    setMobileNavOpen(false);
-  };
+    const toggleTheme = () => {
+        setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    };
 
-  const navLinks = [
-    { href: '#features', text: 'Features' },
-    { href: '#roles', text: 'Access Portal' },
-    { href: '#about', text: 'About' },
-    { href: '#help', text: 'Help' },
-  ];
+    const handleMobileLogin = () => { onLoginClick(); setMobileNavOpen(false); };
+    const handleMobileSignup = () => { onSignupClick(); setMobileNavOpen(false); };
+    
+    // Function for smooth scrolling to a section
+    const handleSmoothScroll = (e) => {
+        e.preventDefault();
+        const targetId = e.currentTarget.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
 
-  return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 shadow-sm dark:shadow-slate-800 border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <a href="#" className="flex items-center gap-3 text-blue-600 dark:text-accent-blue-light">
-              <div className="w-11 h-11 flex items-center justify-center bg-gradient-to-br from-accent-blue-light to-accent-blue-dark rounded-xl text-white text-2xl shadow-lg">
-                <FaGraduationCap />
-              </div>
-              <span className="text-2xl font-extrabold">SCMS</span>
-            </a>
-          </div>
+        if (targetElement) {
+            const headerOffset = 88; // Height of the header + padding
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-accent-blue-light font-medium transition-colors duration-300">
-                {link.text}
-              </a>
-            ))}
-          </nav>
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+            setMobileNavOpen(false); // Close mobile nav after clicking
+        }
+    };
 
-          {/* Right side buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              title="Toggle Dark/Light Mode"
-              className="w-11 h-11 flex items-center justify-center bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-full text-slate-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:border-accent-blue-light dark:hover:bg-accent-blue-light transition-all duration-300 transform hover:scale-105"
-            >
-              {theme === 'light' ? <FaMoon size={20} /> : <FaSun size={20} />}
-            </button>
+    // Function to scroll to the top of the page
+    const handleScrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    };
 
-            <div className="hidden md:flex items-center gap-2">
-              <button onClick={openLoginModal} className="flex items-center gap-2 px-6 py-2.5 border-2 border-blue-600 dark:border-accent-blue-light text-blue-600 dark:text-accent-blue-light font-semibold rounded-lg hover:bg-blue-600 dark:hover:bg-accent-blue-light hover:text-white dark:hover:text-white transition-all duration-300 text-sm">
-                <FaSignInAlt />
-                Login
-              </button>
-              <button onClick={openSignupModal} className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-accent-blue-dark dark:hover:bg-accent-blue-light transition-all duration-300 transform hover:-translate-y-0.5 text-sm">
-                <FaUserPlus />
-                Sign Up
-              </button>
+    if (theme === null) {
+        return <header className="h-[88px]" />; // Render a placeholder to prevent layout shift
+    }
+
+    return (
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm py-4 shadow-md dark:shadow-black/20 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 transition-colors">
+            <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8">
+                {/* Logo is now a button that scrolls to top */}
+                <button onClick={handleScrollToTop} className="flex items-center gap-3 font-extrabold text-2xl text-blue-600 dark:text-blue-500">
+                    <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/30">
+                        <FaGraduationCap />
+                    </div>
+                    <span>SCMS</span>
+                </button>
+                
+                {/* Desktop Navigation Links now use smooth scroll */}
+                <nav className="hidden lg:flex list-none gap-8 items-center">
+                    <a href="#features" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-400 font-medium transition-colors py-2 hover:text-blue-600 dark:hover:text-blue-400">Features</a>
+                    <a href="#roles" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-400 font-medium transition-colors py-2 hover:text-blue-600 dark:hover:text-blue-400">Access Portal</a>
+                    <a href="#about" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-400 font-medium transition-colors py-2 hover:text-blue-600 dark:hover:text-blue-400">About</a>
+                    <a href="#help" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-400 font-medium transition-colors py-2 hover:text-blue-600 dark:hover:text-blue-400">Help</a>
+                </nav>
+                
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={toggleTheme} 
+                        title="Toggle Theme" 
+                        className="bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-full w-11 h-11 flex items-center justify-center cursor-pointer transition-all text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500 dark:hover:border-blue-500 hover:scale-105"
+                    >
+                        {theme === 'dark' ? <FaSun /> : <FaMoon />}
+                    </button>
+                    <div className="hidden sm:flex gap-4 items-center">
+                        <button onClick={onLoginClick} className="bg-transparent text-blue-600 dark:text-blue-500 px-6 py-3 border-2 border-blue-600 dark:border-blue-500 rounded-lg font-semibold transition-all hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white dark:hover:text-white">
+                            <FaSignInAlt className="inline -mt-1 mr-2" /> Login
+                        </button>
+                        <button onClick={onSignupClick} className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md shadow-blue-500/30 hover:bg-blue-700 dark:hover:bg-blue-600 hover:-translate-y-px">
+                            <FaUserPlus className="inline -mt-1 mr-2" /> Sign Up
+                        </button>
+                    </div>
+                    <button className="lg:hidden text-2xl text-slate-500 dark:text-slate-400" onClick={() => setMobileNavOpen(!isMobileNavOpen)}>
+                        <FaBars />
+                    </button>
+                </div>
             </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button
-                onClick={toggleMobileNav}
-                className="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
-              >
-                {isMobileNavOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isMobileNavOpen && (
-        <div className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4">
-          <nav className="flex flex-col gap-2 mb-4">
-            {navLinks.map((link) => (
-              <a key={link.href} href={link.href} onClick={closeMobileNav} className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600">
-                {link.text}
-              </a>
-            ))}
-          </nav>
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex flex-col gap-3">
-              <button onClick={() => { openLoginModal(); closeMobileNav(); }} className="w-full text-center px-6 py-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300">
-                Login
-              </button>
-              <button onClick={() => { openSignupModal(); closeMobileNav(); }} className="w-full text-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-accent-blue-dark transition-all duration-300">
-                Sign Up
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </header>
-  );
+            {isMobileNavOpen && (
+                 <div className="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-lg p-6">
+                    <div className="flex flex-col gap-4 mb-6">
+                         <a href="#features" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-300 font-medium py-3 border-b border-slate-200 dark:border-slate-700 transition-colors duration-300 hover:text-blue-600 dark:hover:text-blue-400">Features</a>
+                         <a href="#roles" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-300 font-medium py-3 border-b border-slate-200 dark:border-slate-700 transition-colors duration-300 hover:text-blue-600 dark:hover:text-blue-400">Access Portal</a>
+                         <a href="#about" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-300 font-medium py-3 border-b border-slate-200 dark:border-slate-700 transition-colors duration-300 hover:text-blue-600 dark:hover:text-blue-400">About</a>
+                         <a href="#help" onClick={handleSmoothScroll} className="text-slate-600 dark:text-slate-300 font-medium py-3 transition-colors duration-300 hover:text-blue-600 dark:hover:text-blue-400">Help</a>
+                    </div>
+                     <div className="flex flex-col gap-3">
+                         <button onClick={handleMobileLogin} className="bg-transparent text-center text-blue-600 dark:text-blue-500 w-full block p-3.5 border-2 border-blue-600 dark:border-blue-500 rounded-lg font-semibold transition-all duration-300 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white">Login</button>
+                         <button onClick={handleMobileSignup} className="bg-blue-600 dark:bg-blue-500 text-center text-white w-full block p-3.5 rounded-lg font-semibold transition-all duration-300 shadow-md shadow-blue-500/30 hover:bg-blue-700 dark:hover:bg-blue-600">Sign Up</button>
+                    </div>
+                </div>
+            )}
+        </header>
+    );
 };
 
 export default Header;

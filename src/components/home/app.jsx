@@ -1,91 +1,94 @@
-import { useState, useEffect } from 'react';
-import Header from './header.jsx';
-import Hero from './hero.jsx';
-import Features from './features.jsx';
-import Roles from './roles.jsx';
-import About from './about.jsx';
-import Help from './help.jsx';
-import Footer from './footer';
-import ChatWidget from './ChatWidget';
-import LoginModal from './LoginModal';
-import SignupModal from './SignupModal';
-import ContactModal from './ContactModal';
+import React, { useState, useRef, useEffect } from 'react';
+import Header from './Header';
+import Hero from './Hero';
+import Features from './Features';
+import Roles from './Roles';
+import About from './About';
+import Help from './Help';
+import Footer from './Footer';
+import LoginModal from './modals/LoginModal';
+import SignupModal from './modals/SignupModal';
+import ContactModal from './modals/ContactModal';
+import ChatWidget from '../widgets/ChatWidget';
+import Notification from '../ui/Notification';
+
+const DEMO_CREDENTIALS = {
+    admin: { email: 'admin@scms.edu', password: 'admin123' },
+    teacher: { email: 'teacher@scms.edu', password: 'teacher123' },
+    student: { email: 'student@scms.edu', password: 'student123' }
+};
 
 function App() {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
-  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-  const [isSignupModalOpen, setSignupModalOpen] = useState(false);
-  const [isContactModalOpen, setContactModalOpen] = useState(false);
+    const [isLoginOpen, setLoginOpen] = useState(false);
+    const [isSignupOpen, setSignupOpen] = useState(false);
+    const [isContactOpen, setContactOpen] = useState(false);
+    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+    const notificationTimer = useRef(null);
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [theme]);
+    const showNotification = (message, type = 'info', duration = 4000) => {
+        if (notificationTimer.current) clearTimeout(notificationTimer.current);
+        setNotification({ message, type, show: true });
+        notificationTimer.current = setTimeout(() => {
+            setNotification(prev => ({ ...prev, show: false }));
+        }, duration);
+    };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+    const handleLoginSuccess = (role) => {
+        setLoginOpen(false);
+        showNotification('Login successful! Redirecting...', 'success');
+        setTimeout(() => {
+            window.location.href = `/${role}`;
+        }, 1500);
+    };
+    
+    // NEW: Function to handle opening the Signup modal AND showing the notification
+    const handleOpenSignupModal = () => {
+        setLoginOpen(false); // Close login modal if it's open
+        showNotification('Signup is currently disabled. Use the demo login.', 'warning');
+        setSignupOpen(true);
+    };
 
-  const openLoginModal = () => setLoginModalOpen(true);
-  const closeLoginModal = () => setLoginModalOpen(false);
-  const openSignupModal = () => setSignupModalOpen(true);
-  const closeSignupModal = () => setSignupModalOpen(false);
-  const openContactModal = () => setContactModalOpen(true);
-  const closeContactModal = () => setContactModalOpen(false);
-
-  const switchToSignup = () => {
-    closeLoginModal();
-    openSignupModal();
-  };
-
-  const switchToLogin = () => {
-    closeSignupModal();
-    openLoginModal();
-  };
-
-
-  return (
-    <div className="font-inter bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-50 transition-colors duration-300">
-      <Header 
-        toggleTheme={toggleTheme} 
-        theme={theme}
-        openLoginModal={openLoginModal}
-        openSignupModal={openSignupModal}
-      />
-      <main>
-        <Hero openSignupModal={openSignupModal} />
-        <Features />
-        <Roles />
-        <About />
-        <Help />
-      </main>
-      <Footer openContactModal={openContactModal} />
-      <ChatWidget />
-      
-      {isLoginModalOpen && (
-        <LoginModal 
-          closeModal={closeLoginModal} 
-          switchToSignup={switchToSignup}
-        />
-      )}
-      {isSignupModalOpen && (
-        <SignupModal 
-          closeModal={closeSignupModal} 
-          switchToLogin={switchToLogin}
-        />
-      )}
-      {isContactModalOpen && (
-        <ContactModal 
-          closeModal={closeContactModal} 
-        />
-      )}
-    </div>
-  );
+    return (
+        <div className="bg-white dark:bg-slate-900">
+            <Header 
+                onLoginClick={() => setLoginOpen(true)}
+                onSignupClick={handleOpenSignupModal} // Use the new handler here
+            />
+            <main>
+                <Hero />
+                <Features />
+                <Roles onAccessPortalClick={() => setLoginOpen(true)} />
+                <About />
+                <Help />
+            </main>
+            <Footer onContactClick={() => setContactOpen(true)} />
+            <ChatWidget />
+            
+            <LoginModal 
+                isOpen={isLoginOpen} 
+                onClose={() => setLoginOpen(false)} 
+                onSwitchToSignup={handleOpenSignupModal} // Use the new handler here as well
+                showNotification={showNotification}
+                onLoginSuccess={handleLoginSuccess}
+                credentials={DEMO_CREDENTIALS}
+            />
+            <SignupModal 
+                isOpen={isSignupOpen} 
+                onClose={() => setSignupOpen(false)} 
+                onSwitchToLogin={() => { setSignupOpen(false); setLoginOpen(true); }}
+            />
+            <ContactModal 
+                isOpen={isContactOpen} 
+                onClose={() => setContactOpen(false)} 
+                showNotification={showNotification} 
+            />
+            <Notification 
+                message={notification.message} 
+                type={notification.type} 
+                show={notification.show} 
+            />
+        </div>
+    );
 }
 
 export default App;
