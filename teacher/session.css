@@ -1225,3 +1225,260 @@ body {
         font-size: 0.9rem;
     }
 }
+
+
+/* Teacher Notes Section */
+.notes-toolbar {
+    padding: 15px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.notes-categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.category-btn {
+    padding: 8px 15px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.category-btn.active,
+.category-btn:hover {
+    background: var(--accent-green);
+    color: white;
+    border-color: var(--accent-green);
+    transform: translateY(-1px);
+}
+
+.notes-tools {
+    display: flex;
+    gap: 8px;
+}
+
+.notes-tools .tool-btn {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notes-tools .tool-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.notes-area {
+    position: relative;
+    height: 400px;
+    background: var(--bg-primary);
+}
+
+.notes-editor {
+    height: 100%;
+    padding: 0;
+}
+
+#notesTextarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95em;
+    line-height: 1.6;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    resize: none;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#notesTextarea:focus {
+    background: var(--bg-secondary);
+    box-shadow: inset 0 0 0 2px var(--accent-green);
+}
+
+.notes-preview {
+    height: 100%;
+    padding: 20px;
+    background: var(--bg-primary);
+    overflow-y: auto;
+}
+
+.preview-content {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.preview-content h3 {
+    color: var(--accent-green);
+    margin: 15px 0 8px 0;
+    font-size: 1.1em;
+}
+
+.preview-content .timestamp {
+    background: var(--accent-blue);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.preview-content .student-ref {
+    background: var(--accent-yellow);
+    color: var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.notes-footer {
+    padding: 12px 20px;
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.notes-info {
+    display: flex;
+    gap: 20px;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.word-count {
+    font-weight: 500;
+}
+
+.last-saved {
+    color: var(--accent-green);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8em;
+    border-radius: 6px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-sm:hover {
+    background: var(--accent-green);
+    color: white;
+    border-color: var(--accent-green);
+}
+
+/* Notes Categories with Color Coding */
+.category-btn[data-category="general"].active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
+.category-btn[data-category="questions"].active {
+    background: var(--accent-yellow);
+    border-color: var(--accent-yellow);
+    color: var(--text-primary);
+}
+
+.category-btn[data-category="followup"].active {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+.category-btn[data-category="ideas"].active {
+    background: #9333ea;
+    border-color: #9333ea;
+}
+
+/* Mobile Responsive for Notes */
+@media (max-width: 768px) {
+    .notes-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .notes-categories {
+        justify-content: center;
+    }
+    
+    .notes-tools {
+        justify-content: center;
+    }
+    
+    .notes-area {
+        height: 300px;
+    }
+    
+    .notes-footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .quick-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .notes-toolbar {
+        padding: 12px 15px;
+    }
+    
+    .category-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+    
+    .notes-area {
+        height: 250px;
+    }
+    
+    #notesTextarea {
+        padding: 15px;
+        font-size: 0.9em;
+    }
+    
+    .notes-footer {
+        padding: 10px 15px;
+    }
+}

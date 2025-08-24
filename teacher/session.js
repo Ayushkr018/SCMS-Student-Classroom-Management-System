@@ -964,3 +964,230 @@ document.addEventListener('click', function(e) {
         closeMobileSidebar();
     }
 });
+
+
+// Teacher Notes Management
+let currentNotesCategory = 'general';
+let isPreviewMode = false;
+let notesData = {
+    general: '',
+    questions: '',
+    followup: '',
+    ideas: ''
+};
+
+// Initialize notes on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing initialization code ...
+    initializeNotes();
+});
+
+function initializeNotes() {
+    // Load saved notes from localStorage
+    const savedNotes = localStorage.getItem('scms_teaching_notes');
+    if (savedNotes) {
+        notesData = JSON.parse(savedNotes);
+        loadNotesForCategory(currentNotesCategory);
+    }
+    
+    // Auto-save functionality
+    const textarea = document.getElementById('notesTextarea');
+    textarea.addEventListener('input', function() {
+        autoSaveNotes();
+        updateWordCount();
+    });
+    
+    updateWordCount();
+}
+
+function selectCategory(category) {
+    // Save current notes before switching
+    saveCurrentNotes();
+    
+    // Update active category
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(category + 'Category').classList.add('active');
+    
+    currentNotesCategory = category;
+    loadNotesForCategory(category);
+    
+    showNotification(`Switched to ${category} notes`, 'info');
+}
+
+function saveCurrentNotes() {
+    const textarea = document.getElementById('notesTextarea');
+    notesData[currentNotesCategory] = textarea.value;
+}
+
+function loadNotesForCategory(category) {
+    const textarea = document.getElementById('notesTextarea');
+    textarea.value = notesData[category] || '';
+    updateWordCount();
+    
+    // Update placeholder based on category
+    const placeholders = {
+        general: 'General teaching notes and observations...',
+        questions: 'Student questions and your responses...',
+        followup: 'Items to follow up on in next class...',
+        ideas: 'New teaching ideas and improvements...'
+    };
+    textarea.placeholder = placeholders[category];
+}
+
+function autoSaveNotes() {
+    saveCurrentNotes();
+    localStorage.setItem('scms_teaching_notes', JSON.stringify(notesData));
+    document.getElementById('lastSaved').textContent = 'Auto-saved ' + new Date().toLocaleTimeString();
+}
+
+function saveNotes() {
+    autoSaveNotes();
+    showNotification('📝 Notes saved successfully!', 'success');
+}
+
+function exportNotes() {
+    saveCurrentNotes();
+    
+    let exportContent = `Teaching Notes - ${new Date().toLocaleDateString()}\n`;
+    exportContent += `Session: CS101 - Data Structures\n`;
+    exportContent += `Duration: ${document.getElementById('sessionTimer').textContent}\n\n`;
+    
+    Object.keys(notesData).forEach(category => {
+        if (notesData[category].trim()) {
+            exportContent += `=== ${category.toUpperCase()} NOTES ===\n`;
+            exportContent += notesData[category] + '\n\n';
+        }
+    });
+    
+    const blob = new Blob([exportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `teaching-notes-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    showNotification('📄 Notes exported successfully!', 'success');
+}
+
+function clearNotes() {
+    if (confirm('Clear all notes for the current category? This cannot be undone.')) {
+        notesData[currentNotesCategory] = '';
+        document.getElementById('notesTextarea').value = '';
+        updateWordCount();
+        autoSaveNotes();
+        showNotification('🗑️ Notes cleared for ' + currentNotesCategory, 'warning');
+    }
+}
+
+function addTimestamp() {
+    const textarea = document.getElementById('notesTextarea');
+    const timestamp = `[${document.getElementById('sessionTimer').textContent}] `;
+    
+    const cursorPos = textarea.selectionStart;
+    const textBefore = textarea.value.substring(0, cursorPos);
+    const textAfter = textarea.value.substring(cursorPos);
+    
+    textarea.value = textBefore + timestamp + textAfter;
+    textarea.focus();
+    textarea.setSelectionRange(cursorPos + timestamp.length, cursorPos + timestamp.length);
+    
+    autoSaveNotes();
+    updateWordCount();
+    showNotification('⏰ Timestamp added', 'info');
+}
+
+function addStudentName() {
+    // Simple implementation - you could expand this with a student selector
+    const studentName = prompt('Enter student name:');
+    if (studentName && studentName.trim()) {
+        const textarea = document.getElementById('notesTextarea');
+        const reference = `@${studentName.trim()} `;
+        
+        const cursorPos = textarea.selectionStart;
+        const textBefore = textarea.value.substring(0, cursorPos);
+        const textAfter = textarea.value.substring(cursorPos);
+        
+        textarea.value = textBefore + reference + textAfter;
+        textarea.focus();
+        textarea.setSelectionRange(cursorPos + reference.length, cursorPos + reference.length);
+        
+        autoSaveNotes();
+        updateWordCount();
+        showNotification('👤 Student reference added', 'info');
+    }
+}
+
+function toggleNotesView() {
+    const editor = document.getElementById('notesEditor');
+    const preview = document.getElementById('notesPreview');
+    const toggleBtn = document.getElementById('viewToggle');
+    
+    if (isPreviewMode) {
+        // Switch to edit mode
+        editor.style.display = 'block';
+        preview.style.display = 'none';
+        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        toggleBtn.title = 'Preview Mode';
+        isPreviewMode = false;
+    } else {
+        // Switch to preview mode
+        saveCurrentNotes();
+        generatePreview();
+        editor.style.display = 'none';
+        preview.style.display = 'block';
+        toggleBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        toggleBtn.title = 'Edit Mode';
+        isPreviewMode = true;
+    }
+}
+
+function generatePreview() {
+    const content = notesData[currentNotesCategory] || '';
+    const previewContent = document.getElementById('previewContent');
+    
+    if (!content.trim()) {
+        previewContent.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 40px;">No notes to preview</p>';
+        return;
+    }
+    
+    // Simple formatting - convert line breaks and add basic styling
+    let formatted = content
+        .replace(/\[(\d{2}:\d{2}:\d{2})\]/g, '<span class="timestamp">$1</span>')
+        .replace(/@(\w+)/g, '<span class="student-ref">@$1</span>')
+        .replace(/### (.+)/g, '<h3>$1</h3>')
+        .replace(/\n/g, '<br>');
+    
+    previewContent.innerHTML = formatted;
+}
+
+function updateWordCount() {
+    const textarea = document.getElementById('notesTextarea');
+    const text = textarea.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    document.getElementById('wordCount').textContent = `${words} words`;
+}
+
+function insertTemplate(type) {
+    const textarea = document.getElementById('notesTextarea');
+    const templates = {
+        agenda: `### Class Agenda\n• Topic 1: \n• Topic 2: \n• Topic 3: \n\n`,
+        homework: `### Homework Assignment\nDue Date: \nDescription: \nResources: \n\n`,
+        reminder: `### Important Reminders\n! \n! \n! \n\n`
+    };
+    
+    const template = templates[type] || '';
+    const cursorPos = textarea.selectionStart;
+    const textBefore = textarea.value.substring(0, cursorPos);
+    const textAfter = textarea.value.substring(cursorPos);
+    
+    textarea.value = textBefore + template + textAfter;
+    textarea.focus();
+    textarea.setSelectionRange(cursorPos + template.length, cursorPos + template.length);
+    
+    autoSaveNotes();
+    updateWordCount();
+    showNotification(`📋 ${type} template inserted`, 'info');
+}
