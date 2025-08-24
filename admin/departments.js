@@ -1129,7 +1129,7 @@ function formatStatus(status) {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     }
 }
 
@@ -1176,4 +1176,5 @@ function setupEventListeners() {
 
 // Initialize when DOM loads
 document.addEventListener('DOMContentLoaded', initializeApp);
+
 
