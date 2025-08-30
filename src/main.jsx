@@ -46,6 +46,27 @@ const router = createBrowserRouter([
         <Home />
       </Layout>
     ),
+  },  {
+    path: "/teacher",
+    element: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
+  },  {
+    path: "/student",
+    element: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
+  },  {
+    path: "/admin",
+    element: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
   },
 
   // // 404 
