@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Header from './Header';
-import Hero from './Hero';
-import Features from './Features';
-import Roles from './Roles';
-import About from './About';
-import Help from './Help';
-import Footer from './Footer';
-import LoginModal from './modals/LoginModal';
-import SignupModal from './modals/SignupModal';
-import ContactModal from './modals/ContactModal';
-import ChatWidget from '../widgets/ChatWidget';
-import Notification from '../ui/Notification';
+import Header from '../components/home/Header';
+import Hero from '../components/home/Hero';
+import Features from '../components/home/Features';
+import Roles from '../components/home/Roles';
+import About from '../components/home/About';
+import Help from '../components/home/Help';
+import Footer from '../components/home/Footer';
+import LoginModal from '../components/home/modals/LoginModal';
+import SignupModal from '../components/home/modals/SignupModal';
+import ContactModal from '../components/home/modals/ContactModal';
+import ChatWidget from '../components/widgets/ChatWidget';
+import Notification from '../components/ui/Notification';
 
 const DEMO_CREDENTIALS = {
     admin: { email: 'admin@scms.edu', password: 'admin123' },
@@ -18,7 +18,7 @@ const DEMO_CREDENTIALS = {
     student: { email: 'student@scms.edu', password: 'student123' }
 };
 
-function App() {
+function Home() {
     const [isLoginOpen, setLoginOpen] = useState(false);
     const [isSignupOpen, setSignupOpen] = useState(false);
     const [isContactOpen, setContactOpen] = useState(false);
@@ -91,4 +91,4 @@ function App() {
     );
 }
 
-export default App;
+export default Home;
