@@ -66,35 +66,7 @@ class IntegrationService {
       throw new AppError('Failed to create video conference room', 500);
     }
   }
-
-  /**
-   * Process payment
-   */
-  async processPayment(paymentData) {
-    try {
-      const response = await axios.post(`${this.apis.paymentGateway}/charges`, {
-        amount: paymentData.amount,
-        currency: paymentData.currency,
-        source: paymentData.token,
-        description: paymentData.description
-      }, {
-        headers: {
-          'Authorization': `Bearer ${process.env.PAYMENT_GATEWAY_SECRET_KEY}`
-        }
-      });
-
-      return {
-        success: true,
-        transactionId: response.data.id,
-        status: response.data.status,
-        amount: response.data.amount
-      };
-    } catch (error) {
-      logger.error('Payment processing failed:', error);
-      throw new AppError('Payment processing failed', 500);
-    }
-  }
-
+  
   /**
    * SSO authentication
    */
@@ -159,3 +131,4 @@ class IntegrationService {
 }
 
 module.exports = new IntegrationService();
+
