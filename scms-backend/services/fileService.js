@@ -151,8 +151,8 @@ class FileService {
     try {
       if (this.useS3 && fileUrl.includes('amazonaws.com')) {
         // Extract key from S3 URL
-        const urlParts = fileUrl.split('/');
-        const key = urlParts.slice(-2).join('/'); // Get folder/filename
+        const urlParts = new URL(fileUrl);
+        const key = urlParts.pathname.substring(1); 
         
         await this.s3.deleteObject({
           Bucket: this.bucketName,
@@ -160,7 +160,7 @@ class FileService {
         }).promise();
       } else {
         // Delete from local storage
-        const localPath = path.join(process.cwd(), 'public', fileUrl);
+        const localPath = path.join(process.cwd(), fileUrl);
         await fs.unlink(localPath);
       }
     } catch (error) {
@@ -239,8 +239,8 @@ class FileService {
   async getFileInfo(fileUrl) {
     try {
       if (this.useS3 && fileUrl.includes('amazonaws.com')) {
-        const urlParts = fileUrl.split('/');
-        const key = urlParts.slice(-2).join('/');
+        const urlParts = new URL(fileUrl);
+        const key = urlParts.pathname.substring(1);
         
         const headResult = await this.s3.headObject({
           Bucket: this.bucketName,
@@ -253,7 +253,7 @@ class FileService {
           contentType: headResult.ContentType
         };
       } else {
-        const localPath = path.join(process.cwd(), 'public', fileUrl);
+        const localPath = path.join(process.cwd(), fileUrl);
         const stats = await fs.stat(localPath);
         
         return {
@@ -276,8 +276,8 @@ class FileService {
     }
 
     try {
-      const urlParts = fileUrl.split('/');
-      const key = urlParts.slice(-2).join('/');
+      const urlParts = new URL(fileUrl);
+      const key = urlParts.pathname.substring(1);
 
       return await this.s3.getSignedUrlPromise('getObject', {
         Bucket: this.bucketName,

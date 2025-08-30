@@ -3,13 +3,16 @@
  * Advanced analytics and insights generation
  */
 
-const User = require('../models/User');
-const Student = require('../models/Student');
-const Course = require('../models/Course');
-const Assignment = require('../models/Assignment');
-const Submission = require('../models/Submission');
-const Test = require('../models/Test');
-const Grade = require('../models/Grade');
+const {
+    User,
+    Student,
+    Course,
+    Assignment,
+    Submission,
+    Test,
+    Grade,
+} = require('../models');
+const mongoose = require('mongoose');
 
 class AnalyticsService {
   /**
@@ -62,9 +65,9 @@ class AnalyticsService {
   async getEnrollmentStats(courseId, startDate) {
     const enrollments = await Student.aggregate([
       { $unwind: '$enrolledCourses' },
-      { 
-        $match: { 
-          'enrolledCourses.courseId': require('mongoose').Types.ObjectId(courseId),
+      {
+        $match: {
+          'enrolledCourses.courseId': mongoose.Types.ObjectId(courseId),
           'enrolledCourses.enrollmentDate': { $gte: startDate }
         }
       },
@@ -129,7 +132,7 @@ class AnalyticsService {
     const trends = await Grade.aggregate([
       {
         $match: {
-          courseId: require('mongoose').Types.ObjectId(courseId),
+          courseId: mongoose.Types.ObjectId(courseId),
           gradedAt: { $gte: startDate }
         }
       },
@@ -180,7 +183,7 @@ class AnalyticsService {
       },
       {
         $match: {
-          'assignment.courseId': require('mongoose').Types.ObjectId(courseId),
+          'assignment.courseId': mongoose.Types.ObjectId(courseId),
           submittedAt: { $gte: startDate }
         }
       },
@@ -232,7 +235,7 @@ class AnalyticsService {
       },
       {
         $match: {
-          'assignment.courseId': require('mongoose').Types.ObjectId(courseId)
+          'assignment.courseId': mongoose.Types.ObjectId(courseId)
         }
       },
       {

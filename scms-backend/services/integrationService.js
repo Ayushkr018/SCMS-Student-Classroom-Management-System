@@ -3,8 +3,7 @@
  */
 
 const axios = require('axios');
-const logger = require('../utils/logger');
-const { AppError } = require('../utils/errorUtils');
+const { AppError } = require('../middleware/errorHandler');
 
 class IntegrationService {
   constructor() {
@@ -20,6 +19,7 @@ class IntegrationService {
    * Sync with external LMS
    */
   async syncWithLMS(courseData) {
+    if (!this.apis.lms) return { success: false, error: 'LMS API URL not configured.' };
     try {
       const response = await axios.post(`${this.apis.lms}/sync-course`, courseData, {
         headers: {
@@ -29,13 +29,14 @@ class IntegrationService {
         timeout: 10000
       });
 
+      console.log('LMS sync successful for course:', courseData.title);
       return {
         success: true,
         externalId: response.data.courseId,
         syncedAt: new Date()
       };
     } catch (error) {
-      logger.error('LMS sync failed:', error);
+      console.error('LMS sync failed:', error.message);
       throw new AppError('Failed to sync with external LMS', 500);
     }
   }
@@ -44,6 +45,7 @@ class IntegrationService {
    * Create video conference room
    */
   async createVideoConferenceRoom(meetingData) {
+    if (!this.apis.videoConference) return { success: false, error: 'Video Conference API URL not configured.' };
     try {
       const response = await axios.post(`${this.apis.videoConference}/rooms`, {
         title: meetingData.title,
@@ -56,13 +58,14 @@ class IntegrationService {
         }
       });
 
+      console.log('Video conference room created:', response.data.roomId);
       return {
         roomId: response.data.roomId,
         joinUrl: response.data.joinUrl,
         moderatorUrl: response.data.moderatorUrl
       };
     } catch (error) {
-      logger.error('Video conference room creation failed:', error);
+      console.error('Video conference room creation failed:', error.message);
       throw new AppError('Failed to create video conference room', 500);
     }
   }
@@ -71,6 +74,7 @@ class IntegrationService {
    * SSO authentication
    */
   async authenticateSSO(token) {
+    if (!this.apis.sso) return { success: false, error: 'SSO API URL not configured.' };
     try {
       const response = await axios.post(`${this.apis.sso}/verify`, {
         token: token
@@ -86,7 +90,7 @@ class IntegrationService {
         roles: response.data.roles
       };
     } catch (error) {
-      logger.error('SSO authentication failed:', error);
+      console.error('SSO authentication failed:', error.message);
       throw new AppError('SSO authentication failed', 401);
     }
   }
@@ -121,7 +125,7 @@ class IntegrationService {
         response: response.data
       };
     } catch (error) {
-      logger.error('Webhook delivery failed:', error);
+      console.error(`Webhook delivery to ${url} failed:`, error.message);
       return {
         success: false,
         error: error.message
@@ -131,4 +135,3 @@ class IntegrationService {
 }
 
 module.exports = new IntegrationService();
-
