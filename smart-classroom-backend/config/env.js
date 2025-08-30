@@ -1,7 +1,3 @@
-/**
- * Environment Configuration
- * Centralized environment variable management
- */
 
 require('dotenv').config();
 
