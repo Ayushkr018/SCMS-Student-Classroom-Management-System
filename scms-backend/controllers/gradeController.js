@@ -1,258 +1,150 @@
 /**
  * Grade Controller
- * Handles all grading-related operations and analytics
+ * Handles all operations related to managing and analyzing student grades.
  */
 
-const {
-    Grade,
-    Student,
-    Teacher,
-    Course
-} = require('../models');
-const {
-    catchAsync
-} = require('../middleware/errorHandler');
+const { Grade, Student, Course } = require('../models');
+const { catchAsync } = require('../middleware/errorHandler');
 const {
     sendSuccessResponse,
-    sendErrorResponse,
     sendPaginatedResponse,
+    sendCreatedResponse,
     sendUpdatedResponse,
-    sendNotFoundResponse
+    sendDeletedResponse,
+    sendNotFoundResponse,
+    sendErrorResponse
 } = require('../utils/response');
-const {
-    USER_ROLES
-} = require('../utils/constants');
-const mongoose = require('mongoose');
+const { default: mongoose } = require('mongoose');
+const notificationService = require('../services/notificationService');
+
 
 /**
- * Get grades for a specific student (Student view)
+ * Get all grades (Admin view)
  */
-const getMyGrades = catchAsync(async (req, res) => {
-    const student = await Student.findOne({
-        userId: req.user.id
-    });
-    if (!student) {
-        return sendErrorResponse(res, 404, 'Student profile not found');
-    }
+const getAllGrades = catchAsync(async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const {
-        courseId,
-        semester,
-        academicYear
-    } = req.query;
-    const filter = {
-        studentId: student._id
-    };
-    if (courseId) filter.courseId = courseId;
-    if (semester) filter.semester = semester;
-    if (academicYear) filter.academicYear = academicYear;
+    const [grades, total] = await Promise.all([
+        Grade.find({})
+            .populate('studentId', 'userId rollNumber')
+            .populate('courseId', 'title courseCode')
+            .sort({ gradedAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)),
+        Grade.countDocuments({})
+    ]);
 
-    const grades = await Grade.find(filter)
-        .populate('courseId', 'title courseCode')
-        .populate('gradedBy', 'firstName lastName')
-        .sort('-gradedAt');
-
-    sendSuccessResponse(res, 200, 'Your grades retrieved successfully', grades);
+    sendPaginatedResponse(res, grades, parseInt(page), parseInt(limit), total);
 });
 
 /**
- * Get grade book for a course (Teacher view)
+ * Get grade statistics for a specific course
  */
-const getCourseGradebook = catchAsync(async (req, res) => {
-    const {
-        courseId
-    } = req.params;
-    const {
-        assessmentType,
-        studentId
-    } = req.query;
-
-    const course = await Course.findById(courseId);
-    if (!course) {
-        return sendNotFoundResponse(res, 'Course');
-    }
-
-    // Permission check
-    if (req.user.role !== USER_ROLES.ADMIN) {
-        const teacher = await Teacher.findOne({
-            userId: req.user.id
-        });
-        const isInstructor = course.instructors.some(inst => inst.teacherId.equals(teacher._id));
-        if (!isInstructor) {
-            return sendErrorResponse(res, 403, 'You are not an instructor for this course.');
-        }
-    }
-
-    const filter = {
-        courseId
-    };
-    if (assessmentType) filter.assessmentType = assessmentType;
-    if (studentId) filter.studentId = studentId;
-
-    const grades = await Grade.find(filter)
-        .populate('studentId', 'rollNumber userId')
-        .populate({
-            path: 'studentId',
-            populate: {
-                path: 'userId',
-                select: 'firstName lastName'
-            }
-        })
-        .sort('studentId gradedAt');
-
-    sendSuccessResponse(res, 200, 'Course grade book retrieved successfully', grades);
+const getCourseGradeStatistics = catchAsync(async (req, res) => {
+    const { courseId } = req.params;
+    const stats = await Grade.getCourseStatistics(courseId, req.query.semester, req.query.academicYear);
+    sendSuccessResponse(res, 200, 'Course grade statistics retrieved successfully', stats[0] || {});
 });
 
 /**
- * Update a specific grade
+ * Get all grades for a student in a specific course
  */
-const updateGrade = catchAsync(async (req, res) => {
-    const {
-        gradeId
-    } = req.params;
-    const {
-        scoreObtained,
-        comments,
-        feedback
-    } = req.body;
+const getStudentGradesForCourse = catchAsync(async (req, res) => {
+    const { studentId, courseId } = req.params;
+    const grades = await Grade.find({ studentId, courseId })
+        .populate('assessmentId', 'title');
+    sendSuccessResponse(res, 200, 'Student grades for course retrieved successfully', grades);
+});
 
-    const grade = await Grade.findById(gradeId).populate('courseId');
+/**
+ * Manually create a new grade
+ */
+const createGrade = catchAsync(async (req, res) => {
+    const gradeData = req.body;
+    gradeData.gradedBy = req.user.id; // Assuming the user ID is the teacher's User ID
+    const grade = await Grade.create(gradeData);
+    sendCreatedResponse(res, grade, 'Grade created successfully');
+});
+
+/**
+ * Get a single grade by its ID
+ */
+const getGradeById = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const grade = await Grade.findById(id).populate('studentId courseId assessmentId');
     if (!grade) {
         return sendNotFoundResponse(res, 'Grade');
     }
+    sendSuccessResponse(res, 200, 'Grade retrieved successfully', grade);
+});
 
-    // Permission check
-    if (req.user.role !== USER_ROLES.ADMIN) {
-        const teacher = await Teacher.findOne({
-            userId: req.user.id
-        });
-        if (!grade.gradedBy.equals(teacher._id)) {
-            return sendErrorResponse(res, 403, 'You can only update grades you have assigned.');
-        }
+/**
+ * Update a grade
+ */
+const updateGrade = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { scoreObtained, comments } = req.body;
+    
+    const grade = await Grade.findById(id);
+    if (!grade) {
+        return sendNotFoundResponse(res, 'Grade');
     }
+    
+    const updatedGrade = await grade.updateGrade(scoreObtained, comments, req.user.id);
 
-    // Update grade
-    await grade.updateGrade(scoreObtained, 'Manual update by instructor', req.user.id);
-    grade.comments = comments || grade.comments;
-    grade.feedback = feedback || grade.feedback;
+    // Send notification to the student
+    // This requires fetching the submission associated with the grade if available
+    // For manual grades, we might notify differently.
+    // await notificationService.sendGradeNotification(submission);
 
-    const updatedGrade = await grade.save();
 
-    sendUpdatedResponse(res, updatedGrade);
+    sendUpdatedResponse(res, updatedGrade, 'Grade updated successfully');
+});
+
+/**
+ * Delete a grade
+ */
+const deleteGrade = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const grade = await Grade.findByIdAndDelete(id);
+    if (!grade) {
+        return sendNotFoundResponse(res, 'Grade');
+    }
+    sendDeletedResponse(res, 'Grade deleted successfully');
 });
 
 
 /**
- * Release grades for an assessment
- */
+ * Releases all grades for a specific assignment or test.
+ */
 const releaseGrades = catchAsync(async (req, res) => {
-    const {
-        courseId,
-        assessmentId
-    } = req.body;
+    const { assessmentId } = req.params;
 
-    if (!courseId || !assessmentId) {
-        return sendErrorResponse(res, 400, 'Course ID and Assessment ID are required.');
-    }
-
-    const result = await Grade.updateMany({
-        courseId,
-        assessmentId,
-        isReleased: false
-    }, {
-        $set: {
-            isReleased: true,
-            releasedAt: new Date()
-        }
-    });
+    const result = await Grade.updateMany(
+        { assessmentId: assessmentId, isReleased: false },
+        { $set: { isReleased: true, releasedAt: new Date() } }
+    );
 
     if (result.nModified === 0) {
-        return sendSuccessResponse(res, 200, 'No new grades to release or grades already released.');
+        return sendSuccessResponse(res, 200, 'No new grades were available to be released.');
     }
 
-    // TODO: Send notification to students that grades have been released
-
-    sendSuccessResponse(res, 200, `${result.nModified} grades have been released.`);
-});
-
-/**
- * Get course performance analytics
- */
-const getCourseAnalytics = catchAsync(async (req, res) => {
-    const {
-        courseId
-    } = req.params;
-
-    const stats = await Grade.getCourseStatistics(courseId, 'current', '2024-2025'); // Use dynamic values
-
-    if (!stats || stats.length === 0) {
-        return sendSuccessResponse(res, 200, 'No grading data available for this course yet.', {});
-    }
-
-    sendSuccessResponse(res, 200, 'Course analytics retrieved successfully', stats[0]);
-});
-
-/**
- * Get student performance analytics
- */
-const getStudentAnalytics = catchAsync(async (req, res) => {
-    const {
-        studentId
-    } = req.params;
-
-    const student = await Student.findById(studentId);
-    if (!student) {
-        return sendNotFoundResponse(res, 'Student');
-    }
-
-    const cgpa = await Grade.calculateCGPA(studentId);
-
-    // Get semester-wise performance
-    const semesterPerformance = await Grade.aggregate([{
-        $match: {
-            studentId: mongoose.Types.ObjectId(studentId)
-        }
-    }, {
-        $group: {
-            _id: '$semester',
-            totalCredits: {
-                $sum: '$credits'
-            },
-            totalGradePoints: {
-                $sum: {
-                    $multiply: ['$gradePoints', '$credits']
-                }
-            }
-        }
-    }, {
-        $project: {
-            semester: '$_id',
-            sgpa: {
-                $cond: [{
-                    $eq: ['$totalCredits', 0]
-                }, 0, {
-                    $divide: ['$totalGradePoints', '$totalCredits']
-                }]
-            }
-        }
-    }, {
-        $sort: {
-            semester: 1
-        }
-    }]);
-
-    sendSuccessResponse(res, 200, 'Student performance analytics retrieved', {
-        cgpa,
-        semesterPerformance
-    });
+    // Send notifications for released grades (can be a background job)
+    // queueService.addJob('notification', { type: 'grades_released', assessmentId });
+    
+    sendSuccessResponse(res, 200, `${result.nModified} grades have been released successfully.`);
 });
 
 
 module.exports = {
-    getMyGrades,
-    getCourseGradebook,
+    getAllGrades,
+    getCourseGradeStatistics,
+    getStudentGradesForCourse,
+    createGrade,
+    getGradeById,
     updateGrade,
-    releaseGrades,
-    getCourseAnalytics,
-    getStudentAnalytics
+    deleteGrade,
+    releaseGrades, // Make sure to export the new function
 };
+

@@ -1,56 +1,47 @@
 /**
- * Analytics Routes
- * Handles all analytics-related API endpoints
- */
+ * Analytics Routes
+ * Endpoints for analytics and reporting
+ */
 
 const express = require('express');
 const router = express.Router();
 const analyticsController = require('../controllers/analyticsController');
-const {
-    protect,
-    authorize
-} = require('../middleware/authMiddleware');
-const {
-    USER_ROLES
-} = require('../utils/constants');
+const { authenticateJWT, authorizeRoles } = require('../middleware/authMiddleware');
+const { USER_ROLES } = require('../utils/constants');
 
-// All analytics routes are protected and restricted to Admins and Teachers
-router.use(protect);
-router.use(authorize(USER_ROLES.ADMIN, USER_ROLES.TEACHER));
+// Secure all analytics routes
+router.use(authenticateJWT);
+router.use(authorizeRoles(USER_ROLES.ADMIN, USER_ROLES.TEACHER));
 
 /**
  * @route   GET /api/analytics/dashboard
- * @desc    Get high-level dashboard statistics
+ * @desc    Get dashboard analytics
  * @access  Private (Admin, Teacher)
  */
-router.get('/dashboard', analyticsController.getDashboardStats);
+router.get(
+  '/dashboard',
+  analyticsController.getDashboardStats
+);
 
 /**
- * @route   GET /api/analytics/summary
- * @desc    Get an overall summary of the system
+ * @route   GET /api/analytics/course/:courseId
+ * @desc    Get detailed course analytics
  * @access  Private (Admin, Teacher)
  */
-router.get('/summary', analyticsController.getOverallSummary);
+router.get(
+  '/course/:courseId',
+  analyticsController.getCourseAnalytics
+);
 
 /**
- * @route   GET /api/analytics/courses
- * @desc    Get detailed course-related analytics
+ * @route   GET /api/analytics/system
+ * @desc    Get system-wide performance analytics
  * @access  Private (Admin, Teacher)
  */
-router.get('/courses', analyticsController.getCourseAnalytics);
-
-/**
- * @route   GET /api/analytics/students
- * @desc    Get detailed student performance analytics
- * @access  Private (Admin, Teacher)
- */
-router.get('/students', analyticsController.getStudentAnalytics);
-
-/**
- * @route   GET /api/analytics/grades
- * @desc    Get detailed grade distribution and analytics
- * @access  Private (Admin, Teacher)
- */
-router.get('/grades', analyticsController.getGradeAnalytics);
+router.get(
+  '/system',
+  analyticsController.getSystemAnalytics
+);
 
 module.exports = router;
+

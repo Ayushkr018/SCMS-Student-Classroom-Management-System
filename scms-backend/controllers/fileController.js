@@ -1,160 +1,107 @@
 /**
- * File Controller
- * Handles file uploads, downloads, and deletions.
- * Relies on a fileService for storage abstraction (e.g., local, S3).
- */
+ * File Controller
+ * Handles file upload, download, and deletion operations
+ */
 
-const {
-    catchAsync
-} = require('../middleware/errorHandler');
-const {
-    sendSuccessResponse,
-    sendErrorResponse,
-    sendNotFoundResponse
+const fileService = require('../services/fileService');
+const { catchAsync } = require('../middleware/errorHandler');
+const { 
+  sendSuccessResponse, 
+  sendErrorResponse,
+  sendCreatedResponse,
+  sendDeletedResponse,
+  sendNotFoundResponse 
 } = require('../utils/response');
-const fileService = require('../services/fileService'); // Assuming this service exists
-const {
-    Assignment,
-    Submission,
-    User
-} = require('../models');
-const {
-    USER_ROLES
-} = require('../utils/constants');
 
 /**
- * Upload a single file
- */
-const uploadSingleFile = catchAsync(async (req, res) => {
-    if (!req.file) {
-        return sendErrorResponse(res, 400, 'No file uploaded.');
-    }
+ * Upload a single public file
+ */
+const uploadPublicFile = catchAsync(async (req, res) => {
+  if (!req.file) {
+    return sendErrorResponse(res, 400, 'No file uploaded.');
+  }
 
-    // The fileService is expected to handle moving the file from a temporary location
-    // to a permanent one and return its metadata.
-    const fileData = await fileService.handleFileUpload(req.file, req.body.folder || 'general');
+  const fileData = await fileService.uploadFile(req.file, {
+    folder: `public/${req.body.folder || 'general'}`,
+    isPublic: true
+  });
 
-    sendSuccessResponse(res, 201, 'File uploaded successfully', fileData);
+  sendCreatedResponse(res, fileData, 'File uploaded successfully.');
 });
 
 /**
- * Upload multiple files
- */
-const uploadMultipleFiles = catchAsync(async (req, res) => {
-    if (!req.files || req.files.length === 0) {
-        return sendErrorResponse(res, 400, 'No files uploaded.');
-    }
+ * Upload a single private file
+ */
+const uploadPrivateFile = catchAsync(async (req, res) => {
+  if (!req.file) {
+    return sendErrorResponse(res, 400, 'No file uploaded.');
+  }
 
-    const fileData = await fileService.handleMultipleFileUploads(req.files, req.body.folder || 'general');
+  const fileData = await fileService.uploadFile(req.file, {
+    folder: `private/${req.user.id}/${req.body.folder || 'docs'}`,
+    isPublic: false
+  });
 
-    sendSuccessResponse(res, 201, 'Files uploaded successfully', fileData);
+  sendCreatedResponse(res, fileData, 'Private file uploaded successfully.');
 });
 
 /**
- * Get/Download a file
- * Note: This is a simplified version. A real implementation would involve more robust
- * security checks to ensure the user has permission to access the file path.
- */
+ * Get a file (handles both public and private access)
+ */
 const getFile = catchAsync(async (req, res) => {
-    const {
-        filePath
-    } = req.params; // The full path after /uploads/
+  const { fileKey } = req.params; // fileKey would be the full path in S3/local
 
-    // Security check: Ensure the path is within the intended directory
-    const isPathSafe = await fileService.isPathSecure(filePath);
-    if (!isPathSafe) {
-        return sendErrorResponse(res, 400, 'Invalid file path.');
-    }
-
-    const fileStream = await fileService.getFileStream(filePath);
-    if (!fileStream) {
-        return sendNotFoundResponse(res, 'File');
-    }
-
-    // Set headers to trigger download
-    res.setHeader('Content-Type', fileStream.mimeType);
-    res.setHeader('Content-Disposition', `attachment; filename="${fileStream.originalName}"`);
-
-    fileStream.stream.pipe(res);
+  // In a real scenario, you'd check database records for file ownership
+  // and determine if the file is public or if the user has access.
+  
+  const isPublic = fileKey.startsWith('public/');
+  
+  if(isPublic) {
+    const fileUrl = fileService.useS3 
+        ? `https://${fileService.bucketName}.s3.amazonaws.com/${fileKey}` 
+        : `/uploads/${fileKey}`;
+    return res.redirect(fileUrl);
+  }
+  
+  // For private files, generate a signed URL
+  const signedUrl = await fileService.getSignedUrl(fileKey);
+  res.redirect(signedUrl);
 });
 
 /**
- * Delete a file
- * This requires context to check for permissions.
- */
+ * Delete a file
+ */
 const deleteFile = catchAsync(async (req, res) => {
-    const {
-        fileUrl,
-        context,
-        contextId
-    } = req.body;
-    const {
-        id: userId,
-        role
-    } = req.user;
+  const { fileKey } = req.body;
+  if (!fileKey) {
+    return sendErrorResponse(res, 400, 'File key is required.');
+  }
 
-    if (!fileUrl || !context || !contextId) {
-        return sendErrorResponse(res, 400, 'File URL, context, and context ID are required.');
-    }
+  // Authorization: Check if the user owns the file before deleting
+  // This logic would involve checking a database record that links the fileKey to the userId.
+  // For example: const fileRecord = await File.findOne({ key: fileKey, ownerId: req.user.id });
+  // if (!fileRecord) { return sendErrorResponse(res, 403, 'You are not authorized to delete this file.'); }
 
-    let hasPermission = false;
+  await fileService.deleteFile(fileKey);
 
-    // Check permissions based on context
-    switch (context) {
-        case 'assignment_resource':
-            const assignment = await Assignment.findById(contextId);
-            if (assignment) {
-                const teacher = await Teacher.findOne({
-                    userId
-                });
-                if (role === USER_ROLES.ADMIN || (teacher && assignment.instructorId.equals(teacher._id))) {
-                    hasPermission = true;
-                }
-            }
-            break;
+  sendDeletedResponse(res, 'File deleted successfully.');
+});
 
-        case 'submission_file':
-            const submission = await Submission.findById(contextId);
-            if (submission) {
-                const student = await Student.findOne({
-                    userId
-                });
-                if (student && submission.studentId.equals(student._id)) {
-                    hasPermission = true;
-                }
-            }
-            break;
 
-        case 'profile_image':
-            if (contextId === userId) {
-                hasPermission = true;
-            }
-            break;
-
-        default:
-            return sendErrorResponse(res, 400, 'Invalid context for file deletion.');
-    }
-
-    if (!hasPermission) {
-        return sendErrorResponse(res, 403, 'You do not have permission to delete this file.');
-    }
-
-    // Delete file from storage
-    await fileService.deleteFileByUrl(fileUrl);
-
-    // TODO: Update the corresponding database record to remove the file reference.
-    // This logic would be specific to each context. For example:
-    // if (context === 'assignment_resource') {
-    //   await Assignment.updateOne({ _id: contextId }, { $pull: { resources: { url: fileUrl } } });
-    // }
-
-    sendSuccessResponse(res, 200, 'File deleted successfully.');
+/**
+ * Get storage statistics
+ */
+const getStorageStats = catchAsync(async (req, res) => {
+    const stats = await fileService.getStorageStats();
+    sendSuccessResponse(res, 200, 'Storage statistics retrieved successfully', stats);
 });
 
 
 module.exports = {
-    uploadSingleFile,
-    uploadMultipleFiles,
-    getFile,
-    deleteFile
+  uploadPublicFile,
+  uploadPrivateFile,
+  getFile,
+  deleteFile,
+  getStorageStats
 };
+

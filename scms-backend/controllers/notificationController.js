@@ -1,122 +1,89 @@
 /**
- * Notification Controller
- * Handles fetching and managing user notifications
- */
+ * Notification Controller
+ * Handles fetching and managing user notifications
+ */
 
-const {
-    Notification
-} = require('../models');
-const {
-    catchAsync
-} = require('../middleware/errorHandler');
-const {
-    sendSuccessResponse,
-    sendPaginatedResponse,
-    sendErrorResponse
+const { Notification, UserNotification } = require('../models');
+const { catchAsync } = require('../middleware/errorHandler');
+const { 
+  sendSuccessResponse, 
+  sendPaginatedResponse,
+  sendErrorResponse,
+  sendCreatedResponse
 } = require('../utils/response');
-
-// A separate model to track user-specific notification status (e.g., isRead)
-// is a more scalable approach than embedding read status in the main notification document.
-// We will assume a UserNotification model exists for this controller.
-const UserNotification = require('../models/UserNotification'); // Assuming this model exists
+const notificationService = require('../services/notificationService');
 
 /**
- * Get notifications for the currently logged-in user
- */
+ * Get all notifications for the current user
+ */
 const getMyNotifications = catchAsync(async (req, res) => {
-    const {
-        page = 1,
-        limit = 10,
-        status = 'all'
-    } = req.query; // status can be 'all', 'read', or 'unread'
+  const { page = 1, limit = 10 } = req.query;
 
-    const filter = {
-        userId: req.user.id
-    };
-    if (status === 'read') {
-        filter.isRead = true;
-    } else if (status === 'unread') {
-        filter.isRead = false;
-    }
+  const { notifications, total } = await notificationService.getUserNotifications(req.user.id, { page, limit });
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const [userNotifications, total] = await Promise.all([
-        UserNotification.find(filter)
-        .populate({
-            path: 'notificationId',
-            populate: {
-                path: 'senderId',
-                select: 'firstName lastName profileImage'
-            }
-        })
-        .sort('-createdAt')
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean(),
-        UserNotification.countDocuments(filter)
-    ]);
-
-    const notifications = userNotifications.map(un => ({
-        ...un.notificationId,
-        isRead: un.isRead,
-        readAt: un.readAt,
-        userNotificationId: un._id // ID of the user-notification link
-    }));
-
-    const unreadCount = await UserNotification.countDocuments({
-        userId: req.user.id,
-        isRead: false
-    });
-
-    sendPaginatedResponse(res, notifications, parseInt(page), parseInt(limit), total, 'Notifications retrieved successfully', {
-        unreadCount
-    });
+  sendPaginatedResponse(res, notifications, parseInt(page), parseInt(limit), total, 'Notifications retrieved successfully');
 });
 
 /**
- * Mark a single notification as read
- */
+ * Get the count of unread notifications for the current user
+ */
+const getUnreadCount = catchAsync(async (req, res) => {
+  const count = await UserNotification.countDocuments({
+    userId: req.user.id,
+    isRead: false
+  });
+  
+  sendSuccessResponse(res, 200, 'Unread notification count retrieved', { count });
+});
+
+/**
+ * Mark a single notification as read
+ */
 const markAsRead = catchAsync(async (req, res) => {
-    const {
-        notificationId
-    } = req.params; // This is the UserNotification ID
+  const { id } = req.params; // This is the UserNotification ID
 
-    const notification = await UserNotification.findOneAndUpdate({
-        _id: notificationId,
-        userId: req.user.id
-    }, {
-        isRead: true,
-        readAt: new Date()
-    }, {
-        new: true
-    });
+  const userNotification = await UserNotification.findOneAndUpdate(
+    { _id: id, userId: req.user.id },
+    { isRead: true, readAt: new Date() },
+    { new: true }
+  );
 
-    if (!notification) {
-        return sendErrorResponse(res, 404, 'Notification not found or you do not have permission to view it.');
-    }
+  if (!userNotification) {
+    return sendErrorResponse(res, 404, 'Notification not found or you do not have permission to view it.');
+  }
 
-    sendSuccessResponse(res, 200, 'Notification marked as read.');
+  sendSuccessResponse(res, 200, 'Notification marked as read');
 });
 
 /**
- * Mark all notifications as read for the current user
- */
+ * Mark all of the user's notifications as read
+ */
 const markAllAsRead = catchAsync(async (req, res) => {
-    await UserNotification.updateMany({
-        userId: req.user.id,
-        isRead: false
-    }, {
-        isRead: true,
-        readAt: new Date()
-    });
+  await UserNotification.updateMany(
+    { userId: req.user.id, isRead: false },
+    { isRead: true, readAt: new Date() }
+  );
 
-    sendSuccessResponse(res, 200, 'All notifications marked as read.');
+  sendSuccessResponse(res, 200, 'All notifications marked as read');
 });
 
+/**
+ * Create and send a new notification (for admins/teachers)
+ */
+const createNotification = catchAsync(async (req, res) => {
+    const notificationData = req.body;
+    notificationData.senderId = req.user.id; // Set sender as the current user
+
+    const notification = await notificationService.sendNotification(notificationData);
+    
+    sendCreatedResponse(res, notification, 'Notification sent successfully');
+});
 
 module.exports = {
-    getMyNotifications,
-    markAsRead,
-    markAllAsRead
+  getMyNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+  createNotification
 };
+

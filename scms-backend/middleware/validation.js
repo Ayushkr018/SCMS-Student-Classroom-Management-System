@@ -5,6 +5,8 @@
 
 const Joi = require('joi');
 const { sendErrorResponse } = require('../utils/response');
+const { USER_ROLES, NOTIFICATION_TYPES, TEST_TYPES, TEST_STATUS } = require('../utils/constants');
+
 
 /**
  * Validation middleware factory
@@ -92,7 +94,7 @@ const userSchemas = {
       .messages({
         'any.only': 'Confirm password must match password'
       }),
-    role: Joi.string().valid('student', 'teacher').optional(), // Made optional, defaults in controller
+    role: Joi.string().valid('student', 'teacher').required(),
     phone: commonSchemas.phone.optional(),
     dateOfBirth: commonSchemas.date.optional()
   }),
@@ -138,19 +140,60 @@ const userSchemas = {
  */
 const courseSchemas = {
   create: Joi.object({
-    title: Joi.string().trim().min(3).max(200).required(),
-    description: Joi.string().trim().max(2000).required(),
-    courseCode: Joi.string().trim().uppercase().required(),
-    // Add other course fields here based on your Course model
+    title: Joi.string().trim().min(3).max(100).required(),
+    description: Joi.string().trim().max(500).optional(),
+    code: Joi.string().trim().uppercase().min(3).max(10).required(),
+    credits: Joi.number().integer().min(1).max(6).required(),
+    semester: Joi.string().valid('Fall', 'Spring', 'Summer').required(),
+    year: Joi.number().integer().min(2020).max(2030).required()
   }),
 
   update: Joi.object({
-    title: Joi.string().trim().min(3).max(200).optional(),
-    description: Joi.string().trim().max(2000).optional(),
-    courseCode: Joi.string().trim().uppercase().optional(),
-    // Add other course fields here
+    title: Joi.string().trim().min(3).max(100).optional(),
+    description: Joi.string().trim().max(500).optional(),
+    credits: Joi.number().integer().min(1).max(6).optional(),
+    semester: Joi.string().valid('Fall', 'Spring', 'Summer').optional(),
+    year: Joi.number().integer().min(2020).max(2030).optional()
   })
 };
+
+/**
+ * Notification validation schemas
+ */
+const notificationSchemas = {
+    create: Joi.object({
+        title: Joi.string().trim().min(3).max(200).required(),
+        message: Joi.string().trim().min(3).max(1000).required(),
+        type: Joi.string().valid(...Object.values(NOTIFICATION_TYPES)).required(),
+        recipients: Joi.string().valid('all', 'students', 'teachers', 'admins', 'specific_users', 'course_students').required(),
+        targetUsers: Joi.array().items(commonSchemas.objectId).when('recipients', { is: 'specific_users', then: Joi.required() }),
+        targetCourse: commonSchemas.objectId.when('recipients', { is: 'course_students', then: Joi.required() }),
+        priority: Joi.string().valid('low', 'normal', 'high', 'urgent').default('normal')
+    })
+};
+
+/**
+ * Test validation schemas
+ */
+const testSchemas = {
+    create: Joi.object({
+        title: Joi.string().trim().min(3).max(200).required(),
+        description: Joi.string().trim().max(1000).optional(),
+        testCode: Joi.string().trim().uppercase().required(),
+        type: Joi.string().valid(...Object.values(TEST_TYPES)).required(),
+        courseId: commonSchemas.objectId.required(),
+        configuration: Joi.object({
+            totalMarks: Joi.number().min(1).required(),
+            passingMarks: Joi.number().min(0).required(),
+            duration: Joi.number().min(1).required(),
+        }).required(),
+        schedule: Joi.object({
+            startDate: Joi.date().iso().required(),
+            endDate: Joi.date().iso().greater(Joi.ref('startDate')).required(),
+        }).required()
+    })
+};
+
 
 /**
  * Query parameter validation schemas
@@ -159,17 +202,19 @@ const querySchemas = {
   list: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(100).default(10),
-    sort: Joi.string().default('-createdAt'),
-    search: Joi.string().trim().max(100).optional().allow('')
+    sort: Joi.string().default('createdAt'),
+    order: Joi.string().valid('asc', 'desc').default('desc'),
+    search: Joi.string().trim().max(100).optional()
   }),
 
   userList: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(100).default(10),
-    sort: Joi.string().default('-createdAt'),
+    sort: Joi.string().default('createdAt'),
+    order: Joi.string().valid('asc', 'desc').default('desc'),
     role: Joi.string().valid('student', 'teacher', 'admin').optional(),
-    status: Joi.string().optional(),
-    search: Joi.string().trim().max(100).optional().allow(''),
+    search: Joi.string().trim().max(100).optional(),
+    active: Joi.boolean().optional()
   })
 };
 
@@ -202,46 +247,19 @@ const customValidations = {
    */
   sanitizeHtml: (value) => {
     // Basic HTML sanitization - in production use a library like DOMPurify
-    if (typeof value !== 'string') return value;
     return value.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   }
 };
-
-const testSchemas = {
-  create: Joi.object({
-    title: Joi.string().trim().min(3).max(200).required(),
-    description: Joi.string().trim().max(2000).optional(),
-    duration: Joi.number().integer().min(1).required(),   // Example fields
-    maxMarks: Joi.number().integer().min(0).optional()
-  }),
-
-  update: Joi.object({
-    title: Joi.string().trim().min(3).max(200).optional(),
-    description: Joi.string().trim().max(2000).optional(),
-    duration: Joi.number().integer().min(1).optional(),
-    maxMarks: Joi.number().integer().min(0).optional()
-  }),
-
-  submitAnswer: Joi.object({
-    questionId: Joi.string().hex().length(24).required(),
-    answer: Joi.any().required()
-  }),
-
-  addQuestions: Joi.object({
-    questions: Joi.array().items(Joi.string().hex().length(24)).required()
-  }),
-
-  // Define other schemas based on your route validation needs
-};
-
 
 module.exports = {
   validate,
   commonSchemas,
   userSchemas,
   courseSchemas,
+  notificationSchemas,
+  testSchemas, // Export the new schemas
   querySchemas,
   paramSchemas,
-  testSchemas,
   customValidations
 };
+

@@ -2,62 +2,50 @@
  * MongoDB Database Connection Configuration
  * Handles connection, reconnection, and error handling for the application.
  */
-require('dotenv').config(); // Loads environment variables from .env file
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 // --- Setup Event Listeners Before Connecting ---
-
-// Log an error if the connection fails after the initial connection
 mongoose.connection.on('error', (err) => {
-  console.error('❌ Mongoose connection error after initial connect:', err);
+  console.error('❌ Mongoose connection error:', err);
 });
 
-// Log when the connection is re-established
 mongoose.connection.on('connected', () => {
-  console.log('📦 Mongoose reconnected to MongoDB');
+  console.log('📦 Mongoose connected to MongoDB');
 });
 
-// Log when the connection is lost
 mongoose.connection.on('disconnected', () => {
-  console.log(' Mongoose connection lost');
+  console.log('⚠️  Mongoose connection lost');
 });
 
 /**
  * Connects to the MongoDB database using the URI from environment variables.
- * Includes a retry mechanism for initial connection failures.
  */
 const connectDB = async () => {
-  // If we are already connected, don't try to connect again
-  if (mongoose.connection.readyState >= 1) {
-    return;
-  }
+  if (mongoose.connection.readyState >= 1) return; // Already connected
 
   try {
-    console.log('Attempting to connect to MongoDB...');
-    // Modern Mongoose options are streamlined.
-    // No need for useNewUrlParser or useUnifiedTopology.
+    console.log('⏳ Attempting to connect to MongoDB...');
+
     const options = {
-      maxPoolSize: 10,              // Maintain up to 10 socket connections
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-      socketTimeoutMS: 45000,         // Close sockets after 45 seconds of inactivity
-      dbName: process.env.DB_NAME,    // Specify the database name from .env
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      dbName: process.env.DB_NAME,
     };
 
     await mongoose.connect(process.env.MONGO_URI, options);
-    
+
     console.log(`
       -------------------------------------------------------
-      📦 MongoDB Connected Successfully!
-      🎯 Host: ${mongoose.connection.host}
-      🏷️  Database: ${mongoose.connection.name}
+      ✅ MongoDB Connected Successfully!
+      🌐 Host: ${mongoose.connection.host}
+      🗄️  Database: ${mongoose.connection.name}
       -------------------------------------------------------
     `);
-
   } catch (error) {
     console.error('❌ Initial MongoDB connection error:', error.message);
     console.log('🔄 Retrying connection in 5 seconds...');
-    
-    // Retry connection after 5 seconds
     setTimeout(connectDB, 5000);
   }
 };
@@ -71,7 +59,6 @@ const gracefulShutdown = async () => {
   process.exit(0);
 };
 
-// Listen for app termination signals
 process.on('SIGINT', gracefulShutdown).on('SIGTERM', gracefulShutdown);
 
 module.exports = { connectDB };

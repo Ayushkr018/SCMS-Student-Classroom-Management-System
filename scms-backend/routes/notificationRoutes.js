@@ -1,6 +1,6 @@
 /**
  * Notification Routes
- * Handles notification retrieval and management
+ * Endpoints for managing and viewing notifications
  */
 
 const express = require('express');
@@ -9,13 +9,13 @@ const router = express.Router();
 // Import controllers and middleware
 const notificationController = require('../controllers/notificationController');
 const { authenticateJWT, authorizeRoles } = require('../middleware/authMiddleware');
-const { validate } = require('../middleware/validation');
-const { notificationSchemas, paramSchemas } = require('../middleware/validation');
 const { USER_ROLES } = require('../utils/constants');
+const { validate } = require('../middleware/validation');
+const { paramSchemas, notificationSchemas } = require('../middleware/validation');
 
 /**
  * @route   GET /api/notifications
- * @desc    Get all notifications for the current user (paginated)
+ * @desc    Get all notifications for the current user
  * @access  Private
  */
 router.get('/',
@@ -24,48 +24,47 @@ router.get('/',
 );
 
 /**
+ * @route   GET /api/notifications/unread-count
+ * @desc    Get the count of unread notifications
+ * @access  Private
+ */
+router.get('/unread-count',
+  authenticateJWT,
+  notificationController.getUnreadCount
+);
+
+/**
  * @route   POST /api/notifications
- * @desc    Create a new global notification
- * @access  Private (Admin)
+ * @desc    Create and send a new notification (for admins/teachers)
+ * @access  Private (Admin, Teacher)
  */
 router.post('/',
   authenticateJWT,
-  authorizeRoles(USER_ROLES.ADMIN),
+  authorizeRoles(USER_ROLES.ADMIN, USER_ROLES.TEACHER),
   validate(notificationSchemas.create, 'body'),
   notificationController.createNotification
 );
 
 /**
- * @route   POST /api/notifications/read/all
- * @desc    Mark all of the user's notifications as read
+ * @route   PATCH /api/notifications/:id/read
+ * @desc    Mark a single notification as read
  * @access  Private
  */
-router.post('/read/all',
-  authenticateJWT,
-  notificationController.markAllAsRead
-);
-
-/**
- * @route   POST /api/notifications/read/:id
- * @desc    Mark a specific notification as read
- * @access  Private
- */
-router.post('/read/:id',
+router.patch('/:id/read',
   authenticateJWT,
   validate(paramSchemas.id, 'params'),
   notificationController.markAsRead
 );
 
 /**
- * @route   DELETE /api/notifications/:id
- * @desc    Delete a notification (Admin only)
- * @access  Private (Admin)
+ * @route   PATCH /api/notifications/read-all
+ * @desc    Mark all notifications as read
+ * @access  Private
  */
-router.delete('/:id',
+router.patch('/read-all',
   authenticateJWT,
-  authorizeRoles(USER_ROLES.ADMIN),
-  validate(paramSchemas.id, 'params'),
-  notificationController.deleteNotification
+  notificationController.markAllAsRead
 );
 
 module.exports = router;
+

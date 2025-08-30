@@ -1,6 +1,6 @@
 /**
  * File Routes
- * Handles file uploads, downloads, and management
+ * Endpoints for file management
  */
 
 const express = require('express');
@@ -9,65 +9,62 @@ const router = express.Router();
 // Import controllers and middleware
 const fileController = require('../controllers/fileController');
 const { authenticateJWT, authorizeRoles } = require('../middleware/authMiddleware');
-const { USER_ROLES } = require('../utils/constants');
-const fileService = require('../services/fileService');
-
-// Configure multer for general file uploads (e.g., assignment resources)
-const upload = fileService.configureMulter({
-  maxFileSize: 20 * 1024 * 1024, // 20MB
-});
-
-// Configure a specific multer instance for profile pictures
-const uploadProfilePic = fileService.configureMulter({
-  allowedTypes: ['jpg', 'jpeg', 'png', 'gif'],
-  maxFileSize: 5 * 1024 * 1024, // 5MB
-  maxFiles: 1,
-});
+const upload = require('../middleware/upload');
 
 /**
- * @route   POST /api/files/upload
- * @desc    Upload one or more files
+ * @route   POST /api/files/upload/public
+ * @desc    Upload a public file
  * @access  Private
  */
 router.post(
-  '/upload',
-  authenticateJWT,
-  upload.array('files'), // Field name in the multipart/form-data
-  fileController.uploadFiles
+    '/upload/public',
+    authenticateJWT,
+    upload.single('file'), // Use 'file' as the field name
+    fileController.uploadPublicFile
 );
 
 /**
- * @route   POST /api/files/upload/profile-picture
- * @desc    Upload a profile picture for the current user
+ * @route   POST /api/files/upload/private
+ * @desc    Upload a private file
  * @access  Private
  */
 router.post(
-  '/upload/profile-picture',
-  authenticateJWT,
-  uploadProfilePic.single('profilePicture'), // Field name for the profile picture
-  fileController.uploadProfilePicture
+    '/upload/private',
+    authenticateJWT,
+    upload.single('file'), // Use 'file' as the field name
+    fileController.uploadPrivateFile
 );
 
 /**
- * @route   GET /api/files/:filename
- * @desc    Get or download a file by its filename
- * @access  Private (Further checks should be done in the controller)
+ * @route   GET /api/files/view/:fileKey(*)
+ * @desc    Get a file by its key (supports nested paths)
+ * @access  Public/Private (handled by controller)
  */
-router.get(
-  '/:filename',
-  authenticateJWT,
-  fileController.getFile
-);
+router.get('/view/:fileKey(*)', fileController.getFile);
+
 
 /**
- * @route   DELETE /api/files/:id
- * @desc    Delete a file by its database ID
- * @access  Private (Admin or file owner)
+ * @route   DELETE /api/files
+ * @desc    Delete a file
+ * @access  Private
  */
 router.delete(
-  '/:id',
-  authenticateJWT,
-  fileController.deleteFile
+    '/',
+    authenticateJWT,
+    fileController.deleteFile
+);
+
+/**
+ * @route   GET /api/files/stats
+ * @desc    Get storage statistics
+ * @access  Private (Admin)
+ */
+router.get(
+    '/stats',
+    authenticateJWT,
+    authorizeRoles('admin'),
+    fileController.getStorageStats
 );
 
 module.exports = router;
+

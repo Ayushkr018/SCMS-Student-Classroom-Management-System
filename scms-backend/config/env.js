@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 // Validate required environment variables

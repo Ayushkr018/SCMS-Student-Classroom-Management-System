@@ -10,146 +10,121 @@ const {
 const {
     subDays
 } = require('date-fns');
-const {
-    mongoose
-} = require('mongoose');
+const mongoose = require('mongoose');
+const { catchAsync } = require('../middleware/errorHandler');
 
 class AnalyticsController {
 
     // Dashboard analytics
-    async getDashboardStats(req, res) {
-        try {
-            const {
-                period = '30d'
-            } = req.query;
-            const days = parseInt(period.replace('d', ''));
-            const startDate = subDays(new Date(), days);
+    getDashboardStats = catchAsync(async (req, res) => {
+        const {
+            period = '30d'
+        } = req.query;
+        const days = parseInt(period.replace('d', ''));
+        const startDate = subDays(new Date(), days);
 
-            // Parallel queries for better performance
-            const [
-                userStats,
+        // Parallel queries for better performance
+        const [
+            userStats,
+            activeCourses,
+            submissionStats,
+            recentActivity
+        ] = await Promise.all([
+            this.getUserStats(),
+            this.getActiveCourses(),
+            this.getSubmissionStats(startDate),
+            this.getRecentActivity(10)
+        ]);
+
+        res.json({
+            period: `${days} days`,
+            stats: {
+                users: userStats,
                 activeCourses,
-                submissionStats,
-                recentActivity
-            ] = await Promise.all([
-                this.getUserStats(),
-                this.getActiveCourses(),
-                this.getSubmissionStats(startDate),
-                this.getRecentActivity(10)
-            ]);
-
-            res.json({
-                period: `${days} days`,
-                stats: {
-                    users: userStats,
-                    activeCourses,
-                    submissions: submissionStats,
-                },
-                recentActivity,
-                generatedAt: new Date().toISOString()
-            });
-
-        } catch (error) {
-            console.error("Dashboard Stats Error:", error);
-            res.status(500).json({
-                error: 'Failed to retrieve dashboard statistics.'
-            });
-        }
-    }
+                submissions: submissionStats,
+            },
+            recentActivity,
+            generatedAt: new Date().toISOString()
+        });
+    });
 
     // Course-specific analytics
-    async getCourseAnalytics(req, res) {
-        try {
-            const {
-                courseId
-            } = req.params;
-            const {
-                period = '90d'
-            } = req.query;
-            const days = parseInt(period.replace('d', ''));
-            const startDate = subDays(new Date(), days);
+    getCourseAnalytics = catchAsync(async (req, res) => {
+        const {
+            courseId
+        } = req.params;
+        const {
+            period = '90d'
+        } = req.query;
+        const days = parseInt(period.replace('d', ''));
+        const startDate = subDays(new Date(), days);
 
-            if (!mongoose.Types.ObjectId.isValid(courseId)) {
-                return res.status(400).json({
-                    error: 'Invalid Course ID format'
-                });
-            }
-            const courseObjectId = new mongoose.Types.ObjectId(courseId);
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({
+                error: 'Invalid Course ID format'
+            });
+        }
+        const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
-            const [
+        const [
+            submissionTrends,
+            averageScores,
+            topStudents,
+            passFailRate
+        ] = await Promise.all([
+            this.getSubmissionTrends(courseObjectId, startDate),
+            this.getAverageScores(courseObjectId, startDate),
+            this.getTopPerformingStudents(courseObjectId, 5),
+            this.getPassFailRate(courseObjectId)
+        ]);
+
+        res.json({
+            courseId,
+            period: `${days} days`,
+            analytics: {
                 submissionTrends,
                 averageScores,
                 topStudents,
                 passFailRate
-            ] = await Promise.all([
-                this.getSubmissionTrends(courseObjectId, startDate),
-                this.getAverageScores(courseObjectId, startDate),
-                this.getTopPerformingStudents(courseObjectId, 5),
-                this.getPassFailRate(courseObjectId)
-            ]);
-
-            res.json({
-                courseId,
-                period: `${days} days`,
-                analytics: {
-                    submissionTrends,
-                    averageScores,
-                    topStudents,
-                    passFailRate
-                },
-                generatedAt: new Date().toISOString()
-            });
-
-        } catch (error) {
-            console.error(`Course Analytics Error for ${req.params.courseId}:`, error);
-            res.status(500).json({
-                error: 'Failed to retrieve course analytics.'
-            });
-        }
-    }
+            },
+            generatedAt: new Date().toISOString()
+        });
+    });
 
     // System performance analytics
-    async getSystemAnalytics(req, res) {
-        try {
-            const {
-                period = '7d'
-            } = req.query;
-            const days = parseInt(period.replace('d', ''));
-            const startDate = subDays(new Date(), days);
+    getSystemAnalytics = catchAsync(async (req, res) => {
+        const {
+            period = '7d'
+        } = req.query;
+        const days = parseInt(period.replace('d', ''));
+        const startDate = subDays(new Date(), days);
 
-            const [
+        const [
+            userActivity,
+            notificationTrends,
+        ] = await Promise.all([
+            this.getUserActivity(startDate),
+            this.getNotificationTrends(startDate),
+        ]);
+
+
+        // Mocked data as this would come from external monitoring
+        const performanceMetrics = {
+            avgResponseTime: 110, // ms
+            errorRate: 0.015, // 1.5%
+            uptime: 99.95, // percentage
+        };
+
+        res.json({
+            period: `${days} days`,
+            analytics: {
                 userActivity,
                 notificationTrends,
-            ] = await Promise.all([
-                this.getUserActivity(startDate),
-                this.getNotificationTrends(startDate),
-            ]);
-
-
-            // Mocked data as this would come from external monitoring
-            const performanceMetrics = {
-                avgResponseTime: 110, // ms
-                errorRate: 0.015, // 1.5%
-                uptime: 99.95, // percentage
-            };
-
-            res.json({
-                period: `${days} days`,
-                analytics: {
-                    userActivity,
-                    notificationTrends,
-                    performanceMetrics
-                },
-                generatedAt: new Date().toISOString()
-            });
-
-        } catch (error) {
-            console.error("System Analytics Error:", error);
-            res.status(500).json({
-                error: 'Failed to retrieve system analytics.'
-            });
-        }
-    }
+                performanceMetrics
+            },
+            generatedAt: new Date().toISOString()
+        });
+    });
 
 
     // Helper methods using Mongoose
@@ -428,3 +403,4 @@ class AnalyticsController {
 }
 
 module.exports = new AnalyticsController();
+
