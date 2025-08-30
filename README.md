@@ -547,6 +547,6 @@ For support, email support@scms.edu or join our Slack channel.
 
 ---
 
-**Made with ❤️ by [Your Name]**
+**Made with ❤️ by Ctrl Alt Defeat**
 
 *SCMS - Empowering Education Through Technology*
