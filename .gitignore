@@ -24,6 +24,5 @@ dist-ssr
 *.sln
 *.sw?
 utils
-.env
-.env.example
+
 
