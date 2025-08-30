@@ -2,7 +2,6 @@
 
 **A comprehensive web-based classroom management platform featuring real-time live sessions, interactive whiteboards, QR code attendance, assignment tracking, and performance analytics.**
 
-![SCMS Banner](https://via.placeholder.com/1200x300/4A90E2/FFFFFF?text=SCMS+-+Student+Classroom+Management+System)
 
 ## 📋 Table of Contents
 
