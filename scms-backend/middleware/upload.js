@@ -5,7 +5,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { AppError } = require('../utils/errorUtils');
+const { AppError } = require('./errorHandler'); // Adjusted path
 
 // Ensure upload directories exist
 const ensureDirectoryExists = (dir) => {
@@ -21,13 +21,14 @@ const storage = multer.diskStorage({
     
     // Determine upload path based on field name
     switch (file.fieldname) {
+      case 'files': // Generic field for assignment submissions
       case 'assignment':
         uploadPath = 'uploads/assignments/';
         break;
       case 'submission':
         uploadPath = 'uploads/submissions/';
         break;
-      case 'profile':
+      case 'profileImage':
         uploadPath = 'uploads/profiles/';
         break;
       case 'document':
@@ -65,13 +66,15 @@ const fileFilter = (req, file, cb) => {
   let isAllowed = false;
   
   switch (file.fieldname) {
-    case 'profile':
+    case 'profileImage':
       isAllowed = allowedTypes.images.test(fileExt);
       break;
+    case 'files': // Generic field for assignment submissions
     case 'assignment':
     case 'submission':
       isAllowed = allowedTypes.documents.test(fileExt) || 
-                 allowedTypes.archives.test(fileExt);
+                 allowedTypes.archives.test(fileExt) ||
+                  allowedTypes.images.test(fileExt); // Also allow images for submissions
       break;
     case 'document':
       isAllowed = allowedTypes.documents.test(fileExt) || 
@@ -99,33 +102,5 @@ const upload = multer({
   }
 });
 
-// Middleware functions
-const uploadMiddleware = {
-  // Single file upload
-  single: (fieldName) => upload.single(fieldName),
-  
-  // Multiple files upload
-  array: (fieldName, maxCount = 5) => upload.array(fieldName, maxCount),
-  
-  // Multiple fields upload
-  fields: (fields) => upload.fields(fields),
-  
-  // Handle upload errors
-  handleUploadError: (err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-      switch (err.code) {
-        case 'LIMIT_FILE_SIZE':
-          return next(new AppError('File too large. Maximum size is 10MB', 400));
-        case 'LIMIT_FILE_COUNT':
-          return next(new AppError('Too many files. Maximum is 5 files', 400));
-        case 'LIMIT_UNEXPECTED_FILE':
-          return next(new AppError('Unexpected file field', 400));
-        default:
-          return next(new AppError('Upload error occurred', 400));
-      }
-    }
-    next(err);
-  }
-};
-
-module.exports = uploadMiddleware;
+// Export the configured multer instance directly for use in routes
+module.exports = upload;

@@ -92,7 +92,7 @@ const userSchemas = {
       .messages({
         'any.only': 'Confirm password must match password'
       }),
-    role: Joi.string().valid('student', 'teacher').required(),
+    role: Joi.string().valid('student', 'teacher').optional(), // Made optional, defaults in controller
     phone: commonSchemas.phone.optional(),
     dateOfBirth: commonSchemas.date.optional()
   }),
@@ -138,20 +138,17 @@ const userSchemas = {
  */
 const courseSchemas = {
   create: Joi.object({
-    title: Joi.string().trim().min(3).max(100).required(),
-    description: Joi.string().trim().max(500).optional(),
-    code: Joi.string().trim().uppercase().min(3).max(10).required(),
-    credits: Joi.number().integer().min(1).max(6).required(),
-    semester: Joi.string().valid('Fall', 'Spring', 'Summer').required(),
-    year: Joi.number().integer().min(2020).max(2030).required()
+    title: Joi.string().trim().min(3).max(200).required(),
+    description: Joi.string().trim().max(2000).required(),
+    courseCode: Joi.string().trim().uppercase().required(),
+    // Add other course fields here based on your Course model
   }),
 
   update: Joi.object({
-    title: Joi.string().trim().min(3).max(100).optional(),
-    description: Joi.string().trim().max(500).optional(),
-    credits: Joi.number().integer().min(1).max(6).optional(),
-    semester: Joi.string().valid('Fall', 'Spring', 'Summer').optional(),
-    year: Joi.number().integer().min(2020).max(2030).optional()
+    title: Joi.string().trim().min(3).max(200).optional(),
+    description: Joi.string().trim().max(2000).optional(),
+    courseCode: Joi.string().trim().uppercase().optional(),
+    // Add other course fields here
   })
 };
 
@@ -162,19 +159,17 @@ const querySchemas = {
   list: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(100).default(10),
-    sort: Joi.string().default('createdAt'),
-    order: Joi.string().valid('asc', 'desc').default('desc'),
-    search: Joi.string().trim().max(100).optional()
+    sort: Joi.string().default('-createdAt'),
+    search: Joi.string().trim().max(100).optional().allow('')
   }),
 
   userList: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(100).default(10),
-    sort: Joi.string().default('createdAt'),
-    order: Joi.string().valid('asc', 'desc').default('desc'),
+    sort: Joi.string().default('-createdAt'),
     role: Joi.string().valid('student', 'teacher', 'admin').optional(),
-    search: Joi.string().trim().max(100).optional(),
-    active: Joi.boolean().optional()
+    status: Joi.string().optional(),
+    search: Joi.string().trim().max(100).optional().allow(''),
   })
 };
 
@@ -207,6 +202,7 @@ const customValidations = {
    */
   sanitizeHtml: (value) => {
     // Basic HTML sanitization - in production use a library like DOMPurify
+    if (typeof value !== 'string') return value;
     return value.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   }
 };

@@ -115,17 +115,17 @@ const optionalAuth = (req, res, next) => {
 /**
  * Check if user owns resource or is admin
  */
-const authorizeResourceOwner = (resourceUserIdField = 'userId') => {
+const authorizeResourceOwner = (resourceParam = 'id') => {
   return (req, res, next) => {
     try {
       if (!req.user) {
         return sendErrorResponse(res, 401, 'User not authenticated');
       }
       
-      const resourceUserId = req.params[resourceUserIdField] || req.body[resourceUserIdField];
+      const resourceId = req.params[resourceParam];
       
       // Allow if user is admin or owns the resource
-      if (req.user.role === 'admin' || req.user.id === resourceUserId) {
+      if (req.user.role === 'admin' || req.user.id === resourceId) {
         return next();
       }
       
