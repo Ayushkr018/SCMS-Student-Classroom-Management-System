@@ -1,0 +1,41 @@
+/**
+ * Plagiarism Check Job Processors
+ */
+
+const plagiarismService = require('../services/plagiarismService');
+const notificationService = require('../services/notificationService');
+const logger = require('../utils/logger');
+
+const plagiarismJobs = {
+  /**
+   * Process plagiarism check
+   */
+  async checkPlagiarism(job) {
+    try {
+      const { submissionId } = job.data;
+      
+      logger.info(`Starting plagiarism check for submission: ${submissionId}`);
+      
+      // Perform plagiarism check
+      const report = await plagiarismService.checkPlagiarism(submissionId);
+      
+      // Send notification if high risk detected
+      if (report.riskLevel === 'HIGH') {
+        await notificationService.sendPlagiarismAlert(report);
+      }
+      
+      return {
+        success: true,
+        submissionId,
+        riskLevel: report.riskLevel,
+        similarity: report.overallSimilarity,
+        flaggedCount: report.flaggedSubmissions.length
+      };
+    } catch (error) {
+      logger.error('Plagiarism check job failed:', error);
+      throw error;
+    }
+  }
+};
+
+module.exports = plagiarismJobs;
