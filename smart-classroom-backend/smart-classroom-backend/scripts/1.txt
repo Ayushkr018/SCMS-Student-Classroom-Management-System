@@ -1,0 +1,6 @@
+├── scripts/
+│   ├── setup.js                  # Initial setup script
+│   ├── seed.js                   # Data seeding script
+│   ├── cleanup.js                # Database cleanup
+│   ├── backup.js                 # Backup utility
+│   └── deploy.js  
