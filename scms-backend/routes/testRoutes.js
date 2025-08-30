@@ -153,4 +153,6 @@ router.post('/:id/publish',
   testController.publishTest
 );
 
+console.log('testController.updateTest:', testController.updateTest);
+
 module.exports = router;

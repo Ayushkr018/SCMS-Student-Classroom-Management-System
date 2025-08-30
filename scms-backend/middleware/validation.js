@@ -207,6 +207,34 @@ const customValidations = {
   }
 };
 
+const testSchemas = {
+  create: Joi.object({
+    title: Joi.string().trim().min(3).max(200).required(),
+    description: Joi.string().trim().max(2000).optional(),
+    duration: Joi.number().integer().min(1).required(),   // Example fields
+    maxMarks: Joi.number().integer().min(0).optional()
+  }),
+
+  update: Joi.object({
+    title: Joi.string().trim().min(3).max(200).optional(),
+    description: Joi.string().trim().max(2000).optional(),
+    duration: Joi.number().integer().min(1).optional(),
+    maxMarks: Joi.number().integer().min(0).optional()
+  }),
+
+  submitAnswer: Joi.object({
+    questionId: Joi.string().hex().length(24).required(),
+    answer: Joi.any().required()
+  }),
+
+  addQuestions: Joi.object({
+    questions: Joi.array().items(Joi.string().hex().length(24)).required()
+  }),
+
+  // Define other schemas based on your route validation needs
+};
+
+
 module.exports = {
   validate,
   commonSchemas,
@@ -214,5 +242,6 @@ module.exports = {
   courseSchemas,
   querySchemas,
   paramSchemas,
+  testSchemas,
   customValidations
 };

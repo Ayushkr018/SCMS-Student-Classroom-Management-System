@@ -380,6 +380,60 @@ const getTestResults = catchAsync(async (req, res) => {
 });
 
 /**
+ * Update test details
+ */
+const updateTest = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  const test = await Test.findById(id);
+  if (!test) {
+    return sendNotFoundResponse(res, 'Test');
+  }
+
+  // Check permissions
+  if (req.user.role !== USER_ROLES.ADMIN) {
+    const Teacher = require('../models/Teacher');
+    const teacher = await Teacher.findOne({ userId: req.user.id });
+    if (test.instructorId.toString() !== teacher._id.toString()) {
+      return sendErrorResponse(res, 403, 'You can only update your own tests');
+    }
+  }
+
+  // Update fields
+  Object.assign(test, updateData);
+  await test.save();
+
+  sendUpdatedResponse(res, test, 'Test updated successfully');
+});
+
+/**
+ * Delete test
+ */
+const deleteTest = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const test = await Test.findById(id);
+  if (!test) {
+    return sendNotFoundResponse(res, 'Test');
+  }
+
+  // Check permissions
+  if (req.user.role !== USER_ROLES.ADMIN) {
+    const Teacher = require('../models/Teacher');
+    const teacher = await Teacher.findOne({ userId: req.user.id });
+    if (!teacher || test.instructorId.toString() !== teacher._id.toString()) {
+      return sendErrorResponse(res, 403, 'You can only delete your own tests');
+    }
+  }
+
+  await Test.findByIdAndDelete(id);
+
+  sendDeletedResponse(res, test, 'Test deleted successfully');
+});
+
+
+/**
  * Add questions to test
  */
 const addQuestions = catchAsync(async (req, res) => {
@@ -475,11 +529,13 @@ module.exports = {
   createTest,
   getTestById,
   startTest,
+  updateTest,
   submitAnswer,
   submitTest,
   getTestResults,
   addQuestions,
   removeQuestion,
-  publishTest
+  publishTest,
+  deleteTest,
 };
 
