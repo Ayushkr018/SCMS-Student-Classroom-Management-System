@@ -1,6 +1,6 @@
 /**
  * Submission Model
- * Handles student assignment submissions with file management
+ * Handles student assignment submissions with file management for the SCMS.
  */
 
 const mongoose = require('mongoose');
@@ -16,7 +16,7 @@ const submissionSchema = new mongoose.Schema({
   
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
+    ref: 'User', // Referencing the base User model for the student
     required: [true, 'Student ID is required']
   },
   
@@ -36,6 +36,7 @@ const submissionSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(url) {
+        // Allows empty or valid URLs
         return !url || /^https?:\/\/.+/.test(url);
       },
       message: 'Please provide a valid URL'
@@ -44,47 +45,24 @@ const submissionSchema = new mongoose.Schema({
   
   // File Management
   files: [{
-    originalName: {
-      type: String,
-      required: true
-    },
-    fileName: {
-      type: String,
-      required: true
-    },
-    fileUrl: {
-      type: String,
-      required: true
-    },
-    fileSize: {
-      type: Number,
-      required: true
-    },
-    mimeType: {
-      type: String,
-      required: true
-    },
-    uploadDate: {
-      type: Date,
-      default: Date.now
-    }
+    originalName: { type: String, required: true },
+    fileName: { type: String, required: true }, // Stored name (e.g., in S3)
+    fileUrl: { type: String, required: true },
+    fileSize: { type: Number, required: true }, // in bytes
+    mimeType: { type: String, required: true },
+    uploadDate: { type: Date, default: Date.now }
   }],
   
   // Submission Status and Timing
   status: {
     type: String,
     enum: Object.values(SUBMISSION_STATUS),
-    default: 'not_started'
+    default: 'not_submitted' // Changed from not_started for clarity
   },
   
-  submittedAt: {
-    type: Date
-  },
+  submittedAt: { type: Date },
   
-  isLate: {
-    type: Boolean,
-    default: false
-  },
+  isLate: { type: Boolean, default: false },
   
   daysLate: {
     type: Number,
@@ -122,15 +100,8 @@ const submissionSchema = new mongoose.Schema({
       default: 'not_graded'
     },
     
-    score: {
-      type: Number,
-      min: [0, 'Score cannot be negative']
-    },
-    
-    maxScore: {
-      type: Number,
-      min: [1, 'Max score must be at least 1']
-    },
+    score: { type: Number, min: [0, 'Score cannot be negative'] },
+    maxScore: { type: Number, min: [1, 'Max score must be at least 1'] },
     
     percentage: {
       type: Number,
@@ -138,30 +109,20 @@ const submissionSchema = new mongoose.Schema({
       max: [100, 'Percentage cannot exceed 100']
     },
     
-    letterGrade: {
-      type: String,
-      enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F']
-    },
+    letterGrade: { type: String, enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'] },
     
     gradedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Teacher'
+      ref: 'User' // Grader is a User (likely a teacher)
     },
     
     gradedAt: Date,
-    
-    autoGraded: {
-      type: Boolean,
-      default: false
-    }
+    autoGraded: { type: Boolean, default: false }
   },
   
   // Feedback and Comments
   feedback: {
-    teacherComments: {
-      type: String,
-      maxlength: [2000, 'Teacher comments cannot exceed 2000 characters']
-    },
+    teacherComments: { type: String, maxlength: [2000, 'Teacher comments cannot exceed 2000 characters'] },
     
     rubricScores: [{
       criteria: String,
@@ -171,20 +132,12 @@ const submissionSchema = new mongoose.Schema({
     }],
     
     suggestions: [String],
-    
-    privateNotes: {
-      type: String,
-      maxlength: [1000, 'Private notes cannot exceed 1000 characters']
-    }
+    privateNotes: { type: String, maxlength: [1000, 'Private notes cannot exceed 1000 characters'] }
   },
   
   // Plagiarism Check
   plagiarismCheck: {
-    checked: {
-      type: Boolean,
-      default: false
-    },
-    
+    checked: { type: Boolean, default: false },
     checkedAt: Date,
     
     similarityScore: {
@@ -199,20 +152,14 @@ const submissionSchema = new mongoose.Schema({
       url: String
     }],
     
-    flagged: {
-      type: Boolean,
-      default: false
-    }
+    flagged: { type: Boolean, default: false }
   },
   
   // Metadata
   submissionMetadata: {
     ipAddress: String,
     userAgent: String,
-    location: {
-      lat: Number,
-      lng: Number
-    },
+    location: { lat: Number, lng: Number },
     deviceInfo: String,
     browserInfo: String
   }
@@ -222,19 +169,19 @@ const submissionSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+// --- INDEXES ---
 submissionSchema.index({ assignmentId: 1, studentId: 1 }, { unique: true });
 submissionSchema.index({ status: 1 });
 submissionSchema.index({ submittedAt: -1 });
 submissionSchema.index({ 'grading.status': 1 });
 
-// Virtual properties
+// --- VIRTUAL PROPERTIES ---
 submissionSchema.virtual('finalScore').get(function() {
-  if (this.grading.score && this.latePenalty > 0) {
+  if (this.grading.score != null && this.latePenalty > 0) {
     const penaltyAmount = (this.grading.score * this.latePenalty) / 100;
     return Math.max(0, this.grading.score - penaltyAmount);
   }
-  return this.grading.score || 0;
+  return this.grading.score;
 });
 
 submissionSchema.virtual('isSubmitted').get(function() {
@@ -242,26 +189,31 @@ submissionSchema.virtual('isSubmitted').get(function() {
 });
 
 submissionSchema.virtual('isGraded').get(function() {
-  return this.grading.status === 'graded';
+  return this.grading.status === 'graded' || this.grading.status === 'returned';
 });
 
 submissionSchema.virtual('totalFileSize').get(function() {
   return this.files.reduce((total, file) => total + file.fileSize, 0);
 });
 
-// Instance methods
+// --- INSTANCE METHODS ---
 submissionSchema.methods.submit = async function(submissionData = {}) {
   this.status = 'submitted';
   this.submittedAt = new Date();
   
-  // Check if late
-  const Assignment = require('./Assignment');
+  // Lazy load Assignment model to prevent circular dependencies
+  const Assignment = mongoose.model('Assignment');
   const assignment = await Assignment.findById(this.assignmentId);
   
+  if (!assignment) {
+    throw new Error('Associated assignment not found.');
+  }
+
   if (this.submittedAt > assignment.dueDate) {
     this.isLate = true;
     this.daysLate = Math.ceil((this.submittedAt - assignment.dueDate) / (1000 * 60 * 60 * 24));
-    this.latePenalty = assignment.calculateLatePenalty(this.submittedAt);
+    // Penalty calculation might be better handled in a service layer
+    this.latePenalty = assignment.latePenalty || 0;
   }
   
   // Update content
@@ -272,7 +224,7 @@ submissionSchema.methods.submit = async function(submissionData = {}) {
   return this.save();
 };
 
-submissionSchema.methods.grade = async function(gradeData) {
+submissionSchema.methods.grade = function(gradeData) {
   this.grading.score = gradeData.score;
   this.grading.maxScore = gradeData.maxScore;
   this.grading.percentage = Math.round((gradeData.score / gradeData.maxScore) * 100);
@@ -307,48 +259,36 @@ submissionSchema.methods.calculateLetterGrade = function(percentage) {
 };
 
 submissionSchema.methods.checkPlagiarism = async function() {
-  // Implement plagiarism checking logic here
-  // This would integrate with plagiarism detection services
+  // In a real app, this would call an external service (e.g., plagiarismService.check(this))
   this.plagiarismCheck.checked = true;
   this.plagiarismCheck.checkedAt = new Date();
   
-  // Mock implementation - in real scenario, integrate with Turnitin or similar
-  const mockSimilarityScore = Math.random() * 30; // 0-30% similarity
+  // Mock implementation
+  const mockSimilarityScore = Math.floor(Math.random() * 30); // 0-29% similarity
   this.plagiarismCheck.similarityScore = mockSimilarityScore;
-  this.plagiarismCheck.flagged = mockSimilarityScore > 20;
+  this.plagiarismCheck.flagged = mockSimilarityScore > 20; // Flag if over 20%
   
   return this.save();
 };
 
-// Static methods
-submissionSchema.statics.findByAssignment = function(assignmentId) {
+// --- STATIC METHODS ---
+submissionSchema.statics.findByAssignmentAndStudent = function(assignmentId, studentId) {
+ return this.findOne({ assignmentId, studentId });
+};
+
+submissionSchema.statics.findAllByAssignment = function(assignmentId) {
   return this.find({ assignmentId })
-    .populate('studentId', 'rollNumber firstName lastName')
+    .populate('studentId', 'studentId firstName lastName profileImage') // Populate with user details
     .sort({ submittedAt: -1 });
 };
 
-submissionSchema.statics.findPendingGrading = function() {
+submissionSchema.statics.findPendingGrading = function(courseId) {
+  // This query would likely need to join with Assignments to filter by course
   return this.find({ 
     status: 'submitted',
     'grading.status': 'not_graded'
   }).populate('assignmentId studentId');
 };
-
-submissionSchema.statics.findLateSubmissions = function() {
-  return this.find({ isLate: true })
-    .populate('assignmentId studentId')
-    .sort({ daysLate: -1 });
-};
-
-// Pre-save middleware
-submissionSchema.pre('save', function(next) {
-  // Update grading status based on submission status
-  if (this.status === 'submitted' && this.grading.status === 'not_graded') {
-    this.grading.status = 'not_graded';
-  }
-  
-  next();
-});
 
 const Submission = mongoose.model('Submission', submissionSchema);
 

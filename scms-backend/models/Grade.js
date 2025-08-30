@@ -29,6 +29,7 @@ const gradeSchema = new mongoose.Schema({
   assessmentId: {
     type: mongoose.Schema.Types.ObjectId,
     required: [true, 'Assessment ID is required']
+    // Note: This cannot have a `ref` as it could refer to different models (Assignment, Test, etc.)
   },
   
   // Grade Details
@@ -115,7 +116,7 @@ const gradeSchema = new mongoose.Schema({
   
   feedback: {
     strengths: [String],
-    improvements: [String],
+    areasForImprovement: [String],
     suggestions: [String]
   },
   
@@ -156,7 +157,7 @@ const gradeSchema = new mongoose.Schema({
 gradeSchema.index({ studentId: 1, courseId: 1 });
 gradeSchema.index({ courseId: 1, assessmentType: 1 });
 gradeSchema.index({ semester: 1, academicYear: 1 });
-gradeSchema.index({ isReleased: 1, releasedAt: -1 });
+gradeSchema.index({ isReleased: 1 });
 
 // Virtual properties
 gradeSchema.virtual('finalScore').get(function() {
@@ -173,36 +174,33 @@ gradeSchema.virtual('isPassing').get(function() {
 });
 
 // Instance methods
-gradeSchema.methods.calculateGradePoints = function() {
-  const percentage = this.adjustedPercentage;
-  
-  if (percentage >= 90) return 10;
-  if (percentage >= 80) return 9;
-  if (percentage >= 70) return 8;
-  if (percentage >= 60) return 7;
-  if (percentage >= 50) return 6;
-  if (percentage >= 40) return 5;
+gradeSchema.methods.calculateGradePoints = function(percentage) {
+  const p = percentage || this.adjustedPercentage;
+  if (p >= 90) return 10;
+  if (p >= 80) return 9;
+  if (p >= 70) return 8;
+  if (p >= 60) return 7;
+  if (p >= 50) return 6;
+  if (p >= 40) return 5;
   return 0;
 };
 
-gradeSchema.methods.calculateLetterGrade = function() {
-  const percentage = this.adjustedPercentage;
-  
-  if (percentage >= 97) return 'A+';
-  if (percentage >= 93) return 'A';
-  if (percentage >= 90) return 'A-';
-  if (percentage >= 87) return 'B+';
-  if (percentage >= 83) return 'B';
-  if (percentage >= 80) return 'B-';
-  if (percentage >= 77) return 'C+';
-  if (percentage >= 73) return 'C';
-  if (percentage >= 70) return 'C-';
-  if (percentage >= 60) return 'D';
+gradeSchema.methods.calculateLetterGrade = function(percentage) {
+  const p = percentage || this.adjustedPercentage;
+  if (p >= 97) return 'A+';
+  if (p >= 93) return 'A';
+  if (p >= 90) return 'A-';
+  if (p >= 87) return 'B+';
+  if (p >= 83) return 'B';
+  if (p >= 80) return 'B-';
+  if (p >= 77) return 'C+';
+  if (p >= 73) return 'C';
+  if (p >= 70) return 'C-';
+  if (p >= 60) return 'D';
   return 'F';
 };
 
 gradeSchema.methods.updateGrade = function(newScore, reason, updatedBy) {
-  // Store previous grade in history
   this.gradeHistory.push({
     previousScore: this.scoreObtained,
     previousPercentage: this.percentage,
@@ -212,12 +210,8 @@ gradeSchema.methods.updateGrade = function(newScore, reason, updatedBy) {
     reason
   });
   
-  // Update current grade
   this.scoreObtained = newScore;
-  this.percentage = this.adjustedPercentage;
-  this.letterGrade = this.calculateLetterGrade();
-  this.gradePoints = this.calculateGradePoints();
-  
+  // Let the pre-save hook handle recalculations
   return this.save();
 };
 
@@ -245,9 +239,9 @@ gradeSchema.statics.findByStudent = function(studentId, options = {}) {
   return this.find(query).populate('courseId', 'title courseCode');
 };
 
-gradeSchema.statics.calculateCGPA = async function(studentId, semesterLimit = null) {
+gradeSchema.statics.calculateCGPA = async function(studentId) {
   const pipeline = [
-    { $match: { studentId: mongoose.Types.ObjectId(studentId) } },
+    { $match: { studentId: new mongoose.Types.ObjectId(studentId) } },
     {
       $group: {
         _id: null,
@@ -256,10 +250,6 @@ gradeSchema.statics.calculateCGPA = async function(studentId, semesterLimit = nu
       }
     }
   ];
-  
-  if (semesterLimit) {
-    pipeline[0].$match.semester = { $in: semesterLimit };
-  }
   
   const result = await this.aggregate(pipeline);
   
@@ -270,41 +260,13 @@ gradeSchema.statics.calculateCGPA = async function(studentId, semesterLimit = nu
   return (result[0].totalGradePoints / result[0].totalCredits).toFixed(2);
 };
 
-gradeSchema.statics.getCourseStatistics = async function(courseId, semester, academicYear) {
-  return await this.aggregate([
-    {
-      $match: {
-        courseId: mongoose.Types.ObjectId(courseId),
-        semester,
-        academicYear,
-        isReleased: true
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalStudents: { $sum: 1 },
-        averageScore: { $avg: '$scoreObtained' },
-        averagePercentage: { $avg: '$percentage' },
-        highestScore: { $max: '$scoreObtained' },
-        lowestScore: { $min: '$scoreObtained' },
-        passCount: {
-          $sum: { $cond: [{ $gte: ['$percentage', 40] }, 1, 0] }
-        }
-      }
-    }
-  ]);
-};
-
 // Pre-save middleware
 gradeSchema.pre('save', function(next) {
-  // Auto-calculate percentage
-  this.percentage = (this.scoreObtained / this.maxScore) * 100;
-  
-  // Auto-calculate letter grade and grade points
-  this.letterGrade = this.calculateLetterGrade();
-  this.gradePoints = this.calculateGradePoints();
-  
+  if (this.isModified('scoreObtained') || this.isModified('extraCredit') || this.isModified('penalty')) {
+    this.percentage = this.adjustedPercentage;
+    this.letterGrade = this.calculateLetterGrade(this.percentage);
+    this.gradePoints = this.calculateGradePoints(this.percentage);
+  }
   next();
 });
 

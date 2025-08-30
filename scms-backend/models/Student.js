@@ -1,13 +1,12 @@
 /**
  * Student Model
- * Extended student-specific information and academic tracking
+ * Extended student-specific information and academic tracking for the SCMS.
  */
 
 const mongoose = require('mongoose');
-const { SEMESTERS } = require('../utils/constants');
 
 const studentSchema = new mongoose.Schema({
-  // Reference to base User model
+  // Reference to the base User model for authentication and basic info
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -35,7 +34,7 @@ const studentSchema = new mongoose.Schema({
     required: [true, 'Admission date is required'],
     validate: {
       validator: function(value) {
-        return value <= Date.now();
+        return value <= new Date();
       },
       message: 'Admission date cannot be in the future'
     }
@@ -107,7 +106,7 @@ const studentSchema = new mongoose.Schema({
       occupation: String,
       phone: {
         type: String,
-        match: [/^\+?[\d\s\-\(\)]+$/, 'Please provide a valid phone number']
+        match: [/^\+?[\d\s\-()]+$/, 'Please provide a valid phone number']
       },
       email: {
         type: String,
@@ -124,7 +123,7 @@ const studentSchema = new mongoose.Schema({
       occupation: String,
       phone: {
         type: String,
-        match: [/^\+?[\d\s\-\(\)]+$/, 'Please provide a valid phone number']
+        match: [/^\+?[\d\s\-()]+$/, 'Please provide a valid phone number']
       },
       email: {
         type: String,
@@ -211,7 +210,7 @@ const studentSchema = new mongoose.Schema({
     phone: {
       type: String,
       required: [true, 'Emergency contact phone is required'],
-      match: [/^\+?[\d\s\-\(\)]+$/, 'Please provide a valid phone number']
+      match: [/^\+?[\d\s\-()]+$/, 'Please provide a valid phone number']
     }
   },
   
@@ -229,7 +228,7 @@ const studentSchema = new mongoose.Schema({
   libraryCardNumber: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true // Allows multiple null values for unique index
   },
   
   // Hostel Information
@@ -251,7 +250,7 @@ const studentSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+// --- INDEXES ---
 studentSchema.index({ userId: 1 });
 studentSchema.index({ rollNumber: 1 });
 studentSchema.index({ admissionNumber: 1 });
@@ -259,8 +258,9 @@ studentSchema.index({ batch: 1, branch: 1 });
 studentSchema.index({ currentSemester: 1 });
 studentSchema.index({ academicStatus: 1 });
 
-// Virtual properties
+// --- VIRTUAL PROPERTIES ---
 studentSchema.virtual('fullRollNumber').get(function() {
+  if (!this.batch || !this.branch || !this.rollNumber) return null;
   return `${this.batch.split('-')[0]}${this.branch.replace(/\s+/g, '').substring(0,3).toUpperCase()}${this.rollNumber}`;
 });
 
@@ -270,14 +270,17 @@ studentSchema.virtual('academicProgress').get(function() {
 });
 
 studentSchema.virtual('isEligibleForNextSemester').get(function() {
+  // Example logic, can be more complex
   return this.cgpa >= 5.0 && this.academicStatus === 'active';
 });
 
-// Instance methods
+// --- INSTANCE METHODS ---
 studentSchema.methods.updateCGPA = async function(newGrades) {
-  // Calculate CGPA based on new grades
-  // Implementation depends on your grading system
+  // In a real application, this logic would be much more complex,
+  // likely handled in a dedicated service.
   console.log('Updating CGPA for student:', this.rollNumber);
+  // Example: this.cgpa = calculateNewCGPA(this.cgpa, this.completedCredits, newGrades);
+  return this.save();
 };
 
 studentSchema.methods.enrollInCourse = function(courseId) {
@@ -286,7 +289,7 @@ studentSchema.methods.enrollInCourse = function(courseId) {
   );
   
   if (existingEnrollment) {
-    throw new Error('Already enrolled in this course');
+    throw new Error('Student is already enrolled in this course');
   }
   
   this.enrolledCourses.push({
@@ -304,14 +307,14 @@ studentSchema.methods.dropCourse = function(courseId) {
   );
   
   if (!enrollment) {
-    throw new Error('Not enrolled in this course');
+    throw new Error('Student is not enrolled in this course');
   }
   
   enrollment.status = 'dropped';
   return this.save();
 };
 
-// Static methods
+// --- STATIC METHODS ---
 studentSchema.statics.findByRollNumber = function(rollNumber) {
   return this.findOne({ rollNumber: rollNumber.toUpperCase() });
 };
@@ -324,10 +327,12 @@ studentSchema.statics.findBySemester = function(semester) {
   return this.find({ currentSemester: semester });
 };
 
-// Pre-save middleware
+// --- MIDDLEWARE (HOOKS) ---
 studentSchema.pre('save', function(next) {
+  // Auto-generate library card number for new students
   if (this.isNew && !this.libraryCardNumber) {
-    this.libraryCardNumber = `LIB${this.rollNumber}${Date.now()}`;
+    // A more robust unique ID generation might be needed in a large system
+    this.libraryCardNumber = `LIB${this.rollNumber}${Date.now().toString().slice(-4)}`;
   }
   next();
 });

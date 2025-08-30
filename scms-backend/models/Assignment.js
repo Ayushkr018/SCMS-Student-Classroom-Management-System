@@ -4,7 +4,6 @@
  */
 
 const mongoose = require('mongoose');
-const { SUBMISSION_STATUS } = require('../utils/constants');
 
 const assignmentSchema = new mongoose.Schema({
   // Basic Information

@@ -3,16 +3,14 @@
  * Handles user authentication, registration, and password management
  */
 
-const User = require('../models/User');
-const Student = require('../models/Student');
-const Teacher = require('../models/Teacher');
+const { User, Student, Teacher } = require('../models');
 const { catchAsync, AppError } = require('../middleware/errorHandler');
 const { 
   sendSuccessResponse, 
   sendErrorResponse,
   sendCreatedResponse
 } = require('../utils/response');
-const { generateTokenPair, verifyToken, generateResetToken } = require('../utils/jwtUtils');
+const { generateTokenPair, verifyToken } = require('../utils/jwtUtils');
 const { USER_ROLES, USER_STATUS } = require('../utils/constants');
 const crypto = require('crypto');
 
@@ -112,7 +110,7 @@ const register = catchAsync(async (req, res) => {
   } catch (profileError) {
     // If profile creation fails, delete the user
     await User.findByIdAndDelete(user._id);
-    return sendErrorResponse(res, 500, 'Failed to create user profile');
+    return sendErrorResponse(res, 500, 'Failed to create user profile: ' + profileError.message);
   }
 
   // Generate email verification token
@@ -124,7 +122,6 @@ const register = catchAsync(async (req, res) => {
 
   // Remove sensitive information
   user.password = undefined;
-  user.emailVerificationToken = undefined;
 
   sendCreatedResponse(res, {
     user,
@@ -148,7 +145,10 @@ const login = catchAsync(async (req, res) => {
 
   // Check user status
   if (user.status !== USER_STATUS.ACTIVE) {
-    return sendErrorResponse(res, 401, 'Account is not active. Please contact administrator or verify your email.');
+    if(user.status === USER_STATUS.PENDING){
+        return sendErrorResponse(res, 401, 'Account is pending verification. Please check your email.');
+    }
+    return sendErrorResponse(res, 401, `Account is not active (${user.status}). Please contact an administrator.`);
   }
 
   // Update last login information
@@ -165,14 +165,12 @@ const login = catchAsync(async (req, res) => {
   user.password = undefined;
 
   // Set cookies (optional)
-  if (rememberMe) {
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-  }
+  res.cookie('refreshToken', tokens.refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 1 * 24 * 60 * 60 * 1000 // 30 days or 1 day
+   });
 
   sendSuccessResponse(res, 200, 'Login successful', {
     user,
@@ -184,7 +182,7 @@ const login = catchAsync(async (req, res) => {
  * Refresh access token
  */
 const refreshToken = catchAsync(async (req, res) => {
-  const { refreshToken } = req.body;
+  const { refreshToken } = req.body.refreshToken || req.cookies.refreshToken;
 
   if (!refreshToken) {
     return sendErrorResponse(res, 401, 'Refresh token is required');
@@ -193,7 +191,7 @@ const refreshToken = catchAsync(async (req, res) => {
   // Verify refresh token
   const decoded = verifyToken(refreshToken, 'refresh');
   
-  if (!decoded || decoded.expired || decoded.invalid) {
+  if (!decoded) {
     return sendErrorResponse(res, 401, 'Invalid or expired refresh token');
   }
 
@@ -201,6 +199,11 @@ const refreshToken = catchAsync(async (req, res) => {
   const user = await User.findById(decoded.id);
   if (!user || user.status !== USER_STATUS.ACTIVE) {
     return sendErrorResponse(res, 401, 'User not found or inactive');
+  }
+  
+  // Check if password has changed since token was issued
+  if (user.changedPasswordAfter(decoded.iat)) {
+    return sendErrorResponse(res, 401, 'Password has been changed. Please log in again.');
   }
 
   // Generate new tokens
@@ -217,14 +220,8 @@ const refreshToken = catchAsync(async (req, res) => {
  * Logout user
  */
 const logout = catchAsync(async (req, res) => {
-  // Clear cookies
+  // In a real app, you would invalidate the session/token on the server-side
   res.clearCookie('refreshToken');
-  
-  // In a real implementation, you might want to:
-  // 1. Add the token to a blacklist
-  // 2. Update user's last activity
-  // 3. Log the logout event
-
   sendSuccessResponse(res, 200, 'Logout successful');
 });
 
@@ -232,8 +229,7 @@ const logout = catchAsync(async (req, res) => {
  * Get current user profile
  */
 const getMe = catchAsync(async (req, res) => {
-  const user = await User.findById(req.user.id)
-    .select('-password -emailVerificationToken -passwordResetToken');
+  const user = await User.findById(req.user.id);
 
   if (!user) {
     return sendErrorResponse(res, 404, 'User not found');
@@ -260,10 +256,8 @@ const updateMe = catchAsync(async (req, res) => {
   const updates = req.body;
 
   // Remove fields that shouldn't be updated via this endpoint
-  delete updates.password;
-  delete updates.email;
-  delete updates.role;
-  delete updates.status;
+  const forbiddenFields = ['password', 'email', 'role', 'status', 'studentId', 'employeeId'];
+  forbiddenFields.forEach(field => delete updates[field]);
 
   const user = await User.findByIdAndUpdate(
     req.user.id,
@@ -271,7 +265,6 @@ const updateMe = catchAsync(async (req, res) => {
     { 
       new: true, 
       runValidators: true,
-      select: '-password -emailVerificationToken -passwordResetToken'
     }
   );
 
@@ -291,7 +284,7 @@ const changePassword = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id).select('+password');
 
   if (!(await user.comparePassword(currentPassword))) {
-    return sendErrorResponse(res, 400, 'Current password is incorrect');
+    return sendErrorResponse(res, 401, 'Current password is incorrect');
   }
 
   user.password = newPassword;
@@ -308,18 +301,17 @@ const forgotPassword = catchAsync(async (req, res) => {
 
   const user = await User.findOne({ email: email.toLowerCase() });
   
-  if (!user) {
-    // Don't reveal that user doesn't exist
-    return sendSuccessResponse(res, 200, 'If an account with that email exists, a password reset link has been sent.');
-  }
+  if (user) {
+    // Generate reset token
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
 
-  // Generate reset token
-  const resetToken = user.createPasswordResetToken();
-  await user.save({ validateBeforeSave: false });
+    // TODO: Send reset email (implement in mailService)
+    // For now, logging to console for development
+    console.log(`Password reset token for ${email}: ${resetToken}`);
+ }
 
-  // TODO: Send reset email (implement in mailService)
-  console.log(`Password reset token for ${email}: ${resetToken}`);
-
+  // Always send a success response to prevent email enumeration attacks
   sendSuccessResponse(res, 200, 'If an account with that email exists, a password reset link has been sent.');
 });
 
@@ -327,7 +319,8 @@ const forgotPassword = catchAsync(async (req, res) => {
  * Reset password with token
  */
 const resetPassword = catchAsync(async (req, res) => {
-  const { token, password, confirmPassword } = req.body;
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
     return sendErrorResponse(res, 400, 'Passwords do not match');
@@ -366,7 +359,7 @@ const resetPassword = catchAsync(async (req, res) => {
  * Verify email with token
  */
 const verifyEmail = catchAsync(async (req, res) => {
-  const { token } = req.body;
+  const { token } = req.params;
 
   // Hash the token to compare with stored hash
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');

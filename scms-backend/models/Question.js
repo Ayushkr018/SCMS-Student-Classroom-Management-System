@@ -1,22 +1,26 @@
 /**
  * Question Model
- * Question bank for tests and quizzes
+ * A comprehensive model for the question bank, supporting various question types for tests and quizzes.
  */
 
 const mongoose = require('mongoose');
-const { QUESTION_TYPES } = require('../utils/constants');
+
+// Assuming QUESTION_TYPES is defined in a constants file, e.g., { MULTIPLE_CHOICE: 'mcq', TRUE_FALSE: 'tf', ... }
+// const { QUESTION_TYPES } = require('../utils/constants'); 
 
 const questionSchema = new mongoose.Schema({
   // Basic Information
   questionText: {
     type: String,
     required: [true, 'Question text is required'],
+    trim: true,
     maxlength: [2000, 'Question text cannot exceed 2000 characters']
   },
   
   type: {
     type: String,
-    enum: Object.values(QUESTION_TYPES),
+    // enum: Object.values(QUESTION_TYPES),
+    enum: ['multiple_choice', 'true_false', 'short_answer', 'essay', 'fill_blank', 'matching'],
     required: [true, 'Question type is required']
   },
   
@@ -24,7 +28,8 @@ const questionSchema = new mongoose.Schema({
   courseId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: [true, 'Course ID is required']
+    required: [true, 'Course ID is required'],
+    index: true
   },
   
   createdBy: {
@@ -57,15 +62,13 @@ const questionSchema = new mongoose.Schema({
     required: [true, 'Bloom\'s taxonomy level is required']
   },
   
-  // Question Content
+  // Question Content (Flexible based on type)
   questionData: {
-    // For multiple choice questions
+    // For multiple choice questions (mcq)
     options: [{
       text: {
         type: String,
-        required: function() {
-          return this.parent().type === QUESTION_TYPES.MULTIPLE_CHOICE;
-        }
+        required: function() { return this.parent().parent().type === 'multiple_choice'; }
       },
       isCorrect: {
         type: Boolean,
@@ -73,12 +76,10 @@ const questionSchema = new mongoose.Schema({
       }
     }],
     
-    // For true/false questions
+    // For true/false questions (tf)
     correctAnswer: {
       type: Boolean,
-      required: function() {
-        return this.type === QUESTION_TYPES.TRUE_FALSE;
-      }
+      required: function() { return this.parent().type === 'true_false'; }
     },
     
     // For short answer and essay questions
@@ -110,7 +111,7 @@ const questionSchema = new mongoose.Schema({
     },
     url: String,
     caption: String,
-    alt: String
+    altText: String
   }],
   
   // Explanation and Feedback
@@ -136,35 +137,25 @@ const questionSchema = new mongoose.Schema({
   
   // Usage Statistics
   usage: {
-    timesUsed: {
-      type: Number,
-      default: 0
-    },
-    averageScore: {
-      type: Number,
-      default: 0
-    },
-    difficultyIndex: {
-      type: Number,
-      default: 0 // Calculated based on student performance
-    },
-    discriminationIndex: {
-      type: Number,
-      default: 0 // How well it discriminates between high/low performers
-    }
+    timesUsed: { type: Number, default: 0 },
+    averageScore: { type: Number, default: 0 },
+    difficultyIndex: { type: Number, default: 0 }, // Calculated based on student performance
+    discriminationIndex: { type: Number, default: 0 } // How well it discriminates
   },
   
   // Metadata
   tags: [{
     type: String,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    index: true
   }],
   
   status: {
     type: String,
     enum: ['draft', 'published', 'archived', 'under_review'],
-    default: 'draft'
+    default: 'draft',
+    index: true
   },
   
   isPublic: {
@@ -174,7 +165,7 @@ const questionSchema = new mongoose.Schema({
   
   language: {
     type: String,
-    default: 'English'
+    default: 'en-US'
   },
   
   // Version Control
@@ -198,89 +189,69 @@ const questionSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
-questionSchema.index({ courseId: 1, topic: 1 });
-questionSchema.index({ type: 1, difficulty: 1 });
-questionSchema.index({ createdBy: 1 });
-questionSchema.index({ status: 1 });
-questionSchema.index({ tags: 1 });
-
-// Virtual properties
+// --- VIRTUAL PROPERTIES ---
 questionSchema.virtual('isMultipleChoice').get(function() {
-  return this.type === QUESTION_TYPES.MULTIPLE_CHOICE;
+  return this.type === 'multiple_choice';
 });
 
 questionSchema.virtual('correctOptions').get(function() {
-  if (this.type === QUESTION_TYPES.MULTIPLE_CHOICE) {
+  if (this.type === 'multiple_choice' && this.questionData && this.questionData.options) {
     return this.questionData.options.filter(option => option.isCorrect);
   }
   return [];
 });
 
-// Instance methods
+// --- INSTANCE METHODS ---
 questionSchema.methods.checkAnswer = function(studentAnswer) {
   let isCorrect = false;
-  let score = 0;
-  let feedback = '';
   
   switch (this.type) {
-    case QUESTION_TYPES.MULTIPLE_CHOICE:
+    case 'multiple_choice':
       const correctOptionIds = this.questionData.options
-        .filter(option => option.isCorrect)
-        .map(option => option._id.toString());
+        .filter(opt => opt.isCorrect)
+        .map(opt => opt._id.toString());
       
-      if (Array.isArray(studentAnswer)) {
-        // Multiple correct answers
-        const studentAnswerIds = studentAnswer.map(id => id.toString());
-        isCorrect = correctOptionIds.every(id => studentAnswerIds.includes(id)) &&
-                   studentAnswerIds.every(id => correctOptionIds.includes(id));
-      } else {
-        // Single correct answer
+      if (Array.isArray(studentAnswer)) { // For multi-select
+        const studentAnswerSet = new Set(studentAnswer.map(id => id.toString()));
+        isCorrect = correctOptionIds.length === studentAnswerSet.size && correctOptionIds.every(id => studentAnswerSet.has(id));
+      } else { // For single-select
         isCorrect = correctOptionIds.includes(studentAnswer.toString());
       }
       break;
       
-    case QUESTION_TYPES.TRUE_FALSE:
+    case 'true_false':
       isCorrect = studentAnswer === this.questionData.correctAnswer;
       break;
       
-    case QUESTION_TYPES.FILL_BLANK:
-      // Check each blank
-      let correctBlanks = 0;
-      this.questionData.blanks.forEach((blank, index) => {
+    case 'fill_blank':
+      isCorrect = this.questionData.blanks.every((blank, index) => {
         const studentBlankAnswer = studentAnswer[index];
-        const correctAnswers = blank.correctAnswers.map(ans => 
-          blank.caseSensitive ? ans : ans.toLowerCase()
-        );
-        const studentAnswerProcessed = blank.caseSensitive ? 
-          studentBlankAnswer : studentBlankAnswer.toLowerCase();
-        
-        if (correctAnswers.includes(studentAnswerProcessed)) {
-          correctBlanks++;
-        }
+        const processedStudentAnswer = blank.caseSensitive ? studentBlankAnswer : studentBlankAnswer.toLowerCase();
+        const correctAnswers = blank.correctAnswers.map(ans => blank.caseSensitive ? ans : ans.toLowerCase());
+        return correctAnswers.includes(processedStudentAnswer);
       });
-      isCorrect = correctBlanks === this.questionData.blanks.length;
       break;
+    
+    // Note: 'short_answer', 'essay', and 'matching' would require manual grading or more complex logic
   }
   
-  if (isCorrect) {
-    score = this.defaultMarks;
-    feedback = 'Correct!';
-  } else {
-    score = -this.negativeMarking;
-    feedback = 'Incorrect.';
-  }
+  const score = isCorrect ? this.defaultMarks : -this.negativeMarking;
+  const feedback = isCorrect ? 'Correct!' : 'Incorrect.';
   
   return { isCorrect, score, feedback };
 };
 
-questionSchema.methods.updateUsageStats = function(wasCorrect, totalStudents, correctStudents) {
+questionSchema.methods.updateUsageStats = function({ wasCorrect }) {
+  const total = this.usage.timesUsed;
+  const correctCount = (this.usage.difficultyIndex * total) + (wasCorrect ? 1 : 0);
+  
   this.usage.timesUsed += 1;
-  this.usage.difficultyIndex = correctStudents / totalStudents;
+  this.usage.difficultyIndex = correctCount / this.usage.timesUsed;
+  
   return this.save();
 };
 
-// Static methods
+// --- STATIC METHODS ---
 questionSchema.statics.findByCourse = function(courseId, options = {}) {
   const query = { courseId, status: 'published' };
   if (options.topic) query.topic = options.topic;
@@ -292,22 +263,25 @@ questionSchema.statics.findByCourse = function(courseId, options = {}) {
 
 questionSchema.statics.getRandomQuestions = function(criteria, count) {
   return this.aggregate([
-    { $match: criteria },
+    { $match: { status: 'published', ...criteria } },
     { $sample: { size: count } }
   ]);
 };
 
-// Pre-save validation
+// --- MIDDLEWARE (HOOKS) ---
 questionSchema.pre('save', function(next) {
-  // Validate question data based on type
-  if (this.type === QUESTION_TYPES.MULTIPLE_CHOICE) {
+  if (this.isModified('type')) {
+    // When type changes, ensure old data doesn't conflict
+    this.questionData = {};
+  }
+
+  if (this.type === 'multiple_choice') {
     if (!this.questionData.options || this.questionData.options.length < 2) {
-      return next(new Error('Multiple choice questions must have at least 2 options'));
+      return next(new Error('Multiple choice questions must have at least 2 options.'));
     }
-    
     const correctOptions = this.questionData.options.filter(opt => opt.isCorrect);
     if (correctOptions.length === 0) {
-      return next(new Error('Multiple choice questions must have at least one correct option'));
+      return next(new Error('Multiple choice questions must have at least one correct option.'));
     }
   }
   

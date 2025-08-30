@@ -1,441 +1,429 @@
-// analytics/analyticsController.js
-const { PrismaClient } = require('@prisma/client');
-const { subDays, format, parseISO } = require('date-fns');
+const {
+    User,
+    Course,
+    Grade,
+    Submission,
+    Session,
+    Notification,
+    Audit
+} = require('../models');
+const {
+    subDays
+} = require('date-fns');
+const {
+    mongoose
+} = require('mongoose');
 
 class AnalyticsController {
-    constructor() {
-        this.prisma = new PrismaClient();
-    }
 
     // Dashboard analytics
     async getDashboardStats(req, res) {
         try {
-            const { period = '30d' } = req.query;
+            const {
+                period = '30d'
+            } = req.query;
             const days = parseInt(period.replace('d', ''));
             const startDate = subDays(new Date(), days);
 
             // Parallel queries for better performance
             const [
-                totalUsers,
-                activeClasses,
-                attendanceStats,
-                resourceStats,
+                userStats,
+                activeCourses,
+                submissionStats,
                 recentActivity
             ] = await Promise.all([
-                this.getTotalUsers(),
-                this.getActiveClasses(),
-                this.getAttendanceStats(startDate),
-                this.getResourceStats(),
+                this.getUserStats(),
+                this.getActiveCourses(),
+                this.getSubmissionStats(startDate),
                 this.getRecentActivity(10)
             ]);
 
             res.json({
-                period,
+                period: `${days} days`,
                 stats: {
-                    totalUsers,
-                    activeClasses,
-                    attendance: attendanceStats,
-                    resources: resourceStats
+                    users: userStats,
+                    activeCourses,
+                    submissions: submissionStats,
                 },
                 recentActivity,
                 generatedAt: new Date().toISOString()
             });
 
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error("Dashboard Stats Error:", error);
+            res.status(500).json({
+                error: 'Failed to retrieve dashboard statistics.'
+            });
         }
     }
 
-    // Attendance analytics
-    async getAttendanceAnalytics(req, res) {
+    // Course-specific analytics
+    async getCourseAnalytics(req, res) {
         try {
-            const { classId, departmentId, startDate, endDate } = req.query;
-            
-            let whereClause = {};
-            if (classId) whereClause.class_id = classId;
-            if (startDate && endDate) {
-                whereClause.session_date = {
-                    gte: parseISO(startDate),
-                    lte: parseISO(endDate)
-                };
-            }
-
-            // Daily attendance trends
-            const dailyAttendance = await this.prisma.$queryRaw`
-                SELECT 
-                    session_date,
-                    COUNT(*) as total_sessions,
-                    COUNT(CASE WHEN status = 'present' THEN 1 END) as present_count,
-                    COUNT(CASE WHEN status = 'absent' THEN 1 END) as absent_count,
-                    COUNT(CASE WHEN status = 'late' THEN 1 END) as late_count,
-                    ROUND(
-                        (COUNT(CASE WHEN status = 'present' THEN 1 END) * 100.0 / COUNT(*)), 2
-                    ) as attendance_rate
-                FROM attendance 
-                WHERE session_date >= ${startDate} AND session_date <= ${endDate}
-                ${classId ? 'AND class_id = ' + classId : ''}
-                GROUP BY session_date 
-                ORDER BY session_date
-            `;
-
-            // Attendance by method
-            const attendanceByMethod = await this.prisma.attendance.groupBy({
-                by: ['method'],
-                where: whereClause,
-                _count: { method: true },
-                _avg: { 
-                    _count: true 
-                }
-            });
-
-            // Class-wise attendance
-            const classAttendance = await this.prisma.$queryRaw`
-                SELECT 
-                    c.name as class_name,
-                    c.code as class_code,
-                    COUNT(*) as total_sessions,
-                    COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_count,
-                    ROUND(
-                        (COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / COUNT(*)), 2
-                    ) as attendance_rate,
-                    u.first_name || ' ' || u.last_name as teacher_name
-                FROM attendance a
-                JOIN classes c ON a.class_id = c.id
-                JOIN users u ON c.teacher_id = u.id
-                WHERE a.session_date >= ${startDate} AND a.session_date <= ${endDate}
-                GROUP BY c.id, c.name, c.code, u.first_name, u.last_name
-                ORDER BY attendance_rate DESC
-            `;
-
-            // Top performing students
-            const topStudents = await this.prisma.$queryRaw`
-                SELECT 
-                    u.first_name || ' ' || u.last_name as student_name,
-                    u.email,
-                    COUNT(*) as total_classes,
-                    COUNT(CASE WHEN a.status = 'present' THEN 1 END) as classes_attended,
-                    ROUND(
-                        (COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / COUNT(*)), 2
-                    ) as attendance_rate
-                FROM attendance a
-                JOIN users u ON a.student_id = u.id
-                WHERE a.session_date >= ${startDate} AND a.session_date <= ${endDate}
-                AND u.role = 'student'
-                GROUP BY u.id, u.first_name, u.last_name, u.email
-                HAVING COUNT(*) >= 5
-                ORDER BY attendance_rate DESC
-                LIMIT 10
-            `;
-
-            res.json({
-                period: { startDate, endDate },
-                analytics: {
-                    dailyTrends: dailyAttendance,
-                    methodBreakdown: attendanceByMethod,
-                    classwiseAttendance: classAttendance,
-                    topStudents
-                },
-                summary: {
-                    totalSessions: dailyAttendance.reduce((sum, day) => sum + day.total_sessions, 0),
-                    averageAttendanceRate: (
-                        dailyAttendance.reduce((sum, day) => sum + parseFloat(day.attendance_rate), 0) / 
-                        dailyAttendance.length
-                    ).toFixed(2)
-                }
-            });
-
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-
-    // Resource utilization analytics
-    async getResourceAnalytics(req, res) {
-        try {
-            const { period = '30d', resourceType } = req.query;
+            const {
+                courseId
+            } = req.params;
+            const {
+                period = '90d'
+            } = req.query;
             const days = parseInt(period.replace('d', ''));
             const startDate = subDays(new Date(), days);
 
-            let whereClause = {
-                start_time: { gte: startDate },
-                status: { in: ['confirmed', 'completed'] }
-            };
-
-            if (resourceType) {
-                whereClause.resource = { type: resourceType };
+            if (!mongoose.Types.ObjectId.isValid(courseId)) {
+                return res.status(400).json({
+                    error: 'Invalid Course ID format'
+                });
             }
+            const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
-            // Resource utilization by type
-            const utilizationByType = await this.prisma.resource_bookings.groupBy({
-                by: ['resource'],
-                where: whereClause,
-                _count: { id: true },
-                _sum: { 
-                    duration_hours: true 
-                }
-            });
-
-            // Most booked resources
-            const mostBookedResources = await this.prisma.$queryRaw`
-                SELECT 
-                    r.name,
-                    r.type,
-                    r.location,
-                    COUNT(rb.id) as booking_count,
-                    SUM(EXTRACT(EPOCH FROM (rb.end_time - rb.start_time))/3600) as total_hours,
-                    AVG(EXTRACT(EPOCH FROM (rb.end_time - rb.start_time))/3600) as avg_booking_duration
-                FROM resources r
-                LEFT JOIN resource_bookings rb ON r.id = rb.resource_id
-                WHERE rb.start_time >= ${startDate}
-                AND rb.status IN ('confirmed', 'completed')
-                GROUP BY r.id, r.name, r.type, r.location
-                ORDER BY booking_count DESC
-                LIMIT 10
-            `;
-
-            // Peak usage hours
-            const peakUsageHours = await this.prisma.$queryRaw`
-                SELECT 
-                    EXTRACT(HOUR FROM start_time) as hour,
-                    COUNT(*) as booking_count
-                FROM resource_bookings
-                WHERE start_time >= ${startDate}
-                AND status IN ('confirmed', 'completed')
-                GROUP BY EXTRACT(HOUR FROM start_time)
-                ORDER BY hour
-            `;
-
-            // Department-wise usage
-            const departmentUsage = await this.prisma.$queryRaw`
-                SELECT 
-                    d.name as department_name,
-                    COUNT(rb.id) as booking_count,
-                    SUM(EXTRACT(EPOCH FROM (rb.end_time - rb.start_time))/3600) as total_hours
-                FROM departments d
-                JOIN users u ON d.id = u.department_id
-                JOIN resource_bookings rb ON u.id = rb.user_id
-                WHERE rb.start_time >= ${startDate}
-                AND rb.status IN ('confirmed', 'completed')
-                GROUP BY d.id, d.name
-                ORDER BY booking_count DESC
-            `;
+            const [
+                submissionTrends,
+                averageScores,
+                topStudents,
+                passFailRate
+            ] = await Promise.all([
+                this.getSubmissionTrends(courseObjectId, startDate),
+                this.getAverageScores(courseObjectId, startDate),
+                this.getTopPerformingStudents(courseObjectId, 5),
+                this.getPassFailRate(courseObjectId)
+            ]);
 
             res.json({
+                courseId,
                 period: `${days} days`,
                 analytics: {
-                    utilizationByType,
-                    mostBookedResources,
-                    peakUsageHours,
-                    departmentUsage
-                }
+                    submissionTrends,
+                    averageScores,
+                    topStudents,
+                    passFailRate
+                },
+                generatedAt: new Date().toISOString()
             });
 
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error(`Course Analytics Error for ${req.params.courseId}:`, error);
+            res.status(500).json({
+                error: 'Failed to retrieve course analytics.'
+            });
         }
     }
 
     // System performance analytics
     async getSystemAnalytics(req, res) {
         try {
-            const { period = '7d' } = req.query;
+            const {
+                period = '7d'
+            } = req.query;
             const days = parseInt(period.replace('d', ''));
             const startDate = subDays(new Date(), days);
 
-            // User activity trends
-            const userActivity = await this.prisma.$queryRaw`
-                SELECT 
-                    DATE(created_at) as date,
-                    COUNT(*) as login_count,
-                    COUNT(DISTINCT user_id) as unique_users
-                FROM user_sessions
-                WHERE created_at >= ${startDate}
-                GROUP BY DATE(created_at)
-                ORDER BY date
-            `;
+            const [
+                userActivity,
+                notificationTrends,
+            ] = await Promise.all([
+                this.getUserActivity(startDate),
+                this.getNotificationTrends(startDate),
+            ]);
 
-            // Alert trends
-            const alertTrends = await this.prisma.alerts.groupBy({
-                by: ['type', 'severity'],
-                where: {
-                    created_at: { gte: startDate }
-                },
-                _count: { id: true }
-            });
 
-            // System uptime
-            const systemUptime = await this.calculateSystemUptime(startDate);
-
-            // Performance metrics
+            // Mocked data as this would come from external monitoring
             const performanceMetrics = {
-                avgResponseTime: 120, // ms - would come from monitoring
-                errorRate: 0.02, // 2% - would come from monitoring
-                throughput: 1250, // requests/hour - would come from monitoring
-                uptime: systemUptime
+                avgResponseTime: 110, // ms
+                errorRate: 0.015, // 1.5%
+                uptime: 99.95, // percentage
             };
 
             res.json({
                 period: `${days} days`,
                 analytics: {
                     userActivity,
-                    alertTrends,
+                    notificationTrends,
                     performanceMetrics
-                }
-            });
-
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-
-    // Generate custom reports
-    async generateCustomReport(req, res) {
-        try {
-            const { 
-                reportType, 
-                startDate, 
-                endDate, 
-                filters = {},
-                format: outputFormat = 'json'
-            } = req.body;
-
-            let reportData;
-
-            switch (reportType) {
-                case 'attendance_detailed':
-                    reportData = await this.generateAttendanceReport(startDate, endDate, filters);
-                    break;
-                case 'resource_utilization':
-                    reportData = await this.generateResourceReport(startDate, endDate, filters);
-                    break;
-                case 'student_performance':
-                    reportData = await this.generateStudentReport(startDate, endDate, filters);
-                    break;
-                case 'system_usage':
-                    reportData = await this.generateSystemReport(startDate, endDate, filters);
-                    break;
-                default:
-                    return res.status(400).json({ error: 'Invalid report type' });
-            }
-
-            // Format output
-            if (outputFormat === 'csv') {
-                const csv = this.convertToCSV(reportData);
-                res.setHeader('Content-Type', 'text/csv');
-                res.setHeader('Content-Disposition', `attachment; filename=${reportType}_${Date.now()}.csv`);
-                return res.send(csv);
-            }
-
-            res.json({
-                reportType,
-                period: { startDate, endDate },
-                filters,
-                data: reportData,
+                },
                 generatedAt: new Date().toISOString()
             });
 
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error("System Analytics Error:", error);
+            res.status(500).json({
+                error: 'Failed to retrieve system analytics.'
+            });
         }
     }
 
-    // Helper methods
-    async getTotalUsers() {
-        const counts = await this.prisma.users.groupBy({
-            by: ['role'],
-            where: { is_active: true },
-            _count: { id: true }
-        });
-        
-        return counts.reduce((acc, curr) => {
-            acc[curr.role] = curr._count.id;
-            acc.total = (acc.total || 0) + curr._count.id;
-            return acc;
-        }, {});
-    }
 
-    async getActiveClasses() {
-        const today = new Date();
-        const todayStr = format(today, 'yyyy-MM-dd');
-        
-        return await this.prisma.classes.count({
-            where: {
-                is_active: true,
-                attendance: {
-                    some: {
-                        session_date: todayStr
-                    }
+    // Helper methods using Mongoose
+    async getUserStats() {
+        const stats = await User.aggregate([{
+            $match: {
+                status: 'active'
+            }
+        }, {
+            $group: {
+                _id: "$role",
+                count: {
+                    $sum: 1
                 }
             }
+        }, ]);
+        const userStats = stats.reduce((acc, curr) => {
+            acc[curr._id] = curr.count;
+            return acc;
+        }, {});
+        userStats.total = stats.reduce((sum, curr) => sum + curr.count, 0);
+        return userStats;
+    }
+
+    async getActiveCourses() {
+        return Course.countDocuments({
+            status: 'active'
         });
     }
 
-    async getAttendanceStats(startDate) {
-        const stats = await this.prisma.attendance.groupBy({
-            by: ['status'],
-            where: {
-                session_date: { gte: startDate }
-            },
-            _count: { status: true }
-        });
+    async getSubmissionStats(startDate) {
+        const stats = await Submission.aggregate([{
+            $match: {
+                submittedAt: {
+                    $gte: startDate
+                }
+            }
+        }, {
+            $group: {
+                _id: null,
+                total: {
+                    $sum: 1
+                },
+                onTime: {
+                    $sum: {
+                        $cond: [{
+                            $eq: ["$isLate", false]
+                        }, 1, 0]
+                    }
+                },
+                late: {
+                    $sum: {
+                        $cond: [{
+                            $eq: ["$isLate", true]
+                        }, 1, 0]
+                    }
+                },
+            }
+        }]);
 
-        const total = stats.reduce((sum, stat) => sum + stat._count.status, 0);
-        const present = stats.find(s => s.status === 'present')?._count.status || 0;
-        
+        if (stats.length === 0) {
+            return {
+                total: 0,
+                onTime: 0,
+                late: 0,
+                onTimeRate: 0
+            };
+        }
+        const {
+            total,
+            onTime,
+            late
+        } = stats[0];
         return {
             total,
-            present,
-            absent: stats.find(s => s.status === 'absent')?._count.status || 0,
-            late: stats.find(s => s.status === 'late')?._count.status || 0,
-            attendanceRate: total > 0 ? ((present / total) * 100).toFixed(2) : 0
-        };
-    }
-
-    async getResourceStats() {
-        const stats = await this.prisma.resources.groupBy({
-            by: ['status'],
-            _count: { status: true }
-        });
-
-        const total = stats.reduce((sum, stat) => sum + stat._count.status, 0);
-        
-        return {
-            total,
-            available: stats.find(s => s.status === 'available')?._count.status || 0,
-            booked: stats.find(s => s.status === 'booked')?._count.status || 0,
-            maintenance: stats.find(s => s.status === 'maintenance')?._count.status || 0
+            onTime,
+            late,
+            onTimeRate: total > 0 ? ((onTime / total) * 100).toFixed(2) : 0
         };
     }
 
     async getRecentActivity(limit = 10) {
-        // This would come from an activity log table
-        return [
-            { type: 'attendance', message: 'CS101 class attendance marked', timestamp: new Date() },
-            { type: 'booking', message: 'Projector A booked for Room 201', timestamp: new Date() },
-            { type: 'alert', message: 'Temperature sensor offline', timestamp: new Date() }
-        ];
+        return Audit.find().sort({
+            createdAt: -1
+        }).limit(limit).populate('userId', 'firstName lastName email');
     }
 
-    async calculateSystemUptime(startDate) {
-        // This would calculate from monitoring data
-        return 99.8; // percentage
+    async getSubmissionTrends(courseObjectId, startDate) {
+        return Submission.aggregate([{
+            $match: {
+                assignmentId: {
+                    $in: await mongoose.model('Assignment').find({
+                        courseId: courseObjectId
+                    }).distinct('_id')
+                },
+                createdAt: {
+                    $gte: startDate
+                }
+            }
+        }, {
+            $group: {
+                _id: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$createdAt"
+                    }
+                },
+                count: {
+                    $sum: 1
+                }
+            }
+        }, {
+            $sort: {
+                _id: 1
+            }
+        }]);
     }
 
-    convertToCSV(data) {
-        if (!Array.isArray(data) || data.length === 0) return '';
-        
-        const headers = Object.keys(data);
-        const csvRows = [headers.join(',')];
-        
-        data.forEach(row => {
-            const values = headers.map(header => {
-                const value = row[header];
-                return typeof value === 'string' ? `"${value}"` : value;
-            });
-            csvRows.push(values.join(','));
-        });
-        
-        return csvRows.join('\n');
+    async getAverageScores(courseObjectId, startDate) {
+        return Grade.aggregate([{
+            $match: {
+                courseId: courseObjectId,
+                createdAt: {
+                    $gte: startDate
+                }
+            }
+        }, {
+            $group: {
+                _id: "$assessmentType",
+                averagePercentage: {
+                    $avg: "$percentage"
+                }
+            }
+        }]);
+    }
+
+    async getTopPerformingStudents(courseObjectId, limit = 5) {
+        return Grade.aggregate([{
+            $match: {
+                courseId: courseObjectId
+            }
+        }, {
+            $group: {
+                _id: "$studentId",
+                averageScore: {
+                    $avg: "$percentage"
+                }
+            }
+        }, {
+            $sort: {
+                averageScore: -1
+            }
+        }, {
+            $limit: limit
+        }, {
+            $lookup: {
+                from: 'students',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'studentInfo'
+            }
+        }, {
+            $unwind: '$studentInfo'
+        }, {
+            $lookup: {
+                from: 'users',
+                localField: 'studentInfo.userId',
+                foreignField: '_id',
+                as: 'userInfo'
+            }
+        }, {
+            $unwind: '$userInfo'
+        }, {
+            $project: {
+                _id: 0,
+                studentId: '$_id',
+                name: {
+                    $concat: ['$userInfo.firstName', ' ', '$userInfo.lastName']
+                },
+                rollNumber: '$studentInfo.rollNumber',
+                averageScore: {
+                    $round: ['$averageScore', 2]
+                }
+            }
+        }]);
+    }
+
+    async getPassFailRate(courseObjectId) {
+        const stats = await Grade.aggregate([{
+            $match: {
+                courseId: courseObjectId
+            }
+        }, {
+            $group: {
+                _id: null,
+                total: {
+                    $sum: 1
+                },
+                passing: {
+                    $sum: {
+                        $cond: [{
+                            $gte: ["$percentage", 40]
+                        }, 1, 0]
+                    }
+                } // Assuming 40% is passing
+            }
+        }]);
+        if (stats.length === 0) return {
+            passRate: 0,
+            failRate: 0
+        };
+        const {
+            total,
+            passing
+        } = stats[0];
+        return {
+            passRate: total > 0 ? ((passing / total) * 100).toFixed(2) : 0,
+            failRate: total > 0 ? (((total - passing) / total) * 100).toFixed(2) : 0,
+        };
+    }
+
+    async getUserActivity(startDate) {
+        return Session.aggregate([{
+            $match: {
+                createdAt: {
+                    $gte: startDate
+                }
+            }
+        }, {
+            $group: {
+                _id: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$createdAt"
+                    }
+                },
+                loginCount: {
+                    $sum: 1
+                },
+                uniqueUsers: {
+                    $addToSet: "$userId"
+                }
+            }
+        }, {
+            $project: {
+                date: "$_id",
+                loginCount: 1,
+                uniqueUserCount: {
+                    $size: "$uniqueUsers"
+                },
+                _id: 0
+            }
+        }, {
+            $sort: {
+                date: 1
+            }
+        }]);
+    }
+
+    async getNotificationTrends(startDate) {
+        return Notification.aggregate([{
+            $match: {
+                createdAt: {
+                    $gte: startDate
+                }
+            }
+        }, {
+            $group: {
+                _id: "$type",
+                count: {
+                    $sum: 1
+                }
+            }
+        }]);
     }
 }
 

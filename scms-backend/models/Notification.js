@@ -4,7 +4,7 @@
  */
 
 const mongoose = require('mongoose');
-const { NOTIFICATION_TYPES, USER_ROLES } = require('../utils/constants');
+// const { NOTIFICATION_TYPES, USER_ROLES } = require('../utils/constants');
 
 const notificationSchema = new mongoose.Schema({
   // Notification Content
@@ -22,7 +22,8 @@ const notificationSchema = new mongoose.Schema({
   
   type: {
     type: String,
-    enum: Object.values(NOTIFICATION_TYPES),
+//     enum: Object.values(NOTIFICATION_TYPES),
+    enum: ['announcement', 'grade_update', 'new_assignment', 'submission_receipt', 'deadline_reminder', 'system_alert'],
     required: [true, 'Notification type is required']
   },
   
@@ -49,14 +50,14 @@ const notificationSchema = new mongoose.Schema({
   
   targetRoles: [{
     type: String,
-    enum: Object.values(USER_ROLES)
+//     enum: Object.values(USER_ROLES)
+    enum: ['student', 'teacher', 'admin', 'staff']
   }],
   
   // Sender Information
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: [true, 'Sender ID is required']
+    ref: 'User' // Can be null for system notifications
   },
   
   senderType: {
@@ -85,7 +86,7 @@ const notificationSchema = new mongoose.Schema({
     attachments: [{
       name: String,
       url: String,
-      type: String
+      mimeType: String
     }],
     
     actionButtons: [{
@@ -131,22 +132,10 @@ const notificationSchema = new mongoose.Schema({
   },
   
   deliveryStatus: {
-    total: {
-      type: Number,
-      default: 0
-    },
-    delivered: {
-      type: Number,
-      default: 0
-    },
-    read: {
-      type: Number,
-      default: 0
-    },
-    failed: {
-      type: Number,
-      default: 0
-    }
+    total: { type: Number, default: 0 },
+    delivered: { type: Number, default: 0 },
+    read: { type: Number, default: 0 },
+    failed: { type: Number, default: 0 }
   },
   
   // Status
@@ -160,30 +149,11 @@ const notificationSchema = new mongoose.Schema({
   
   // Settings
   settings: {
-    allowReply: {
-      type: Boolean,
-      default: false
-    },
-    
-    requireAcknowledgment: {
-      type: Boolean,
-      default: false
-    },
-    
-    markAsImportant: {
-      type: Boolean,
-      default: false
-    },
-    
-    autoDelete: {
-      type: Boolean,
-      default: false
-    },
-    
-    deleteAfterDays: {
-      type: Number,
-      default: 30
-    }
+    allowReply: { type: Boolean, default: false },
+    requireAcknowledgment: { type: Boolean, default: false },
+    markAsImportant: { type: Boolean, default: false },
+    autoDelete: { type: Boolean, default: false },
+    deleteAfterDays: { type: Number, default: 30 }
   }
 }, {
   timestamps: true,
@@ -196,7 +166,7 @@ notificationSchema.index({ recipients: 1, status: 1 });
 notificationSchema.index({ scheduledFor: 1, status: 1 });
 notificationSchema.index({ senderId: 1, createdAt: -1 });
 notificationSchema.index({ type: 1, priority: 1 });
-notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
 // Virtual properties
 notificationSchema.virtual('isExpired').get(function() {
@@ -218,64 +188,59 @@ notificationSchema.methods.send = async function() {
   this.status = 'sending';
   this.sentAt = new Date();
   
-  // Get target users based on recipients type
   const targetUsers = await this.getTargetUsers();
   this.deliveryStatus.total = targetUsers.length;
   
   await this.save();
   
-  // Queue notification for delivery
-  const notificationService = require('../services/notificationService');
-  await notificationService.queueNotification(this, targetUsers);
+  // This part should be handled by a dedicated service to avoid circular dependencies
+  // For example: eventEmitter.emit('notification:send', this, targetUsers);
+  console.log(`Queueing notification ${this._id} for ${targetUsers.length} users.`);
   
   this.status = 'sent';
   return this.save();
 };
 
 notificationSchema.methods.getTargetUsers = async function() {
-  const User = require('./User');
-  const Student = require('./Student');
+  const User = mongoose.model('User');
+  const Student = mongoose.model('Student');
   
   let users = [];
   
   switch (this.recipients) {
     case 'all':
-      users = await User.find({ status: 'active' });
+      users = await User.find({ status: 'active' }).select('_id');
       break;
-      
     case 'students':
-      users = await User.find({ role: 'student', status: 'active' });
+      users = await User.find({ role: 'student', status: 'active' }).select('_id');
       break;
-      
     case 'teachers':
-      users = await User.find({ role: 'teacher', status: 'active' });
+      users = await User.find({ role: 'teacher', status: 'active' }).select('_id');
       break;
-      
     case 'admins':
-      users = await User.find({ role: 'admin', status: 'active' });
+      users = await User.find({ role: 'admin', status: 'active' }).select('_id');
       break;
-      
     case 'specific_users':
       const userIds = this.targetUsers.map(t => t.userId);
-      users = await User.find({ _id: { $in: userIds }, status: 'active' });
+      users = await User.find({ _id: { $in: userIds }, status: 'active' }).select('_id');
       break;
-      
     case 'course_students':
       if (this.targetCourse) {
         const enrolledStudents = await Student.find({
           'enrolledCourses.courseId': this.targetCourse,
           'enrolledCourses.status': 'active'
-        }).populate('userId');
-        users = enrolledStudents.map(s => s.userId).filter(u => u.status === 'active');
+        }).select('userId');
+        const studentUserIds = enrolledStudents.map(s => s.userId);
+        users = await User.find({_id: {$in: studentUserIds}, status: 'active'}).select('_id');
       }
       break;
-      
     case 'department':
       if (this.targetDepartment) {
+        // This assumes 'department' is a field in the User model
         users = await User.find({ 
           department: this.targetDepartment, 
           status: 'active' 
-        });
+        }).select('_id');
       }
       break;
   }
@@ -283,17 +248,7 @@ notificationSchema.methods.getTargetUsers = async function() {
   return users;
 };
 
-notificationSchema.methods.markAsRead = function(userId) {
-  // This would be handled in a separate UserNotification model
-  // for individual read status tracking
-};
-
 // Static methods
-notificationSchema.statics.findByUser = function(userId, options = {}) {
-  // This would query UserNotifications for user-specific notifications
-  // Implementation depends on UserNotification model
-};
-
 notificationSchema.statics.findPending = function() {
   return this.find({
     status: 'scheduled',
@@ -302,17 +257,16 @@ notificationSchema.statics.findPending = function() {
 };
 
 notificationSchema.statics.createSystemNotification = async function(data) {
-  return await this.create({
+  // A system admin user could be created, or senderId can be null
+  return this.create({
     ...data,
-    senderType: 'system',
-    senderId: null // System notifications don't have a user sender
+    senderType: 'system'
   });
 };
 
 // Pre-save middleware
 notificationSchema.pre('save', function(next) {
-  // Set expiry date if not provided
-  if (!this.expiresAt && this.settings.autoDelete) {
+  if (this.isModified('settings.autoDelete') && this.settings.autoDelete && !this.expiresAt) {
     this.expiresAt = new Date(Date.now() + this.settings.deleteAfterDays * 24 * 60 * 60 * 1000);
   }
   

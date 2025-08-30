@@ -3,10 +3,7 @@
  * Handles all course-related operations
  */
 
-const Course = require('../models/Course');
-const Student = require('../models/Student');
-const Teacher = require('../models/Teacher');
-const User = require('../models/User');
+const { Course, Student, Teacher, User } = require('../models');
 const { catchAsync, AppError } = require('../middleware/errorHandler');
 const { 
   sendSuccessResponse, 
@@ -63,7 +60,13 @@ const getAllCourses = catchAsync(async (req, res) => {
   
   const [courses, total] = await Promise.all([
     Course.find(filter)
-      .populate('instructors.teacherId', 'firstName lastName email designation')
+      .populate({
+        path: 'instructors.teacherId',
+        populate: {
+            path: 'userId',
+            select: 'firstName lastName email designation'
+        }
+      })
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
@@ -86,7 +89,13 @@ const getAvailableCourses = catchAsync(async (req, res) => {
     'enrollment.registrationEnd': { $gte: now },
     $expr: { $lt: ['$enrollment.currentEnrollment', '$enrollment.maxStudents'] }
   })
-  .populate('instructors.teacherId', 'firstName lastName designation')
+  .populate({
+        path: 'instructors.teacherId',
+        populate: {
+            path: 'userId',
+            select: 'firstName lastName designation'
+        }
+    })
   .lean();
 
   sendSuccessResponse(res, 200, 'Available courses retrieved successfully', courses);
@@ -105,7 +114,10 @@ const getMyCourses = catchAsync(async (req, res) => {
         path: 'enrolledCourses.courseId',
         populate: {
           path: 'instructors.teacherId',
-          select: 'firstName lastName designation'
+          populate: {
+              path: 'userId',
+              select: 'firstName lastName designation'
+            }
         }
       });
 
@@ -169,15 +181,16 @@ const createCourse = catchAsync(async (req, res) => {
 
   // If teacher created the course, update their assigned courses
   if (req.user.role === USER_ROLES.TEACHER) {
-    await Teacher.findOneAndUpdate(
-      { userId: req.user.id },
+    const teacher = await Teacher.findOne({ userId: req.user.id });
+    await Teacher.findByIdAndUpdate(
+      teacher._id,
       {
         $push: {
           assignedCourses: {
             courseId: course._id,
             role: 'instructor',
             semester: course.schedule.semester,
-            year: parseInt(course.schedule.academicYear.split('-')),
+            year: parseInt(course.schedule.academicYear.split('-')[0]),
             assignedDate: new Date()
           }
         }
@@ -195,7 +208,13 @@ const getCourseById = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const course = await Course.findById(id)
-    .populate('instructors.teacherId', 'firstName lastName email designation department')
+    .populate({
+        path: 'instructors.teacherId',
+        populate: {
+            path: 'userId',
+            select: 'firstName lastName email designation department'
+        }
+    })
     .populate('prerequisites.courseId', 'title courseCode')
     .populate('corequisites.courseId', 'title courseCode');
 
@@ -241,9 +260,15 @@ const updateCourse = catchAsync(async (req, res) => {
 
   const updatedCourse = await Course.findByIdAndUpdate(
     id,
-    { ...updates, updatedAt: new Date() },
+    { ...updates },
     { new: true, runValidators: true }
-  ).populate('instructors.teacherId', 'firstName lastName designation');
+  ).populate({
+        path: 'instructors.teacherId',
+        populate: {
+            path: 'userId',
+            select: 'firstName lastName designation'
+        }
+    });
 
   sendUpdatedResponse(res, updatedCourse);
 });
@@ -360,27 +385,7 @@ const dropFromCourse = catchAsync(async (req, res) => {
 });
 
 /**
- * Get enrolled students
- */
-const getEnrolledStudents = catchAsync(async (req, res) => {
-  const { id } = req.params;
-
-  const course = await Course.findById(id);
-  if (!course) {
-    return sendNotFoundResponse(res, 'Course');
-  }
-
-  // Check if user has permission to view enrolled students
-  if (req.user.role !== USER_ROLES.ADMIN) {
-    const teacher = await Teacher.findOne({ userId: req.user.id });
-    const isInstructor = course.instructors.some(
-      instructor => instructor.teacherId.toString() === teacher._id.toString()
-    );
-    
-    if (!isInstructor) {
-      return sendErrorResponse(res, 403,)};
-/**
- * Get enrolled students
+ * Get enrolled students for a course
  */
 const getEnrolledStudents = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -408,7 +413,7 @@ const getEnrolledStudents = catchAsync(async (req, res) => {
     'enrolledCourses.status': 'active'
   })
   .populate('userId', 'firstName lastName email profileImage')
-  .select('rollNumber currentSemester cgpa enrolledCourses.$')
+  .select('rollNumber currentSemester cgpa enrolledCourses')
   .lean();
 
   const enrolledStudents = students.map(student => {

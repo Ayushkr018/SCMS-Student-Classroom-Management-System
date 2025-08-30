@@ -4,7 +4,7 @@
  */
 
 const mongoose = require('mongoose');
-const { SEMESTERS } = require('../utils/constants');
+// const { SEMESTERS } = require('../utils/constants'); // Assuming this will be created
 
 const courseSchema = new mongoose.Schema({
   // Basic Course Information
@@ -69,42 +69,19 @@ const courseSchema = new mongoose.Schema({
       min: [1, 'Credits must be at least 1'],
       max: [10, 'Credits cannot exceed 10']
     },
-    theory: {
-      type: Number,
-      default: 0,
-      min: [0, 'Theory credits cannot be negative']
-    },
-    practical: {
-      type: Number,
-      default: 0,
-      min: [0, 'Practical credits cannot be negative']
-    },
-    tutorial: {
-      type: Number,
-      default: 0,
-      min: [0, 'Tutorial credits cannot be negative']
-    }
+    theory: { type: Number, default: 0, min: [0, 'Theory credits cannot be negative'] },
+    practical: { type: Number, default: 0, min: [0, 'Practical credits cannot be negative'] },
+    tutorial: { type: Number, default: 0, min: [0, 'Tutorial credits cannot be negative'] }
   },
   
   duration: {
-    hours: {
-      type: Number,
-      required: [true, 'Course duration in hours is required'],
-      min: [1, 'Duration must be at least 1 hour']
-    },
-    weeks: {
-      type: Number,
-      required: [true, 'Course duration in weeks is required'],
-      min: [1, 'Duration must be at least 1 week']
-    }
+    hours: { type: Number, required: [true, 'Course duration in hours is required'], min: [1, 'Duration must be at least 1 hour'] },
+    weeks: { type: Number, required: [true, 'Course duration in weeks is required'], min: [1, 'Duration must be at least 1 week'] }
   },
   
   // Prerequisites and Requirements
   prerequisites: [{
-    courseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
-    },
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseCode: String,
     minGrade: {
       type: String,
@@ -114,18 +91,12 @@ const courseSchema = new mongoose.Schema({
   }],
   
   corequisites: [{
-    courseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
-    },
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseCode: String
   }],
   
   recommendedPrerequisites: [{
-    courseId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
-    },
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     courseCode: String,
     reason: String
   }],
@@ -133,14 +104,8 @@ const courseSchema = new mongoose.Schema({
   // Course Structure
   syllabus: {
     units: [{
-      unitNumber: {
-        type: Number,
-        required: true
-      },
-      title: {
-        type: String,
-        required: true
-      },
+      unitNumber: { type: Number, required: true },
+      title: { type: String, required: true },
       topics: [String],
       learningOutcomes: [String],
       duration: Number, // in hours
@@ -216,7 +181,7 @@ const courseSchema = new mongoose.Schema({
   schedule: {
     semester: {
       type: String,
-      enum: Object.values(SEMESTERS),
+      // enum: Object.values(SEMESTERS), // Assuming SEMESTERS constant exists
       required: [true, 'Semester is required']
     },
     
@@ -252,81 +217,28 @@ const courseSchema = new mongoose.Schema({
     }],
     
     examSchedule: {
-      midTerm: {
-        date: Date,
-        time: String,
-        duration: Number, // in minutes
-        room: String
-      },
-      finalExam: {
-        date: Date,
-        time: String,
-        duration: Number, // in minutes
-        room: String
-      }
+      midTerm: { date: Date, time: String, duration: Number, room: String },
+      finalExam: { date: Date, time: String, duration: Number, room: String }
     }
   },
   
   // Instructor Information
   instructors: [{
-    teacherId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Teacher',
-      required: true
-    },
-    role: {
-      type: String,
-      enum: ['primary', 'co_instructor', 'lab_instructor', 'guest'],
-      default: 'primary'
-    },
+    teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
+    role: { type: String, enum: ['primary', 'co_instructor', 'lab_instructor', 'guest'], default: 'primary' },
     assignedUnits: [Number], // which units this instructor teaches
-    responsibilityPercentage: {
-      type: Number,
-      min: [0, 'Responsibility percentage cannot be negative'],
-      max: [100, 'Responsibility percentage cannot exceed 100']
-    }
+    responsibilityPercentage: { type: Number, min: 0, max: 100 }
   }],
   
   // Enrollment Information
   enrollment: {
-    maxStudents: {
-      type: Number,
-      required: [true, 'Maximum students limit is required'],
-      min: [1, 'At least 1 student must be allowed']
-    },
-    
-    minStudents: {
-      type: Number,
-      default: 5,
-      min: [1, 'Minimum students must be at least 1']
-    },
-    
-    currentEnrollment: {
-      type: Number,
-      default: 0,
-      min: [0, 'Current enrollment cannot be negative']
-    },
-    
-    waitlistLimit: {
-      type: Number,
-      default: 10,
-      min: [0, 'Waitlist limit cannot be negative']
-    },
-    
-    registrationStart: {
-      type: Date,
-      required: [true, 'Registration start date is required']
-    },
-    
-    registrationEnd: {
-      type: Date,
-      required: [true, 'Registration end date is required']
-    },
-    
-    dropDeadline: {
-      type: Date,
-      required: [true, 'Drop deadline is required']
-    }
+    maxStudents: { type: Number, required: [true, 'Maximum students limit is required'], min: [1, 'At least 1 student must be allowed'] },
+    minStudents: { type: Number, default: 5, min: [1, 'Minimum students must be at least 1'] },
+    currentEnrollment: { type: Number, default: 0, min: [0, 'Current enrollment cannot be negative'] },
+    waitlistLimit: { type: Number, default: 10, min: [0, 'Waitlist limit cannot be negative'] },
+    registrationStart: { type: Date, required: [true, 'Registration start date is required'] },
+    registrationEnd: { type: Date, required: [true, 'Registration end date is required'] },
+    dropDeadline: { type: Date, required: [true, 'Drop deadline is required'] }
   },
   
   // Course Status and Metadata
@@ -342,93 +254,39 @@ const courseSchema = new mongoose.Schema({
     default: 'public'
   },
   
-  tags: [{
-    type: String,
-    trim: true,
-    lowercase: true
-  }],
+  tags: [{ type: String, trim: true, lowercase: true }],
   
   // Resources and Materials
   resources: [{
-    title: {
-      type: String,
-      required: true
-    },
-    type: {
-      type: String,
-      enum: ['pdf', 'video', 'link', 'document', 'presentation', 'other'],
-      required: true
-    },
+    title: { type: String, required: true },
+    type: { type: String, enum: ['pdf', 'video', 'link', 'document', 'presentation', 'other'], required: true },
     url: String,
     description: String,
-    uploadDate: {
-      type: Date,
-      default: Date.now
-    },
+    uploadDate: { type: Date, default: Date.now },
     size: Number, // in bytes
-    isRequired: {
-      type: Boolean,
-      default: false
-    }
+    isRequired: { type: Boolean, default: false }
   }],
   
   // Additional Information
   fees: {
-    amount: {
-      type: Number,
-      default: 0,
-      min: [0, 'Fee amount cannot be negative']
-    },
-    currency: {
-      type: String,
-      default: 'INR'
-    },
-    type: {
-      type: String,
-      enum: ['free', 'paid', 'scholarship_available'],
-      default: 'free'
-    }
+    amount: { type: Number, default: 0, min: [0, 'Fee amount cannot be negative'] },
+    currency: { type: String, default: 'INR' },
+    type: { type: String, enum: ['free', 'paid', 'scholarship_available'], default: 'free' }
   },
   
-  language: {
-    type: String,
-    default: 'English'
-  },
+  language: { type: String, default: 'English' },
   
-  certificateAvailable: {
-    type: Boolean,
-    default: true
-  },
+  certificateAvailable: { type: Boolean, default: true },
   
   // Analytics
   statistics: {
-    totalEnrollments: {
-      type: Number,
-      default: 0
-    },
-    completionRate: {
-      type: Number,
-      default: 0,
-      min: [0, 'Completion rate cannot be negative'],
-      max: [100, 'Completion rate cannot exceed 100']
-    },
+    totalEnrollments: { type: Number, default: 0 },
+    completionRate: { type: Number, default: 0, min: 0, max: 100 },
     averageGrade: String,
-    passRate: {
-      type: Number,
-      default: 0,
-      min: [0, 'Pass rate cannot be negative'],
-      max: [100, 'Pass rate cannot exceed 100']
-    },
+    passRate: { type: Number, default: 0, min: 0, max: 100 },
     studentFeedback: {
-      averageRating: {
-        type: Number,
-        min: [1, 'Rating must be at least 1'],
-        max: [5, 'Rating cannot exceed 5']
-      },
-      totalResponses: {
-        type: Number,
-        default: 0
-      }
+      averageRating: { type: Number, min: 1, max: 5 },
+      totalResponses: { type: Number, default: 0 }
     }
   }
 }, {
@@ -540,17 +398,21 @@ courseSchema.statics.findAvailableCourses = function() {
 // Pre-save middleware
 courseSchema.pre('save', function(next) {
   // Validate that total weightage equals 100%
-  const totalWeightage = this.evaluation.components.reduce(
-    (total, component) => total + component.weightage, 0
-  );
-  
-  if (totalWeightage !== 100 && this.evaluation.components.length > 0) {
-    return next(new Error('Total evaluation weightage must equal 100%'));
+  if (this.isModified('evaluation.components')) {
+    const totalWeightage = this.evaluation.components.reduce(
+      (total, component) => total + component.weightage, 0
+    );
+    
+    if (totalWeightage !== 100 && this.evaluation.components.length > 0) {
+      return next(new Error('Total evaluation weightage must equal 100%'));
+    }
   }
   
   // Ensure registration end is after start
-  if (this.enrollment.registrationEnd <= this.enrollment.registrationStart) {
-    return next(new Error('Registration end date must be after start date'));
+  if (this.isModified('enrollment.registrationEnd') || this.isModified('enrollment.registrationStart')) {
+    if (this.enrollment.registrationEnd <= this.enrollment.registrationStart) {
+        return next(new Error('Registration end date must be after start date'));
+    }
   }
   
   next();

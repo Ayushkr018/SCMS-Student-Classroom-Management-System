@@ -1,12 +1,12 @@
 /**
  * Teacher Model
- * Extended teacher-specific information and academic details
+ * Extended teacher-specific information and academic details for the SCMS.
  */
 
 const mongoose = require('mongoose');
 
 const teacherSchema = new mongoose.Schema({
-  // Reference to base User model
+// Reference to the base User model for authentication and basic info
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -61,7 +61,7 @@ const teacherSchema = new mongoose.Schema({
     required: [true, 'Joining date is required'],
     validate: {
       validator: function(value) {
-        return value <= Date.now();
+        return value <= new Date();
       },
       message: 'Joining date cannot be in the future'
     }
@@ -79,14 +79,8 @@ const teacherSchema = new mongoose.Schema({
       required: true,
       min: [0, 'Salary cannot be negative']
     },
-    allowances: {
-      type: Number,
-      default: 0
-    },
-    deductions: {
-      type: Number,
-      default: 0
-    }
+    allowances: { type: Number, default: 0 },
+    deductions: { type: Number, default: 0 }
   },
   
   // Educational Background
@@ -96,14 +90,8 @@ const teacherSchema = new mongoose.Schema({
       required: true,
       enum: ['PhD', 'Masters', 'Bachelors', 'Diploma', 'Certificate']
     },
-    field: {
-      type: String,
-      required: true
-    },
-    institution: {
-      type: String,
-      required: true
-    },
+    field: { type: String, required: true },
+    institution: { type: String, required: true },
     university: String,
     yearOfCompletion: {
       type: Number,
@@ -112,71 +100,32 @@ const teacherSchema = new mongoose.Schema({
       max: new Date().getFullYear()
     },
     grade: String,
-    percentage: {
-      type: Number,
-      min: 0,
-      max: 100
-    }
+    percentage: { type: Number, min: 0, max: 100 }
   }],
   
-  // Experience
+  // Professional Experience
   experience: {
-    totalYears: {
-      type: Number,
-      default: 0,
-      min: [0, 'Experience cannot be negative']
-    },
-    industryYears: {
-      type: Number,
-      default: 0
-    },
-    teachingYears: {
-      type: Number,
-      default: 0
-    },
-    researchYears: {
-      type: Number,
-      default: 0
-    }
+    totalYears: { type: Number, default: 0, min: [0, 'Experience cannot be negative'] },
+    industryYears: { type: Number, default: 0 },
+    teachingYears: { type: Number, default: 0 },
+    researchYears: { type: Number, default: 0 }
   },
   
   previousExperience: [{
-    organization: {
-      type: String,
-      required: true
-    },
-    position: {
-      type: String,
-      required: true
-    },
-    startDate: {
-      type: Date,
-      required: true
-    },
-    endDate: {
-      type: Date,
-      required: true
-    },
+    organization: { type: String, required: true },
+    position: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     responsibilities: [String],
     reasonForLeaving: String
   }],
   
   // Academic Activities
-  specializations: [{
-    type: String,
-    trim: true
-  }],
-  
-  researchInterests: [{
-    type: String,
-    trim: true
-  }],
+  specializations: [{ type: String, trim: true }],
+  researchInterests: [{ type: String, trim: true }],
   
   publications: [{
-    title: {
-      type: String,
-      required: true
-    },
+    title: { type: String, required: true },
     journal: String,
     conference: String,
     year: {
@@ -188,17 +137,11 @@ const teacherSchema = new mongoose.Schema({
     authors: [String],
     doi: String,
     impactFactor: Number,
-    citationCount: {
-      type: Number,
-      default: 0
-    }
+    citationCount: { type: Number, default: 0 }
   }],
   
   projects: [{
-    title: {
-      type: String,
-      required: true
-    },
+    title: { type: String, required: true },
     fundingAgency: String,
     amount: Number,
     startDate: Date,
@@ -223,10 +166,7 @@ const teacherSchema = new mongoose.Schema({
       min: [0, 'Teaching hours cannot be negative'],
       max: [40, 'Teaching hours cannot exceed 40 per week']
     },
-    currentHours: {
-      type: Number,
-      default: 0
-    }
+    currentHours: { type: Number, default: 0 }
   },
   
   // Courses Teaching
@@ -243,41 +183,23 @@ const teacherSchema = new mongoose.Schema({
       enum: ['instructor', 'co_instructor', 'lab_instructor'],
       default: 'instructor'
     },
-    assignedDate: {
-      type: Date,
-      default: Date.now
-    }
+    assignedDate: { type: Date, default: Date.now }
   }],
   
   // Administrative Responsibilities
   administrativeRoles: [{
-    position: {
-      type: String,
-      required: true
-    },
+    position: { type: String, required: true },
     department: String,
-    startDate: {
-      type: Date,
-      required: true
-    },
+    startDate: { type: Date, required: true },
     endDate: Date,
-    isActive: {
-      type: Boolean,
-      default: true
-    },
+    isActive: { type: Boolean, default: true },
     responsibilities: [String]
   }],
   
   // Personal Information
   personalInfo: {
-    panNumber: {
-      type: String,
-      match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Please provide a valid PAN number']
-    },
-    aadharNumber: {
-      type: String,
-      match: [/^\d{12}$/, 'Aadhar number must be 12 digits']
-    },
+    panNumber: { type: String, match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Please provide a valid PAN number'] },
+    aadharNumber: { type: String, match: [/^\d{12}$/, 'Aadhar number must be 12 digits'] },
     bankDetails: {
       accountNumber: String,
       bankName: String,
@@ -311,18 +233,8 @@ const teacherSchema = new mongoose.Schema({
   
   // Performance Metrics
   performance: {
-    studentRating: {
-      type: Number,
-      min: [0, 'Rating cannot be negative'],
-      max: [5, 'Rating cannot exceed 5'],
-      default: 0
-    },
-    peerRating: {
-      type: Number,
-      min: [0, 'Rating cannot be negative'],
-      max: [5, 'Rating cannot exceed 5'],
-      default: 0
-    },
+    studentRating: { type: Number, min: [0, 'Rating cannot be negative'], max: [5, 'Rating cannot exceed 5'], default: 0 },
+    peerRating: { type: Number, min: [0, 'Rating cannot be negative'], max: [5, 'Rating cannot exceed 5'], default: 0 },
     lastEvaluationDate: Date,
     evaluationComments: [String]
   },
@@ -342,10 +254,7 @@ const teacherSchema = new mongoose.Schema({
   },
   
   officeHours: [{
-    day: {
-      type: String,
-      enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    },
+    day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
     startTime: String,
     endTime: String
   }]
@@ -355,38 +264,40 @@ const teacherSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+// --- INDEXES ---
 teacherSchema.index({ userId: 1 });
 teacherSchema.index({ employeeId: 1 });
 teacherSchema.index({ department: 1 });
 teacherSchema.index({ designation: 1 });
 teacherSchema.index({ currentStatus: 1 });
 
-// Virtual properties
+// --- VIRTUAL PROPERTIES ---
 teacherSchema.virtual('experienceYears').get(function() {
   if (this.joiningDate) {
-    const years = (Date.now() - this.joiningDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+    const years = (Date.now() - this.joiningDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
     return Math.floor(years);
   }
   return 0;
 });
 
 teacherSchema.virtual('netSalary').get(function() {
-  return this.salary.basic + this.salary.allowances - this.salary.deductions;
+  if (!this.salary) return 0;
+  return (this.salary.basic || 0) + (this.salary.allowances || 0) - (this.salary.deductions || 0);
 });
 
 teacherSchema.virtual('availableTeachingHours').get(function() {
-  return this.teachingLoad.maxHoursPerWeek - this.teachingLoad.currentHours;
+  if (!this.teachingLoad) return 0;
+  return (this.teachingLoad.maxHoursPerWeek || 0) - (this.teachingLoad.currentHours || 0);
 });
 
-// Instance methods
+// --- INSTANCE METHODS ---
 teacherSchema.methods.assignCourse = function(courseId, role = 'instructor') {
   const existingAssignment = this.assignedCourses.find(
     assignment => assignment.courseId.toString() === courseId.toString()
   );
   
   if (existingAssignment) {
-    throw new Error('Already assigned to this course');
+    throw new Error('Teacher is already assigned to this course');
   }
   
   this.assignedCourses.push({
@@ -404,7 +315,7 @@ teacherSchema.methods.updateTeachingLoad = function(hours) {
     throw new Error('Teaching hours cannot be negative');
   }
   if (hours > this.teachingLoad.maxHoursPerWeek) {
-    throw new Error('Teaching hours exceed maximum limit');
+    throw new Error('Teaching hours exceed the maximum limit');
   }
   
   this.teachingLoad.currentHours = hours;
@@ -416,7 +327,7 @@ teacherSchema.methods.addPublication = function(publicationData) {
   return this.save();
 };
 
-// Static methods
+// --- STATIC METHODS ---
 teacherSchema.statics.findByEmployeeId = function(employeeId) {
   return this.findOne({ employeeId: employeeId.toUpperCase() });
 };
@@ -429,7 +340,7 @@ teacherSchema.statics.findByDesignation = function(designation) {
   return this.find({ designation });
 };
 
-teacherSchema.statics.getAvailableTeachers = function(maxHours) {
+teacherSchema.statics.getAvailableTeachers = function() {
   return this.find({
     currentStatus: 'active',
     $expr: {

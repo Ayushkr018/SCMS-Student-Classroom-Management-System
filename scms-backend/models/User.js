@@ -1,10 +1,11 @@
 /**
  * User Model
- * MongoDB schema for user management
+ * MongoDB schema for user management in the Smart Campus Management System.
  */
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto'); // Using crypto module consistently
 const { USER_ROLES, USER_STATUS } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
@@ -50,14 +51,15 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     trim: true,
-    match: [/^\+?[\d\s\-\(\)]+$/, 'Please provide a valid phone number']
+    // A more robust regex for international phone numbers
+    match: [/^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, 'Please provide a valid phone number']
   },
   
   dateOfBirth: {
     type: Date,
     validate: {
       validator: function(value) {
-        return value < Date.now();
+        return value < new Date();
       },
       message: 'Date of birth cannot be in the future'
     }
@@ -80,7 +82,7 @@ const userSchema = new mongoose.Schema({
   // Academic Information (for students and teachers)
   studentId: {
     type: String,
-    sparse: true, // Allows multiple null values
+    sparse: true, // Allows multiple null values but enforces uniqueness on non-nulls
     unique: true
   },
   
@@ -101,51 +103,22 @@ const userSchema = new mongoose.Schema({
     max: 8
   },
   
-  // Authentication
+  // Authentication Tokens
   emailVerified: {
     type: Boolean,
     default: false
   },
   
-  emailVerificationToken: {
-    type: String,
-    select: false
-  },
-  
-  emailVerificationExpires: {
-    type: Date,
-    select: false
-  },
-  
-  passwordResetToken: {
-    type: String,
-    select: false
-  },
-  
-  passwordResetExpires: {
-    type: Date,
-    select: false
-  },
-  
-  passwordChangedAt: {
-    type: Date,
-    select: false
-  },
+  emailVerificationToken: { type: String, select: false },
+  emailVerificationExpires: { type: Date, select: false },
+  passwordResetToken: { type: String, select: false },
+  passwordResetExpires: { type: Date, select: false },
+  passwordChangedAt: { type: Date, select: false },
   
   // Activity Tracking
-  lastLogin: {
-    type: Date
-  },
-  
-  lastActive: {
-    type: Date,
-    default: Date.now
-  },
-  
-  loginCount: {
-    type: Number,
-    default: 0
-  },
+  lastLogin: { type: Date },
+  lastActive: { type: Date, default: Date.now },
+  loginCount: { type: Number, default: 0 },
   
   // Settings and Preferences
   preferences: {
@@ -154,27 +127,12 @@ const userSchema = new mongoose.Schema({
       enum: ['light', 'dark', 'auto'],
       default: 'light'
     },
-    language: {
-      type: String,
-      default: 'en'
-    },
-    timezone: {
-      type: String,
-      default: 'UTC'
-    },
+    language: { type: String, default: 'en' },
+    timezone: { type: String, default: 'UTC' },
     notifications: {
-      email: {
-        type: Boolean,
-        default: true
-      },
-      sms: {
-        type: Boolean,
-        default: false
-      },
-      push: {
-        type: Boolean,
-        default: true
-      }
+      email: { type: Boolean, default: true },
+      sms: { type: Boolean, default: false },
+      push: { type: Boolean, default: true }
     }
   }
 }, {
@@ -183,72 +141,72 @@ const userSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+// --- INDEXES ---
+// Improves query performance for common lookups
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1, status: 1 });
 userSchema.index({ studentId: 1 }, { sparse: true });
 userSchema.index({ employeeId: 1 }, { sparse: true });
-userSchema.index({ createdAt: -1 });
 
-// Virtual properties
+// --- VIRTUAL PROPERTIES ---
+// These are not stored in the DB but are computed on the fly
 userSchema.virtual('fullName').get(function() {
   return `${this.firstName} ${this.lastName}`;
 });
 
 userSchema.virtual('age').get(function() {
-  if (this.dateOfBirth) {
-    const today = new Date();
-    const birthDate = new Date(this.dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
+  if (!this.dateOfBirth) return null;
+  
+  const today = new Date();
+  const birthDate = new Date(this.dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
   }
-  return null;
+  return age;
 });
 
-// Instance methods
+// --- INSTANCE METHODS ---
+// Methods available on individual user documents
+
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 userSchema.methods.createPasswordResetToken = function() {
-  const resetToken = require('crypto').randomBytes(32).toString('hex');
+  const resetToken = crypto.randomBytes(32).toString('hex');
   
-  this.passwordResetToken = require('crypto')
+  this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
     
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes from now
   
-  return resetToken;
+  return resetToken; // Return the unhashed token to be sent to the user
 };
 
 userSchema.methods.createEmailVerificationToken = function() {
-  const verifyToken = require('crypto').randomBytes(32).toString('hex');
+  const verifyToken = crypto.randomBytes(32).toString('hex');
   
-  this.emailVerificationToken = require('crypto')
+  this.emailVerificationToken = crypto
     .createHash('sha256')
     .update(verifyToken)
     .digest('hex');
     
-  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours from now
   
   return verifyToken;
 };
 
 userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
-    const changedTimestamp = parseInt(
-      this.passwordChangedAt.getTime() / 1000,
-      10
-    );
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
     return JWTTimestamp < changedTimestamp;
   }
-  return false;
+  return false; // User has not changed password yet
 };
 
 userSchema.methods.isActive = function() {
@@ -258,58 +216,50 @@ userSchema.methods.isActive = function() {
 userSchema.methods.updateLastLogin = function() {
   this.lastLogin = new Date();
   this.lastActive = new Date();
-  this.loginCount += 1;
+  this.loginCount = (this.loginCount || 0) + 1;
   return this.save({ validateBeforeSave: false });
 };
 
-// Static methods
+// --- STATIC METHODS ---
+// Methods available on the User model itself
+
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase() });
 };
 
 userSchema.statics.findActiveUsers = function() {
-  return this.find({ status: USER_ROLES.ACTIVE });
+  return this.find({ status: USER_STATUS.ACTIVE });
 };
 
 userSchema.statics.findByRole = function(role) {
   return this.find({ role });
 };
 
-// Pre-save middleware
-userSchema.pre('save', async function(next) {
-  // Only run if password is modified
-  if (!this.isModified('password')) return next();
-  
-  // Hash password
-  this.password = await bcrypt.hash(this.password, 12);
-  
-  // Set passwordChangedAt
-  if (!this.isNew) {
-    this.passwordChangedAt = Date.now() - 1000; // Subtract 1 second to ensure JWT is valid
-  }
-  
-  next();
-});
+// --- MIDDLEWARE (HOOKS) ---
 
-userSchema.pre('save', function(next) {
-  // Generate student/employee ID if not provided
+// Pre-save hook for password hashing and ID generation
+userSchema.pre('save', async function(next) {
+  // Hash password if it has been modified
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 12);
+    
+    // If this is not a new user, mark when the password was changed
+    if (!this.isNew) {
+      this.passwordChangedAt = Date.now() - 1000; // Subtract 1s to prevent JWT issues
+    }
+  }
+
+  // Generate student/employee ID for new users if not provided
   if (this.isNew) {
     if (this.role === USER_ROLES.STUDENT && !this.studentId) {
-      this.studentId = `STU${Date.now()}`;
+      this.studentId = `STU-${Date.now()}`;
     } else if (this.role === USER_ROLES.TEACHER && !this.employeeId) {
-      this.employeeId = `EMP${Date.now()}`;
+      this.employeeId = `EMP-${Date.now()}`;
     }
   }
   next();
 });
 
-// Pre-remove middleware
-userSchema.pre('remove', async function(next) {
-  // Clean up related data when user is deleted
-  // This would include removing user from courses, deleting submissions, etc.
-  console.log(`Cleaning up data for user: ${this.email}`);
-  next();
-});
 
 const User = mongoose.model('User', userSchema);
 
